@@ -1,0 +1,25 @@
+{
+  "branchToRevise": "master",
+  "incrementCommits": [
+    {
+      "message": "enable config server",
+      "tags": ["solution"]
+    },
+    {
+      "message": "add security",
+      "tags": ["config-server"]
+    },
+    {
+      "message": "enable circuit breaker",
+      "tags": ["security"]
+    },
+    {
+      "message": "enable service discovery",
+      "tags": ["circuit-breaker"]
+    },
+    {
+      "message": "initial commit",
+      "tags": ["master", "service-discovery", "distributed-system"]
+    }
+  ]
+}
