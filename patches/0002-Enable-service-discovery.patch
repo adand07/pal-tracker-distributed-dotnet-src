@@ -1,0 +1,476 @@
+From 068f94624eda2f31dfd2b825d1dd970129f284e2 Mon Sep 17 00:00:00 2001
+From: Alex Sartan <asartan@pivotal.io>
+Date: Tue, 13 Feb 2018 11:30:42 -0700
+Subject: [PATCH 2/5] Enable service discovery
+
+---
+ Applications/AllocationsServer/AllocationsServer.csproj   |  2 ++
+ Applications/AllocationsServer/Program.cs                 |  3 +++
+ Applications/AllocationsServer/Startup.cs                 |  9 ++++++++-
+ Applications/AllocationsServer/appsettings.json           |  8 ++++++++
+ Applications/BacklogServer/BacklogServer.csproj           |  2 ++
+ Applications/BacklogServer/Program.cs                     |  3 +++
+ Applications/BacklogServer/Startup.cs                     |  8 +++++++-
+ Applications/BacklogServer/appsettings.json               |  8 ++++++++
+ Applications/RegistrationServer/Program.cs                |  3 +++
+ Applications/RegistrationServer/RegistrationServer.csproj |  2 ++
+ Applications/RegistrationServer/Startup.cs                |  4 ++++
+ Applications/RegistrationServer/appsettings.json          | 12 ++++++++++++
+ Applications/TimesheetsServer/Program.cs                  |  3 +++
+ Applications/TimesheetsServer/Startup.cs                  |  8 +++++++-
+ Applications/TimesheetsServer/TimesheetsServer.csproj     |  2 ++
+ Applications/TimesheetsServer/appsettings.json            |  8 ++++++++
+ manifest-allocations.yml                                  |  5 ++---
+ manifest-backlog.yml                                      |  5 ++---
+ manifest-registration.yml                                 |  3 ++-
+ manifest-timesheets.yml                                   |  5 ++---
+ start-servers.sh                                          |  1 -
+ 21 files changed, 90 insertions(+), 14 deletions(-)
+
+diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
+index 192f32d..5a21b91 100755
+--- a/Applications/AllocationsServer/AllocationsServer.csproj
++++ b/Applications/AllocationsServer/AllocationsServer.csproj
+@@ -15,5 +15,7 @@
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/AllocationsServer/Program.cs b/Applications/AllocationsServer/Program.cs
+index 3c51fee..c7add05 100755
+--- a/Applications/AllocationsServer/Program.cs
++++ b/Applications/AllocationsServer/Program.cs
+@@ -1,6 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
+ 
+ namespace AllocationsServer
+ {
+@@ -18,6 +19,8 @@ namespace AllocationsServer
+             WebHost.CreateDefaultBuilder(args)
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .UseCloudFoundryHosting()
++                .AddCloudFoundry()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
+index ac81eb9..297e65c 100755
+--- a/Applications/AllocationsServer/Startup.cs
++++ b/Applications/AllocationsServer/Startup.cs
+@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
++using Pivotal.Discovery.Client;
++using Steeltoe.Common.Discovery;
+ 
+ namespace AllocationsServer
+ {
+@@ -31,13 +33,17 @@ namespace AllocationsServer
+ 
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+-                var httpClient = new HttpClient
++                var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
++                var httpClient = new HttpClient(handler, false)
++
+                 {
+                     BaseAddress = new Uri(Configuration.GetValue<string>("REGISTRATION_SERVER_ENDPOINT"))
+                 };
+ 
+                 return new ProjectClient(httpClient);
+             });
++
++            services.AddDiscoveryClient(Configuration);
+         }
+ 
+         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+@@ -47,6 +53,7 @@ namespace AllocationsServer
+             loggerFactory.AddDebug();
+ 
+             app.UseMvc();
++            app.UseDiscoveryClient();
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
+index 2929763..14a4e96 100755
+--- a/Applications/AllocationsServer/appsettings.json
++++ b/Applications/AllocationsServer/appsettings.json
+@@ -4,5 +4,13 @@
+         "LogLevel": {
+             "Default": "Warning"
+         }
++    },
++    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
++    "eureka": {
++        "client": {
++            "serviceUrl": "http://localhost:8761/eureka/",
++            "shouldRegisterWithEureka": false,
++            "shouldFetchRegistry": true
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
+index 28987a2..09b37be 100755
+--- a/Applications/BacklogServer/BacklogServer.csproj
++++ b/Applications/BacklogServer/BacklogServer.csproj
+@@ -15,5 +15,7 @@
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/Program.cs b/Applications/BacklogServer/Program.cs
+index aeb9712..6184e37 100755
+--- a/Applications/BacklogServer/Program.cs
++++ b/Applications/BacklogServer/Program.cs
+@@ -1,6 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
+ 
+ namespace BacklogServer
+ {
+@@ -18,6 +19,8 @@ namespace BacklogServer
+             WebHost.CreateDefaultBuilder(args)
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .UseCloudFoundryHosting()
++                .AddCloudFoundry()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
+index d174a76..12b81c3 100755
+--- a/Applications/BacklogServer/Startup.cs
++++ b/Applications/BacklogServer/Startup.cs
+@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
++using Pivotal.Discovery.Client;
++using Steeltoe.Common.Discovery;
+ 
+ namespace BacklogServer
+ {
+@@ -31,13 +33,16 @@ namespace BacklogServer
+             
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+-                var httpClient = new HttpClient
++                var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
++                var httpClient = new HttpClient(handler, false)
+                 {
+                     BaseAddress = new Uri(Configuration.GetValue<string>("REGISTRATION_SERVER_ENDPOINT"))
+                 };
+ 
+                 return new ProjectClient(httpClient);
+             });
++
++            services.AddDiscoveryClient(Configuration);
+         }
+ 
+         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+@@ -47,6 +52,7 @@ namespace BacklogServer
+             loggerFactory.AddDebug();
+ 
+             app.UseMvc();
++            app.UseDiscoveryClient();
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
+index 2929763..14a4e96 100755
+--- a/Applications/BacklogServer/appsettings.json
++++ b/Applications/BacklogServer/appsettings.json
+@@ -4,5 +4,13 @@
+         "LogLevel": {
+             "Default": "Warning"
+         }
++    },
++    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
++    "eureka": {
++        "client": {
++            "serviceUrl": "http://localhost:8761/eureka/",
++            "shouldRegisterWithEureka": false,
++            "shouldFetchRegistry": true
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/Program.cs b/Applications/RegistrationServer/Program.cs
+index 34ddd73..b8cfb80 100755
+--- a/Applications/RegistrationServer/Program.cs
++++ b/Applications/RegistrationServer/Program.cs
+@@ -1,6 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
+ 
+ namespace RegistrationServer
+ {
+@@ -18,6 +19,8 @@ namespace RegistrationServer
+             WebHost.CreateDefaultBuilder(args)
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .UseCloudFoundryHosting()
++                .AddCloudFoundry()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
+index 1faa3b5..774c2d1 100755
+--- a/Applications/RegistrationServer/RegistrationServer.csproj
++++ b/Applications/RegistrationServer/RegistrationServer.csproj
+@@ -17,5 +17,7 @@
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
+index 9549a8c..761206f 100755
+--- a/Applications/RegistrationServer/Startup.cs
++++ b/Applications/RegistrationServer/Startup.cs
+@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
++using Pivotal.Discovery.Client;
+ using Projects;
+ using Users;
+ 
+@@ -31,6 +32,8 @@ namespace RegistrationServer
+             services.AddSingleton<IProjectDataGateway, ProjectDataGateway>();
+             services.AddSingleton<IUserDataGateway, UserDataGateway>();
+             services.AddSingleton<IRegistrationService, RegistrationService>();
++
++            services.AddDiscoveryClient(Configuration);
+         }
+ 
+         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+@@ -40,6 +43,7 @@ namespace RegistrationServer
+             loggerFactory.AddDebug();
+ 
+             app.UseMvc();
++            app.UseDiscoveryClient();
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
+index 2929763..9eab605 100755
+--- a/Applications/RegistrationServer/appsettings.json
++++ b/Applications/RegistrationServer/appsettings.json
+@@ -4,5 +4,17 @@
+         "LogLevel": {
+             "Default": "Warning"
+         }
++    },
++    "eureka": {
++        "client": {
++            "serviceUrl": "http://localhost:8761/eureka/",
++            "shouldRegisterWithEureka": true,
++            "shouldFetchRegistry": false
++        },
++        "instance": {
++           "appName": "registration-service",
++            "hostname": "localhost",
++            "port": 8883
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/Program.cs b/Applications/TimesheetsServer/Program.cs
+index 085cd4f..dbe5eec 100755
+--- a/Applications/TimesheetsServer/Program.cs
++++ b/Applications/TimesheetsServer/Program.cs
+@@ -1,6 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
+ 
+ namespace TimesheetsServer
+ {
+@@ -18,6 +19,8 @@ namespace TimesheetsServer
+             WebHost.CreateDefaultBuilder(args)
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .UseCloudFoundryHosting()
++                .AddCloudFoundry()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
+index 8fa885a..6c3ba03 100755
+--- a/Applications/TimesheetsServer/Startup.cs
++++ b/Applications/TimesheetsServer/Startup.cs
+@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
++using Pivotal.Discovery.Client;
++using Steeltoe.Common.Discovery;
+ using Timesheets;
+ 
+ namespace TimesheetsServer
+@@ -31,13 +33,16 @@ namespace TimesheetsServer
+             
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+-                var httpClient = new HttpClient
++                var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
++                var httpClient = new HttpClient(handler, false)
+                 {
+                     BaseAddress = new Uri(Configuration.GetValue<string>("REGISTRATION_SERVER_ENDPOINT"))
+                 };
+ 
+                 return new ProjectClient(httpClient);
+             });
++
++            services.AddDiscoveryClient(Configuration);
+         }
+ 
+         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+@@ -47,6 +52,7 @@ namespace TimesheetsServer
+             loggerFactory.AddDebug();
+ 
+             app.UseMvc();
++            app.UseDiscoveryClient();
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
+index df92a0d..a974b0e 100755
+--- a/Applications/TimesheetsServer/TimesheetsServer.csproj
++++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
+@@ -15,5 +15,7 @@
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
+index 2929763..14a4e96 100755
+--- a/Applications/TimesheetsServer/appsettings.json
++++ b/Applications/TimesheetsServer/appsettings.json
+@@ -4,5 +4,13 @@
+         "LogLevel": {
+             "Default": "Warning"
+         }
++    },
++    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
++    "eureka": {
++        "client": {
++            "serviceUrl": "http://localhost:8761/eureka/",
++            "shouldRegisterWithEureka": false,
++            "shouldFetchRegistry": true
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/manifest-allocations.yml b/manifest-allocations.yml
+index 7eee2a3..3014783 100644
+--- a/manifest-allocations.yml
++++ b/manifest-allocations.yml
+@@ -6,7 +6,6 @@ applications:
+   memory: 256M
+   host: allocations-pal-INITIALS
+   path: Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish
+-  env:
+-    REGISTRATION_SERVER_ENDPOINT: http://FILL_ME_IN/
+   services:
+-  - tracker-allocations-database
+\ No newline at end of file
++  - tracker-allocations-database
++  - tracker-service-registry
+\ No newline at end of file
+diff --git a/manifest-backlog.yml b/manifest-backlog.yml
+index 45d85cc..7d5a4fc 100644
+--- a/manifest-backlog.yml
++++ b/manifest-backlog.yml
+@@ -6,7 +6,6 @@ applications:
+   memory: 256M
+   host: backlog-pal-INITIALS
+   path: Applications/BacklogServer/bin/Release/netcoreapp2.0/publish
+-  env:
+-    REGISTRATION_SERVER_ENDPOINT: http://FILL_ME_IN/
+   services:
+-  - tracker-backlog-database
+\ No newline at end of file
++  - tracker-backlog-database
++  - tracker-service-registry
+\ No newline at end of file
+diff --git a/manifest-registration.yml b/manifest-registration.yml
+index 940f6fc..a2991e6 100644
+--- a/manifest-registration.yml
++++ b/manifest-registration.yml
+@@ -7,4 +7,5 @@ applications:
+   host: registration-pal-INITIALS
+   path: Applications/RegistrationServer/bin/Release/netcoreapp2.0/publish
+   services:
+-  - tracker-registration-database
+\ No newline at end of file
++  - tracker-registration-database
++  - tracker-service-registry
+\ No newline at end of file
+diff --git a/manifest-timesheets.yml b/manifest-timesheets.yml
+index f5e1866..f9716a5 100644
+--- a/manifest-timesheets.yml
++++ b/manifest-timesheets.yml
+@@ -6,7 +6,6 @@ applications:
+   memory: 256M
+   host: timesheets-pal-INITIALS
+   path: Applications/TimesheetsServer/bin/Release/netcoreapp2.0/publish
+-  env:
+-    REGISTRATION_SERVER_ENDPOINT: http://FILL_ME_IN/
+   services:
+-  - tracker-timesheets-database
+\ No newline at end of file
++  - tracker-timesheets-database
++  - tracker-service-registry
+\ No newline at end of file
+diff --git a/start-servers.sh b/start-servers.sh
+index 87b4654..d1fd623 100755
+--- a/start-servers.sh
++++ b/start-servers.sh
+@@ -15,7 +15,6 @@ function startServer() {
+     cd $appDir
+     
+     export Logging__LogLevel__Default=Debug
+-    export REGISTRATION_SERVER_ENDPOINT=http://localhost:8883/
+     export VCAP_SERVICES=${vcap_services}
+     
+     dotnet run --urls "http://*:${port}"
+-- 
+2.14.3 (Apple Git-98)
+

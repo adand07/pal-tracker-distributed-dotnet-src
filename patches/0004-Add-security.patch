@@ -1,0 +1,935 @@
+From d54df0eb8224e4ed47780e3b5339f0215204019f Mon Sep 17 00:00:00 2001
+From: Alex Sartan <asartan@pivotal.io>
+Date: Fri, 16 Feb 2018 13:23:51 -0700
+Subject: [PATCH 4/5] Add security
+
+---
+ .../AllocationsServer/AllocationsServer.csproj     |  2 ++
+ Applications/AllocationsServer/Startup.cs          | 24 ++++++++++++++++++-
+ Applications/BacklogServer/BacklogServer.csproj    |  2 ++
+ Applications/BacklogServer/Startup.cs              | 28 +++++++++++++++++++---
+ .../RegistrationServer/RegistrationServer.csproj   |  2 ++
+ Applications/RegistrationServer/Startup.cs         | 15 ++++++++++++
+ Applications/TimesheetsServer/Startup.cs           | 26 ++++++++++++++++++--
+ .../TimesheetsServer/TimesheetsServer.csproj       |  2 ++
+ Components/Accounts/AccountController.cs           |  2 ++
+ Components/Accounts/RegistrationController.cs      |  4 +++-
+ Components/Allocations/AllocationController.cs     |  2 ++
+ Components/Allocations/ProjectClient.cs            | 12 ++++++++--
+ .../AllocationsTest/AllocationsControllerTest.cs   |  4 +++-
+ .../AllowAllClaimsAuthorizationHandler.cs          | 17 +++++++++++++
+ Components/AuthDisabler/AuthDisabler.csproj        |  8 +++++++
+ .../AuthDisablerServiceCollectionExtensions.cs     | 19 +++++++++++++++
+ Components/Backlog/ProjectClient.cs                | 12 ++++++++--
+ Components/Backlog/StoryController.cs              |  2 ++
+ Components/BacklogTest/StoryControllerTest.cs      |  7 ++++--
+ Components/DefaultRoute/DefaultController.cs       |  4 +++-
+ Components/Projects/ProjectController.cs           |  2 ++
+ Components/Timesheets/ProjectClient.cs             | 12 ++++++++--
+ Components/Timesheets/TimeEntryController.cs       |  2 ++
+ .../TimesheetsTest/TimeEntryControllerTest.cs      |  7 ++++--
+ Components/Users/UserController.cs                 |  4 +++-
+ PalTracker.sln                                     | 15 ++++++++++++
+ manifest-allocations.yml                           |  5 +++-
+ manifest-backlog.yml                               |  5 +++-
+ manifest-registration.yml                          |  5 +++-
+ manifest-timesheets.yml                            |  5 +++-
+ start-servers.sh                                   |  1 +
+ vcap_services.json                                 | 18 +++++++++++++-
+ 32 files changed, 250 insertions(+), 25 deletions(-)
+ create mode 100644 Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
+ create mode 100644 Components/AuthDisabler/AuthDisabler.csproj
+ create mode 100644 Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
+
+diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
+index 5a21b91..637b189 100755
+--- a/Applications/AllocationsServer/AllocationsServer.csproj
++++ b/Applications/AllocationsServer/AllocationsServer.csproj
+@@ -9,6 +9,7 @@
+     <ProjectReference Include="../../Components/Allocations/Allocations.csproj" />
+     <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+@@ -17,5 +18,6 @@
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
+index 726f433..569e061 100755
+--- a/Applications/AllocationsServer/Startup.cs
++++ b/Applications/AllocationsServer/Startup.cs
+@@ -1,15 +1,20 @@
+ ﻿using System;
+ using System.Net.Http;
+ using Allocations;
++using AuthDisabler;
+ using DatabaseSupport;
++using Microsoft.AspNetCore.Authentication;
++using Microsoft.AspNetCore.Authentication.JwtBearer;
+ using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Hosting;
++using Microsoft.AspNetCore.Http;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
+ using Pivotal.Discovery.Client;
+ using Steeltoe.CircuitBreaker.Hystrix;
+ using Steeltoe.Common.Discovery;
++using Steeltoe.Security.Authentication.CloudFoundry;
+ 
+ namespace AllocationsServer
+ {
+@@ -32,6 +37,7 @@ namespace AllocationsServer
+             services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
+             services.AddSingleton<IAllocationDataGateway, AllocationDataGateway>();
+ 
++            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+                 var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
+@@ -41,10 +47,25 @@ namespace AllocationsServer
+                 };
+ 
+                 var logger = sp.GetService<ILogger<ProjectClient>>();
++                var contextAccessor = sp.GetService<IHttpContextAccessor>();
+ 
+-                return new ProjectClient(httpClient, logger);
++                return new ProjectClient(
++                    httpClient, logger,
++                    () => contextAccessor.HttpContext.GetTokenAsync("access_token")
++                );
+             });
+ 
++            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
++                .AddCloudFoundryJwtBearer(Configuration);
++
++            if (Configuration.GetValue("DISABLE_AUTH", false))
++            {
++                services.DisableClaimsVerification();
++            }
++
++            services.AddAuthorization(options =>
++                options.AddPolicy("pal-tracker", policy => policy.RequireClaim("scope", "uaa.resource")));
++
+             services.AddDiscoveryClient(Configuration);
+             services.AddHystrixMetricsStream(Configuration);
+         }
+@@ -55,6 +76,7 @@ namespace AllocationsServer
+             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+             loggerFactory.AddDebug();
+ 
++            app.UseAuthentication();
+             app.UseMvc();
+             app.UseDiscoveryClient();
+             app.UseHystrixMetricsStream();
+diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
+index 09b37be..0367892 100755
+--- a/Applications/BacklogServer/BacklogServer.csproj
++++ b/Applications/BacklogServer/BacklogServer.csproj
+@@ -9,6 +9,7 @@
+     <ProjectReference Include="../../Components/Backlog/Backlog.csproj" />
+     <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+@@ -17,5 +18,6 @@
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
+index acb5a66..9cfd1fc 100755
+--- a/Applications/BacklogServer/Startup.cs
++++ b/Applications/BacklogServer/Startup.cs
+@@ -1,15 +1,20 @@
+ ﻿using System;
+ using System.Net.Http;
++using AuthDisabler;
+ using Backlog;
+ using DatabaseSupport;
++using Microsoft.AspNetCore.Authentication;
++using Microsoft.AspNetCore.Authentication.JwtBearer;
+ using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Hosting;
++using Microsoft.AspNetCore.Http;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
+ using Pivotal.Discovery.Client;
+ using Steeltoe.CircuitBreaker.Hystrix;
+ using Steeltoe.Common.Discovery;
++using Steeltoe.Security.Authentication.CloudFoundry;
+ 
+ namespace BacklogServer
+ {
+@@ -27,11 +32,12 @@ namespace BacklogServer
+         {
+             // Add framework services.
+             services.AddMvc();
+-            
++
+             services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
+             services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
+             services.AddSingleton<IStoryDataGateway, StoryDataGateway>();
+-            
++
++            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+                 var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
+@@ -41,10 +47,25 @@ namespace BacklogServer
+                 };
+ 
+                 var logger = sp.GetService<ILogger<ProjectClient>>();
++                var contextAccessor = sp.GetService<IHttpContextAccessor>();
+ 
+-                return new ProjectClient(httpClient, logger);
++                return new ProjectClient(
++                    httpClient, logger,
++                    () => contextAccessor.HttpContext.GetTokenAsync("access_token")
++                );
+             });
+ 
++            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
++                .AddCloudFoundryJwtBearer(Configuration);
++
++            if (Configuration.GetValue("DISABLE_AUTH", false))
++            {
++                services.DisableClaimsVerification();
++            }
++
++            services.AddAuthorization(options =>
++                options.AddPolicy("pal-tracker", policy => policy.RequireClaim("scope", "uaa.resource")));
++
+             services.AddDiscoveryClient(Configuration);
+             services.AddHystrixMetricsStream(Configuration);
+         }
+@@ -55,6 +76,7 @@ namespace BacklogServer
+             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+             loggerFactory.AddDebug();
+ 
++            app.UseAuthentication();
+             app.UseMvc();
+             app.UseDiscoveryClient();
+             app.UseHystrixMetricsStream();
+diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
+index 774c2d1..0c94526 100755
+--- a/Applications/RegistrationServer/RegistrationServer.csproj
++++ b/Applications/RegistrationServer/RegistrationServer.csproj
+@@ -11,6 +11,7 @@
+     <ProjectReference Include="../../Components/Users/Users.csproj" />
+     <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+@@ -19,5 +20,6 @@
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
+index 761206f..0de7696 100755
+--- a/Applications/RegistrationServer/Startup.cs
++++ b/Applications/RegistrationServer/Startup.cs
+@@ -1,5 +1,7 @@
+ ﻿using Accounts;
++using AuthDisabler;
+ using DatabaseSupport;
++using Microsoft.AspNetCore.Authentication.JwtBearer;
+ using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+@@ -7,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
+ using Pivotal.Discovery.Client;
+ using Projects;
++using Steeltoe.Security.Authentication.CloudFoundry;
+ using Users;
+ 
+ namespace RegistrationServer
+@@ -34,6 +37,17 @@ namespace RegistrationServer
+             services.AddSingleton<IRegistrationService, RegistrationService>();
+ 
+             services.AddDiscoveryClient(Configuration);
++
++            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
++                .AddCloudFoundryJwtBearer(Configuration);
++
++            if (Configuration.GetValue("DISABLE_AUTH", false))
++            {
++                services.DisableClaimsVerification();
++            }
++
++            services.AddAuthorization(options =>
++                options.AddPolicy("pal-tracker", policy => policy.RequireClaim("scope", "uaa.resource")));
+         }
+ 
+         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+@@ -42,6 +56,7 @@ namespace RegistrationServer
+             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+             loggerFactory.AddDebug();
+ 
++            app.UseAuthentication();
+             app.UseMvc();
+             app.UseDiscoveryClient();
+         }
+diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
+index 2d74717..9160b07 100755
+--- a/Applications/TimesheetsServer/Startup.cs
++++ b/Applications/TimesheetsServer/Startup.cs
+@@ -1,14 +1,19 @@
+ ﻿using System;
+ using System.Net.Http;
++using AuthDisabler;
+ using DatabaseSupport;
++using Microsoft.AspNetCore.Authentication;
++using Microsoft.AspNetCore.Authentication.JwtBearer;
+ using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Hosting;
++using Microsoft.AspNetCore.Http;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
+ using Pivotal.Discovery.Client;
+ using Steeltoe.CircuitBreaker.Hystrix;
+ using Steeltoe.Common.Discovery;
++using Steeltoe.Security.Authentication.CloudFoundry;
+ using Timesheets;
+ 
+ namespace TimesheetsServer
+@@ -31,7 +36,8 @@ namespace TimesheetsServer
+             services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
+             services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
+             services.AddSingleton<ITimeEntryDataGateway, TimeEntryDataGateway>();
+-            
++
++            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+             services.AddSingleton<IProjectClient>(sp =>
+             {
+                 var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
+@@ -41,10 +47,25 @@ namespace TimesheetsServer
+                 };
+ 
+                 var logger = sp.GetService<ILogger<ProjectClient>>();
++                var contextAccessor = sp.GetService<IHttpContextAccessor>();
+ 
+-                return new ProjectClient(httpClient, logger);
++                return new ProjectClient(
++                    httpClient, logger,
++                    () => contextAccessor.HttpContext.GetTokenAsync("access_token")
++                );
+             });
+ 
++            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
++                .AddCloudFoundryJwtBearer(Configuration);
++
++            if (Configuration.GetValue("DISABLE_AUTH", false))
++            {
++                services.DisableClaimsVerification();
++            }
++
++            services.AddAuthorization(options =>
++                options.AddPolicy("pal-tracker", policy => policy.RequireClaim("scope", "uaa.resource")));
++
+             services.AddDiscoveryClient(Configuration);
+             services.AddHystrixMetricsStream(Configuration);
+         }
+@@ -55,6 +76,7 @@ namespace TimesheetsServer
+             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+             loggerFactory.AddDebug();
+ 
++            app.UseAuthentication();
+             app.UseMvc();
+             app.UseDiscoveryClient();
+             app.UseHystrixMetricsStream();
+diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
+index a974b0e..9c8a8cd 100755
+--- a/Applications/TimesheetsServer/TimesheetsServer.csproj
++++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
+@@ -9,6 +9,7 @@
+     <ProjectReference Include="../../Components/Timesheets/Timesheets.csproj" />
+     <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+@@ -17,5 +18,6 @@
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
++    <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/Components/Accounts/AccountController.cs b/Components/Accounts/AccountController.cs
+index e19ed13..a510c10 100644
+--- a/Components/Accounts/AccountController.cs
++++ b/Components/Accounts/AccountController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Linq;
++using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Accounts
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("accounts"), Produces("application/json")]
+     public class AccountController : Controller
+     {
+diff --git a/Components/Accounts/RegistrationController.cs b/Components/Accounts/RegistrationController.cs
+index 36b88de..d842d60 100644
+--- a/Components/Accounts/RegistrationController.cs
++++ b/Components/Accounts/RegistrationController.cs
+@@ -1,8 +1,10 @@
+-﻿using Microsoft.AspNetCore.Mvc;
++﻿using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Mvc;
+ using Users;
+ 
+ namespace Accounts
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("registration"), Produces("application/json")]
+     public class RegisationController : Controller
+     {
+diff --git a/Components/Allocations/AllocationController.cs b/Components/Allocations/AllocationController.cs
+index 06384d7..1753c8e 100755
+--- a/Components/Allocations/AllocationController.cs
++++ b/Components/Allocations/AllocationController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Linq;
++using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Allocations
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("allocations"), Produces("application/json")]
+     public class AllocationController : Controller
+     {
+diff --git a/Components/Allocations/ProjectClient.cs b/Components/Allocations/ProjectClient.cs
+index f2c4ac1..78035ae 100644
+--- a/Components/Allocations/ProjectClient.cs
++++ b/Components/Allocations/ProjectClient.cs
+@@ -1,5 +1,7 @@
+-﻿using System.Collections.Generic;
++using System;
++using System.Collections.Generic;
+ using System.Net.Http;
++using System.Net.Http.Headers;
+ using System.Runtime.Serialization.Json;
+ using System.Threading.Tasks;
+ using Microsoft.Extensions.Logging;
+@@ -10,12 +12,14 @@ namespace Allocations
+     {
+         private readonly HttpClient _client;
+         private readonly ILogger<ProjectClient> _logger;
++        private readonly Func<Task<string>> _accessTokenFn;
+         private readonly IDictionary<long, ProjectInfo> _projectCache = new Dictionary<long, ProjectInfo>();
+ 
+-        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger)
++        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger, Func<Task<string>> accessTokenFn)
+         {
+             _client = client;
+             _logger = logger;
++            _accessTokenFn = accessTokenFn;
+         }
+ 
+         public async Task<ProjectInfo> Get(long projectId) =>
+@@ -23,7 +27,11 @@ namespace Allocations
+ 
+         private async Task<ProjectInfo> DoGet(long projectId)
+         {
++            var token = await _accessTokenFn();
++
+             _client.DefaultRequestHeaders.Accept.Clear();
++            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
++
+             var streamTask = _client.GetStreamAsync($"project?projectId={projectId}");
+ 
+             _logger.LogInformation($"Attempting to fetch projectId: {projectId}");
+diff --git a/Components/AllocationsTest/AllocationsControllerTest.cs b/Components/AllocationsTest/AllocationsControllerTest.cs
+index 152aad1..cd46d32 100644
+--- a/Components/AllocationsTest/AllocationsControllerTest.cs
++++ b/Components/AllocationsTest/AllocationsControllerTest.cs
+@@ -1,6 +1,7 @@
+ ﻿using System;
+ using System.Collections.Generic;
+ using System.Net.Http;
++using System.Threading.Tasks;
+ using Allocations;
+ using DatabaseSupport;
+ using Microsoft.AspNetCore.Mvc;
+@@ -31,7 +32,8 @@ namespace AllocationsTest
+ 
+             var controller =
+                 new AllocationController(new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
++                        () => Task.FromResult("anAccessToken")));
+ 
+             var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
+                 DateTime.Parse("2014-05-26"), ""));
+diff --git a/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs b/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
+new file mode 100644
+index 0000000..8fda1e5
+--- /dev/null
++++ b/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
+@@ -0,0 +1,17 @@
++﻿using System.Threading.Tasks;
++using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Authorization.Infrastructure;
++
++namespace AuthDisabler
++{
++    public class AllowAllClaimsAuthorizationHandler :
++        AuthorizationHandler<ClaimsAuthorizationRequirement>, IAuthorizationRequirement
++    {
++        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
++            ClaimsAuthorizationRequirement requirement)
++        {
++            context.Succeed(requirement);
++            return Task.CompletedTask;
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/Components/AuthDisabler/AuthDisabler.csproj b/Components/AuthDisabler/AuthDisabler.csproj
+new file mode 100644
+index 0000000..70fbbc6
+--- /dev/null
++++ b/Components/AuthDisabler/AuthDisabler.csproj
+@@ -0,0 +1,8 @@
++﻿<Project Sdk="Microsoft.NET.Sdk">
++  <PropertyGroup>
++    <TargetFramework>netcoreapp2.0</TargetFramework>
++  </PropertyGroup>
++  <ItemGroup>
++    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.1"/>
++  </ItemGroup>
++</Project>
+\ No newline at end of file
+diff --git a/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs b/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
+new file mode 100644
+index 0000000..bf1117c
+--- /dev/null
++++ b/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
+@@ -0,0 +1,19 @@
++﻿using System;
++using Microsoft.AspNetCore.Authorization;
++using Microsoft.Extensions.DependencyInjection;
++
++namespace AuthDisabler
++{
++    public static class AuthDisablerServiceCollectionExtensions
++    {
++        public static void DisableClaimsVerification(this IServiceCollection services)
++        {
++            if (services == null)
++            {
++                throw new ArgumentNullException(nameof(services));
++            }
++
++            services.AddSingleton<IAuthorizationHandler>(sp => new AllowAllClaimsAuthorizationHandler());
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/Components/Backlog/ProjectClient.cs b/Components/Backlog/ProjectClient.cs
+index 5f23836..c1fcd51 100644
+--- a/Components/Backlog/ProjectClient.cs
++++ b/Components/Backlog/ProjectClient.cs
+@@ -1,5 +1,7 @@
+-﻿using System.Collections.Generic;
++using System;
++using System.Collections.Generic;
+ using System.Net.Http;
++using System.Net.Http.Headers;
+ using System.Runtime.Serialization.Json;
+ using System.Threading.Tasks;
+ using Microsoft.Extensions.Logging;
+@@ -10,12 +12,14 @@ namespace Backlog
+     {
+         private readonly HttpClient _client;
+         private readonly ILogger<ProjectClient> _logger;
++        private readonly Func<Task<string>> _accessTokenFn;
+         private readonly IDictionary<long, ProjectInfo> _projectCache = new Dictionary<long, ProjectInfo>();
+ 
+-        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger)
++        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger, Func<Task<string>> accessTokenFn)
+         {
+             _client = client;
+             _logger = logger;
++            _accessTokenFn = accessTokenFn;
+         }
+ 
+         public async Task<ProjectInfo> Get(long projectId) =>
+@@ -23,7 +27,11 @@ namespace Backlog
+ 
+         private async Task<ProjectInfo> DoGet(long projectId)
+         {
++            var token = await _accessTokenFn();
++
+             _client.DefaultRequestHeaders.Accept.Clear();
++            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
++
+             var streamTask = _client.GetStreamAsync($"project?projectId={projectId}");
+ 
+             _logger.LogInformation($"Attempting to fetch projectId: {projectId}");
+diff --git a/Components/Backlog/StoryController.cs b/Components/Backlog/StoryController.cs
+index 844ddc9..2473e83 100755
+--- a/Components/Backlog/StoryController.cs
++++ b/Components/Backlog/StoryController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Linq;
++using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Backlog
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("stories"), Produces("application/json")]
+     public class StoryController : Controller
+     {
+diff --git a/Components/BacklogTest/StoryControllerTest.cs b/Components/BacklogTest/StoryControllerTest.cs
+index 650556d..e1e9852 100755
+--- a/Components/BacklogTest/StoryControllerTest.cs
++++ b/Components/BacklogTest/StoryControllerTest.cs
+@@ -1,5 +1,6 @@
+ using System.Collections.Generic;
+ using System.Net.Http;
++using System.Threading.Tasks;
+ using Backlog;
+ using DatabaseSupport;
+ using Microsoft.AspNetCore.Mvc;
+@@ -31,7 +32,8 @@ namespace BacklogTest
+ 
+             var controller =
+                 new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
++                        () => Task.FromResult("anAccessToken")));
+ 
+             var value = controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
+             var actual = (StoryInfo) ((ObjectResult) value).Value;
+@@ -49,7 +51,8 @@ namespace BacklogTest
+ 
+             var controller =
+                 new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
++                        () => Task.FromResult("anAccessToken")));
+             var result = controller.Get(55432);
+ 
+             // todo...
+diff --git a/Components/DefaultRoute/DefaultController.cs b/Components/DefaultRoute/DefaultController.cs
+index 38750fd..8104d92 100755
+--- a/Components/DefaultRoute/DefaultController.cs
++++ b/Components/DefaultRoute/DefaultController.cs
+@@ -1,7 +1,9 @@
+-﻿using Microsoft.AspNetCore.Mvc;
++﻿using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Mvc;
+ 
+ namespace DefaultRoute
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("")]
+     public class DefaultController : Controller
+     {
+diff --git a/Components/Projects/ProjectController.cs b/Components/Projects/ProjectController.cs
+index 0f97cd2..8a688ca 100644
+--- a/Components/Projects/ProjectController.cs
++++ b/Components/Projects/ProjectController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Linq;
++using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Projects
+ {
++    [Authorize(Policy = "pal-tracker")]
+     public class ProjectController : Controller
+     {
+         private readonly IProjectDataGateway _gateway;
+diff --git a/Components/Timesheets/ProjectClient.cs b/Components/Timesheets/ProjectClient.cs
+index 6752b50..d295fe2 100644
+--- a/Components/Timesheets/ProjectClient.cs
++++ b/Components/Timesheets/ProjectClient.cs
+@@ -1,5 +1,7 @@
+-﻿using System.Collections.Generic;
++using System;
++using System.Collections.Generic;
+ using System.Net.Http;
++using System.Net.Http.Headers;
+ using System.Runtime.Serialization.Json;
+ using System.Threading.Tasks;
+ using Microsoft.Extensions.Logging;
+@@ -10,12 +12,14 @@ namespace Timesheets
+     {
+         private readonly HttpClient _client;
+         private readonly ILogger<ProjectClient> _logger;
++        private readonly Func<Task<string>> _accessTokenFn;
+         private readonly IDictionary<long, ProjectInfo> _projectCache = new Dictionary<long, ProjectInfo>();
+ 
+-        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger)
++        public ProjectClient(HttpClient client, ILogger<ProjectClient> logger, Func<Task<string>> accessTokenFn)
+         {
+             _client = client;
+             _logger = logger;
++            _accessTokenFn = accessTokenFn;
+         }
+ 
+         public async Task<ProjectInfo> Get(long projectId) =>
+@@ -23,7 +27,11 @@ namespace Timesheets
+ 
+         private async Task<ProjectInfo> DoGet(long projectId)
+         {
++            var token = await _accessTokenFn();
++
+             _client.DefaultRequestHeaders.Accept.Clear();
++            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
++
+             var streamTask = _client.GetStreamAsync($"project?projectId={projectId}");
+ 
+             _logger.LogInformation($"Attempting to fetch projectId: {projectId}");
+diff --git a/Components/Timesheets/TimeEntryController.cs b/Components/Timesheets/TimeEntryController.cs
+index e0da580..a43035b 100755
+--- a/Components/Timesheets/TimeEntryController.cs
++++ b/Components/Timesheets/TimeEntryController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Linq;
++using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Timesheets
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("time-entries"), Produces("application/json")]
+     public class TimeEntryController : Controller
+     {
+diff --git a/Components/TimesheetsTest/TimeEntryControllerTest.cs b/Components/TimesheetsTest/TimeEntryControllerTest.cs
+index 3b172f2..5e32aaf 100755
+--- a/Components/TimesheetsTest/TimeEntryControllerTest.cs
++++ b/Components/TimesheetsTest/TimeEntryControllerTest.cs
+@@ -1,6 +1,7 @@
+ using System;
+ using System.Collections.Generic;
+ using System.Net.Http;
++using System.Threading.Tasks;
+ using DatabaseSupport;
+ using Microsoft.AspNetCore.Mvc;
+ using Microsoft.Extensions.Logging;
+@@ -32,7 +33,8 @@ namespace TimesheetsTest
+ 
+             var controller =
+                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
++                        () => Task.FromResult("anAccessToken")));
+ 
+             var value = controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
+             var actual = (TimeEntryInfo) ((ObjectResult) value).Value;
+@@ -52,7 +54,8 @@ namespace TimesheetsTest
+ 
+             var controller =
+                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+-                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>(),
++                        () => Task.FromResult("anAccessToken")));
+             var result = controller.Get(4765);
+ 
+             // todo...
+diff --git a/Components/Users/UserController.cs b/Components/Users/UserController.cs
+index f4dd924..d9d8844 100644
+--- a/Components/Users/UserController.cs
++++ b/Components/Users/UserController.cs
+@@ -1,7 +1,9 @@
+-﻿using Microsoft.AspNetCore.Mvc;
++﻿using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Mvc;
+ 
+ namespace Users
+ {
++    [Authorize(Policy = "pal-tracker")]
+     [Route("users"), Produces("application/json")]
+     public class UserController : Controller
+     {
+diff --git a/PalTracker.sln b/PalTracker.sln
+index bbc5568..9d56423 100644
+--- a/PalTracker.sln
++++ b/PalTracker.sln
+@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTest", "Components\Use
+ EndProject
+ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultRoute", "Components\DefaultRoute\DefaultRoute.csproj", "{4227E6F1-9913-4A2A-AC0E-2A975445086E}"
+ EndProject
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthDisabler", "Components\AuthDisabler\AuthDisabler.csproj", "{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}"
++EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+ 		Debug|Any CPU = Debug|Any CPU
+@@ -300,6 +302,18 @@ Global
+ 		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x64.Build.0 = Release|x64
+ 		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x86.ActiveCfg = Release|x86
+ 		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x86.Build.0 = Release|x86
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|x64.ActiveCfg = Debug|x64
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|x64.Build.0 = Debug|x64
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|x86.ActiveCfg = Debug|x86
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Debug|x86.Build.0 = Debug|x86
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|Any CPU.Build.0 = Release|Any CPU
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|x64.ActiveCfg = Release|x64
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|x64.Build.0 = Release|x64
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|x86.ActiveCfg = Release|x86
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2}.Release|x86.Build.0 = Release|x86
+ 	EndGlobalSection
+ 	GlobalSection(NestedProjects) = preSolution
+ 		{115E2983-51A0-4722-BA01-75223ACC33F8} = {61F0A7C3-5DE2-4C07-AF32-C9BAE2560760}
+@@ -322,5 +336,6 @@ Global
+ 		{2CF35EC0-54A4-48FD-AF49-46A841EA9F15} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
+ 		{3251E09D-4C88-4489-9A0F-2FCE8011820A} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
+ 		{4227E6F1-9913-4A2A-AC0E-2A975445086E} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
++		{07548DD2-1D4A-4AA1-83C3-0C8C69E6E8A2} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
+ 	EndGlobalSection
+ EndGlobal
+diff --git a/manifest-allocations.yml b/manifest-allocations.yml
+index 5d7e6f6..dd6e548 100644
+--- a/manifest-allocations.yml
++++ b/manifest-allocations.yml
+@@ -6,8 +6,11 @@ applications:
+   memory: 256M
+   host: allocations-pal-INITIALS
+   path: Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish
++  env:
++    GRANT_TYPE: client_credentials
+   services:
+   - tracker-allocations-database
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+-  - tracker-amqp
+\ No newline at end of file
++  - tracker-amqp
++  - tracker-sso
+\ No newline at end of file
+diff --git a/manifest-backlog.yml b/manifest-backlog.yml
+index 96a443b..5e838ec 100644
+--- a/manifest-backlog.yml
++++ b/manifest-backlog.yml
+@@ -6,8 +6,11 @@ applications:
+   memory: 256M
+   host: backlog-pal-INITIALS
+   path: Applications/BacklogServer/bin/Release/netcoreapp2.0/publish
++  env:
++    GRANT_TYPE: client_credentials
+   services:
+   - tracker-backlog-database
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+-  - tracker-amqp
+\ No newline at end of file
++  - tracker-amqp
++  - tracker-sso
+\ No newline at end of file
+diff --git a/manifest-registration.yml b/manifest-registration.yml
+index a2991e6..d7dba22 100644
+--- a/manifest-registration.yml
++++ b/manifest-registration.yml
+@@ -6,6 +6,9 @@ applications:
+   memory: 256M
+   host: registration-pal-INITIALS
+   path: Applications/RegistrationServer/bin/Release/netcoreapp2.0/publish
++  env:
++    GRANT_TYPE: client_credentials
+   services:
+   - tracker-registration-database
+-  - tracker-service-registry
+\ No newline at end of file
++  - tracker-service-registry
++  - tracker-sso
+\ No newline at end of file
+diff --git a/manifest-timesheets.yml b/manifest-timesheets.yml
+index 3c32a65..1729417 100644
+--- a/manifest-timesheets.yml
++++ b/manifest-timesheets.yml
+@@ -6,8 +6,11 @@ applications:
+   memory: 256M
+   host: timesheets-pal-INITIALS
+   path: Applications/TimesheetsServer/bin/Release/netcoreapp2.0/publish
++  env:
++    GRANT_TYPE: client_credentials
+   services:
+   - tracker-timesheets-database
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+-  - tracker-amqp
+\ No newline at end of file
++  - tracker-amqp
++  - tracker-sso
+\ No newline at end of file
+diff --git a/start-servers.sh b/start-servers.sh
+index d1fd623..79ca49b 100755
+--- a/start-servers.sh
++++ b/start-servers.sh
+@@ -16,6 +16,7 @@ function startServer() {
+     
+     export Logging__LogLevel__Default=Debug
+     export VCAP_SERVICES=${vcap_services}
++    export DISABLE_AUTH=true
+     
+     dotnet run --urls "http://*:${port}"
+ }
+diff --git a/vcap_services.json b/vcap_services.json
+index 7521eb5..2c9cef7 100644
+--- a/vcap_services.json
++++ b/vcap_services.json
+@@ -1,4 +1,20 @@
+ {
++    "p-identity": [
++        {
++            "credentials": {
++                "auth_domain": "http://localhost:8080/uaa",
++                "client_id": "app",
++                "client_secret": "appclientsecret"
++            },
++            "label": "p-identity",
++            "name": "tracker-sso",
++            "plan": "p-identity",
++            "provider": null,
++            "syslog_drain_url": null,
++            "tags": [],
++            "volume_mounts": []
++        }
++    ],
+     "p-mysql": [
+         {
+             "credentials": {
+@@ -19,4 +35,4 @@
+             "tags": ["mysql", "relational"]
+         }
+     ]
+-}
+\ No newline at end of file
++}
+-- 
+2.14.3 (Apple Git-98)
+

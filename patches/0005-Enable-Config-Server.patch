@@ -1,0 +1,376 @@
+From 2b26dca24b6eeb9607a5af330d863d5604148241 Mon Sep 17 00:00:00 2001
+From: Alex Sartan <asartan@pivotal.io>
+Date: Tue, 20 Feb 2018 14:49:27 -0700
+Subject: [PATCH 5/5] Enable Config Server
+
+---
+ .../AllocationsServer/AllocationsServer.csproj        |  1 +
+ Applications/AllocationsServer/Program.cs             |  4 ++--
+ Applications/AllocationsServer/appsettings.json       | 11 ++++++++++-
+ Applications/BacklogServer/BacklogServer.csproj       |  1 +
+ Applications/BacklogServer/Program.cs                 |  4 ++--
+ Applications/BacklogServer/appsettings.json           | 11 ++++++++++-
+ Applications/RegistrationServer/Program.cs            |  4 ++--
+ .../RegistrationServer/RegistrationServer.csproj      |  1 +
+ Applications/RegistrationServer/appsettings.json      | 10 ++++++++++
+ Applications/TimesheetsServer/Program.cs              |  4 ++--
+ Applications/TimesheetsServer/TimesheetsServer.csproj |  1 +
+ Applications/TimesheetsServer/appsettings.json        | 11 ++++++++++-
+ config-server.json                                    |  6 ++++++
+ manifest-allocations.yml                              |  3 ++-
+ manifest-backlog.yml                                  |  3 ++-
+ manifest-registration.yml                             |  3 ++-
+ manifest-timesheets.yml                               |  3 ++-
+ vcap_services.json                                    | 19 ++++++++++++++++++-
+ 18 files changed, 84 insertions(+), 16 deletions(-)
+ create mode 100644 config-server.json
+
+diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
+index 637b189..e98e6bf 100755
+--- a/Applications/AllocationsServer/AllocationsServer.csproj
++++ b/Applications/AllocationsServer/AllocationsServer.csproj
+@@ -17,6 +17,7 @@
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+diff --git a/Applications/AllocationsServer/Program.cs b/Applications/AllocationsServer/Program.cs
+index c7add05..3725b44 100755
+--- a/Applications/AllocationsServer/Program.cs
++++ b/Applications/AllocationsServer/Program.cs
+@@ -1,7 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+-using Steeltoe.Extensions.Configuration.CloudFoundry;
++using Pivotal.Extensions.Configuration.ConfigServer;
+ 
+ namespace AllocationsServer
+ {
+@@ -20,7 +20,7 @@ namespace AllocationsServer
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
+                 .UseCloudFoundryHosting()
+-                .AddCloudFoundry()
++                .AddConfigServer()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
+index e581e67..ee8e78a 100755
+--- a/Applications/AllocationsServer/appsettings.json
++++ b/Applications/AllocationsServer/appsettings.json
+@@ -5,7 +5,6 @@
+             "Default": "Warning"
+         }
+     },
+-    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
+     "eureka": {
+         "client": {
+             "serviceUrl": "http://localhost:8761/eureka/",
+@@ -25,5 +24,15 @@
+                 }
+             }
+         }
++    },
++    "spring": {
++        "application": {
++            "name": "allocations-server"
++        },
++        "cloud": {
++            "config": {
++                "failFast": true
++            }
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
+index 0367892..65a9392 100755
+--- a/Applications/BacklogServer/BacklogServer.csproj
++++ b/Applications/BacklogServer/BacklogServer.csproj
+@@ -17,6 +17,7 @@
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+diff --git a/Applications/BacklogServer/Program.cs b/Applications/BacklogServer/Program.cs
+index 6184e37..e8149f3 100755
+--- a/Applications/BacklogServer/Program.cs
++++ b/Applications/BacklogServer/Program.cs
+@@ -1,7 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+-using Steeltoe.Extensions.Configuration.CloudFoundry;
++using Pivotal.Extensions.Configuration.ConfigServer;
+ 
+ namespace BacklogServer
+ {
+@@ -20,7 +20,7 @@ namespace BacklogServer
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
+                 .UseCloudFoundryHosting()
+-                .AddCloudFoundry()
++                .AddConfigServer()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
+index e581e67..6e24856 100755
+--- a/Applications/BacklogServer/appsettings.json
++++ b/Applications/BacklogServer/appsettings.json
+@@ -5,7 +5,6 @@
+             "Default": "Warning"
+         }
+     },
+-    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
+     "eureka": {
+         "client": {
+             "serviceUrl": "http://localhost:8761/eureka/",
+@@ -25,5 +24,15 @@
+                 }
+             }
+         }
++    },
++    "spring": {
++        "application": {
++            "name": "backlog-server"
++        },
++        "cloud": {
++            "config": {
++                "failFast": true
++            }
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/Program.cs b/Applications/RegistrationServer/Program.cs
+index b8cfb80..e900120 100755
+--- a/Applications/RegistrationServer/Program.cs
++++ b/Applications/RegistrationServer/Program.cs
+@@ -1,7 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+-using Steeltoe.Extensions.Configuration.CloudFoundry;
++using Pivotal.Extensions.Configuration.ConfigServer;
+ 
+ namespace RegistrationServer
+ {
+@@ -20,7 +20,7 @@ namespace RegistrationServer
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
+                 .UseCloudFoundryHosting()
+-                .AddCloudFoundry()
++                .AddConfigServer()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
+index 0c94526..63d39c1 100755
+--- a/Applications/RegistrationServer/RegistrationServer.csproj
++++ b/Applications/RegistrationServer/RegistrationServer.csproj
+@@ -19,6 +19,7 @@
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
+index 9eab605..f36cef4 100755
+--- a/Applications/RegistrationServer/appsettings.json
++++ b/Applications/RegistrationServer/appsettings.json
+@@ -16,5 +16,15 @@
+             "hostname": "localhost",
+             "port": 8883
+         }
++    },
++    "spring": {
++        "application": {
++            "name": "registration-server"
++        },
++        "cloud": {
++            "config": {
++                "failFast": true
++            }
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/Program.cs b/Applications/TimesheetsServer/Program.cs
+index dbe5eec..1ea0db6 100755
+--- a/Applications/TimesheetsServer/Program.cs
++++ b/Applications/TimesheetsServer/Program.cs
+@@ -1,7 +1,7 @@
+ ﻿using Microsoft.AspNetCore;
+ using Microsoft.AspNetCore.Hosting;
+ using Microsoft.Extensions.Configuration;
+-using Steeltoe.Extensions.Configuration.CloudFoundry;
++using Pivotal.Extensions.Configuration.ConfigServer;
+ 
+ namespace TimesheetsServer
+ {
+@@ -20,7 +20,7 @@ namespace TimesheetsServer
+                 // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
+                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
+                 .UseCloudFoundryHosting()
+-                .AddCloudFoundry()
++                .AddConfigServer()
+                 .UseStartup<Startup>();
+     }
+ }
+\ No newline at end of file
+diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
+index 9c8a8cd..965310b 100755
+--- a/Applications/TimesheetsServer/TimesheetsServer.csproj
++++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
+@@ -17,6 +17,7 @@
+     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+     <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
++    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
+     <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
+   </ItemGroup>
+diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
+index e581e67..3eefa71 100755
+--- a/Applications/TimesheetsServer/appsettings.json
++++ b/Applications/TimesheetsServer/appsettings.json
+@@ -5,7 +5,6 @@
+             "Default": "Warning"
+         }
+     },
+-    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
+     "eureka": {
+         "client": {
+             "serviceUrl": "http://localhost:8761/eureka/",
+@@ -25,5 +24,15 @@
+                 }
+             }
+         }
++    },
++    "spring": {
++        "application": {
++            "name": "timesheets-server"
++        },
++        "cloud": {
++            "config": {
++                "failFast": true
++            }
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/config-server.json b/config-server.json
+new file mode 100644
+index 0000000..5355b55
+--- /dev/null
++++ b/config-server.json
+@@ -0,0 +1,6 @@
++{
++  "git": {
++    "uri": "https://github.com/<your-github-username>/tracker-config.git",
++    "label": "master"
++  }
++}
+\ No newline at end of file
+diff --git a/manifest-allocations.yml b/manifest-allocations.yml
+index dd6e548..85527ec 100644
+--- a/manifest-allocations.yml
++++ b/manifest-allocations.yml
+@@ -13,4 +13,5 @@ applications:
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+   - tracker-amqp
+-  - tracker-sso
+\ No newline at end of file
++  - tracker-sso
++  - tracker-config-server
+\ No newline at end of file
+diff --git a/manifest-backlog.yml b/manifest-backlog.yml
+index 5e838ec..ae5c470 100644
+--- a/manifest-backlog.yml
++++ b/manifest-backlog.yml
+@@ -13,4 +13,5 @@ applications:
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+   - tracker-amqp
+-  - tracker-sso
+\ No newline at end of file
++  - tracker-sso
++  - tracker-config-server
+\ No newline at end of file
+diff --git a/manifest-registration.yml b/manifest-registration.yml
+index d7dba22..48c10f4 100644
+--- a/manifest-registration.yml
++++ b/manifest-registration.yml
+@@ -11,4 +11,5 @@ applications:
+   services:
+   - tracker-registration-database
+   - tracker-service-registry
+-  - tracker-sso
+\ No newline at end of file
++  - tracker-sso
++  - tracker-config-server
+\ No newline at end of file
+diff --git a/manifest-timesheets.yml b/manifest-timesheets.yml
+index 1729417..70be7f2 100644
+--- a/manifest-timesheets.yml
++++ b/manifest-timesheets.yml
+@@ -13,4 +13,5 @@ applications:
+   - tracker-service-registry
+   - tracker-circuit-breaker-dashboard
+   - tracker-amqp
+-  - tracker-sso
+\ No newline at end of file
++  - tracker-sso
++  - tracker-config-server
+\ No newline at end of file
+diff --git a/vcap_services.json b/vcap_services.json
+index 2c9cef7..c3c9cb7 100644
+--- a/vcap_services.json
++++ b/vcap_services.json
+@@ -1,4 +1,21 @@
+ {
++    "p-config-server": [
++        {
++            "credentials": {
++                "uri": "http://localhost:8777"
++            },
++            "label": "p-config-server",
++            "name": "tracker-config-server",
++            "plan": "standard",
++            "provider": null,
++            "syslog_drain_url": null,
++            "tags": [
++                "configuration",
++                "spring-cloud"
++            ],
++            "volume_mounts": []
++        }
++    ],
+     "p-identity": [
+         {
+             "credentials": {
+@@ -35,4 +52,4 @@
+             "tags": ["mysql", "relational"]
+         }
+     ]
+-}
++}
+\ No newline at end of file
+-- 
+2.14.3 (Apple Git-98)
+
