@@ -1,4 +1,4 @@
-From c80677d997c0ef578dc6da7e9c289d942ef2686c Mon Sep 17 00:00:00 2001
+From 13271d4c61a60165508fa9bf5def673b6ade074d Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -143,10 +143,10 @@ Subject: [PATCH 1/5] Initial commit
  migrate-cf.sh                                      |  55 ++++
  migrate-local.sh                                   |  23 ++
  references.sh                                      |  13 +
- start-servers.sh                                   |  29 ++
+ start-server.sh                                    |  51 ++++
  test.sh                                            |   8 +
  vcap_services.json                                 |  22 ++
- 142 files changed, 4056 insertions(+)
+ 142 files changed, 4078 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -286,7 +286,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 migrate-cf.sh
  create mode 100755 migrate-local.sh
  create mode 100755 references.sh
- create mode 100755 start-servers.sh
+ create mode 100755 start-server.sh
  create mode 100755 test.sh
  create mode 100644 vcap_services.json
 
@@ -6183,40 +6183,62 @@ index 0000000..cc65b3f
 +    done
 +done
 \ No newline at end of file
-diff --git a/start-servers.sh b/start-servers.sh
+diff --git a/start-server.sh b/start-server.sh
 new file mode 100755
-index 0000000..87b4654
+index 0000000..2c08400
 --- /dev/null
-+++ b/start-servers.sh
-@@ -0,0 +1,29 @@
++++ b/start-server.sh
+@@ -0,0 +1,51 @@
 +#!/usr/bin/env bash
 +
 +set -e
 +
-+function lcase() {
++declare -a apps=( "Registration" "Allocations" "Backlog" "Timesheets" )
++declare -a ports=( 8883 8881 8882 8884 )
++
++function usage() {
++    echo -e "\nStarts a specific server or all servers if the name is omitted.\n\nUsage:\n\n$0 [$(join_by ' | ' "${apps[@]}")]\n"
++    exit 1
++}
++
++function join_by {
++    local d=$1
++    shift
++    echo -n "$1"
++    shift
++    printf "%s" "${@/#/$d}"
++}
++
++function to_lower() {
 +    echo $1 | tr '[:upper:]' '[:lower:]'
 +}
 +
-+function startServer() {
-+    local appDir=Applications/${1}Server
-+    local dbName=tracker_$(lcase $1)_dev
++function start_server() {
++    local projectPath=Applications/${1}Server/${1}Server.csproj
++    local dbName=tracker_$(to_lower $1)_dev
 +    local port=$2
 +    local vcap_services=$(cat vcap_services.json | sed -e "s/<<DB_NAME>>/${dbName}/")
-+    
-+    cd $appDir
 +    
 +    export Logging__LogLevel__Default=Debug
 +    export REGISTRATION_SERVER_ENDPOINT=http://localhost:8883/
 +    export VCAP_SERVICES=${vcap_services}
 +    
-+    dotnet run --urls "http://*:${port}"
++    dotnet run --project "$projectPath" --urls "http://*:${port}"
 +}
 +
++if [[ -n "$1" ]] && [[ ! " ${apps[@]} " =~ " ${1} " ]]
++    then usage
++fi
++
 +trap "kill 0" EXIT
-+    startServer Registration 8883 &
-+    startServer Allocations 8881 &
-+    startServer Backlog 8882 &
-+    startServer Timesheets 8884 &
++    for i in ${!apps[@]}
++    do
++        app=${apps[$i]}
++        if [[ "$1" = "$app" ]] || [ -z "$1" ]
++        then
++            start_server "$app" "${ports[$i]}" &
++        fi
++    done
 +wait
 \ No newline at end of file
 diff --git a/test.sh b/test.sh

@@ -1,4 +1,4 @@
-From d54df0eb8224e4ed47780e3b5339f0215204019f Mon Sep 17 00:00:00 2001
+From 3d8e13d385a1b85381f9554f3db3e95b36e7184f Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Fri, 16 Feb 2018 13:23:51 -0700
 Subject: [PATCH 4/5] Add security
@@ -34,7 +34,7 @@ Subject: [PATCH 4/5] Add security
  manifest-backlog.yml                               |  5 +++-
  manifest-registration.yml                          |  5 +++-
  manifest-timesheets.yml                            |  5 +++-
- start-servers.sh                                   |  1 +
+ start-server.sh                                    |  1 +
  vcap_services.json                                 | 18 +++++++++++++-
  32 files changed, 250 insertions(+), 25 deletions(-)
  create mode 100644 Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
@@ -886,17 +886,17 @@ index 3c32a65..1729417 100644
 +  - tracker-amqp
 +  - tracker-sso
 \ No newline at end of file
-diff --git a/start-servers.sh b/start-servers.sh
-index d1fd623..79ca49b 100755
---- a/start-servers.sh
-+++ b/start-servers.sh
-@@ -16,6 +16,7 @@ function startServer() {
+diff --git a/start-server.sh b/start-server.sh
+index 144501d..369f8ca 100755
+--- a/start-server.sh
++++ b/start-server.sh
+@@ -30,6 +30,7 @@ function start_server() {
      
      export Logging__LogLevel__Default=Debug
      export VCAP_SERVICES=${vcap_services}
 +    export DISABLE_AUTH=true
      
-     dotnet run --urls "http://*:${port}"
+     dotnet run --project "$projectPath" --urls "http://*:${port}"
  }
 diff --git a/vcap_services.json b/vcap_services.json
 index 7521eb5..2c9cef7 100644

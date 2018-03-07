@@ -1,4 +1,4 @@
-From 068f94624eda2f31dfd2b825d1dd970129f284e2 Mon Sep 17 00:00:00 2001
+From 169dcce53daef56cb83fdf6f2751a247562260aa Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 13 Feb 2018 11:30:42 -0700
 Subject: [PATCH 2/5] Enable service discovery
@@ -24,7 +24,7 @@ Subject: [PATCH 2/5] Enable service discovery
  manifest-backlog.yml                                      |  5 ++---
  manifest-registration.yml                                 |  3 ++-
  manifest-timesheets.yml                                   |  5 ++---
- start-servers.sh                                          |  1 -
+ start-server.sh                                           |  1 -
  21 files changed, 90 insertions(+), 14 deletions(-)
 
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
@@ -459,18 +459,18 @@ index f5e1866..f9716a5 100644
 +  - tracker-timesheets-database
 +  - tracker-service-registry
 \ No newline at end of file
-diff --git a/start-servers.sh b/start-servers.sh
-index 87b4654..d1fd623 100755
---- a/start-servers.sh
-+++ b/start-servers.sh
-@@ -15,7 +15,6 @@ function startServer() {
-     cd $appDir
+diff --git a/start-server.sh b/start-server.sh
+index 2c08400..144501d 100755
+--- a/start-server.sh
++++ b/start-server.sh
+@@ -29,7 +29,6 @@ function start_server() {
+     local vcap_services=$(cat vcap_services.json | sed -e "s/<<DB_NAME>>/${dbName}/")
      
      export Logging__LogLevel__Default=Debug
 -    export REGISTRATION_SERVER_ENDPOINT=http://localhost:8883/
      export VCAP_SERVICES=${vcap_services}
      
-     dotnet run --urls "http://*:${port}"
+     dotnet run --project "$projectPath" --urls "http://*:${port}"
 -- 
 2.14.3 (Apple Git-98)
 
