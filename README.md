@@ -1,5 +1,7 @@
 # PAL Tracker Distributed Dotnet source code
 
+NOTE: Patches are now updated automatically via [QuiltBot](https://github.com/noizwaves/quiltbot) running on [PAL Concourse](https://concourse.pal.pivotal.io/teams/instructor-code/pipelines/pal-tracker-distributed-dotnet-quiltbot)
+
 ## Quick Start
 
 1. Clone this repo and `cd` into directory
