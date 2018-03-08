@@ -1,4 +1,4 @@
-From 13271d4c61a60165508fa9bf5def673b6ade074d Mon Sep 17 00:00:00 2001
+From c76704a7775fe0e35134a06c6070bfa23ae1cffa Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -6073,7 +6073,7 @@ index 0000000..f5e1866
 \ No newline at end of file
 diff --git a/migrate-cf.sh b/migrate-cf.sh
 new file mode 100755
-index 0000000..1e85fb3
+index 0000000..7a762ab
 --- /dev/null
 +++ b/migrate-cf.sh
 @@ -0,0 +1,55 @@
@@ -6087,7 +6087,7 @@ index 0000000..1e85fb3
 +        migrationsPath=Databases/${appName/tracker-/}-database
 +        
 +        appGuid=$(cf app $1 --guid)
-+        credentials=$(cf curl /v2/apps/${appGuid}/env | jq -r .system_env_json'.VCAP_SERVICES["p-mysql"][].credentials')
++        credentials=$(cf curl v2/apps/${appGuid}/env | jq -r .system_env_json'.VCAP_SERVICES["p-mysql"][].credentials')
 +        
 +        database=$(echo ${credentials} | jq -r .name)
 +        username=$(echo ${credentials} | jq -r .username)
@@ -6111,7 +6111,7 @@ index 0000000..1e85fb3
 +
 +function closeTunnel() {
 +    echo -e "\nClosing tunnel..."
-+    kill $1
++    kill -9 $1
 +    wait $1 2>/dev/null
 +}
 +
@@ -6132,7 +6132,6 @@ index 0000000..1e85fb3
 +cfMigrate tracker-backlog &&
 +cfMigrate tracker-registration &&
 +cfMigrate tracker-timesheets
-\ No newline at end of file
 diff --git a/migrate-local.sh b/migrate-local.sh
 new file mode 100755
 index 0000000..95a1df3
