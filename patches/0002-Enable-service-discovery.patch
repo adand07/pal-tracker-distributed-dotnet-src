@@ -472,5 +472,5 @@ index 2c08400..144501d 100755
      
      dotnet run --project "$projectPath" --urls "http://*:${port}"
 -- 
-2.14.3 (Apple Git-98)
+2.12.3
 
