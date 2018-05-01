@@ -1,4 +1,4 @@
-From cdb4dbdc73cc17af0f6d7d88d9112aa43b2d2589 Mon Sep 17 00:00:00 2001
+From 0d3c84e0112ab3811b7c6082c3a3137010952aa3 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 15 Feb 2018 15:49:55 -0700
 Subject: [PATCH 3/5] Enable circuit breaker
@@ -31,7 +31,7 @@ Subject: [PATCH 3/5] Enable circuit breaker
  create mode 100644 Components/Timesheets/GetProjectCommand.cs
 
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
-index 297e65c..726f433 100755
+index d8e95f1..beade3e 100755
 --- a/Applications/AllocationsServer/Startup.cs
 +++ b/Applications/AllocationsServer/Startup.cs
 @@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
@@ -97,7 +97,7 @@ index 14a4e96..e581e67 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
-index 12b81c3..acb5a66 100755
+index cb3fd23..1949c8a 100755
 --- a/Applications/BacklogServer/Startup.cs
 +++ b/Applications/BacklogServer/Startup.cs
 @@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
@@ -158,7 +158,7 @@ index 14a4e96..e581e67 100755
  }
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
-index 6c3ba03..2d74717 100755
+index ee818a3..466a32f 100755
 --- a/Applications/TimesheetsServer/Startup.cs
 +++ b/Applications/TimesheetsServer/Startup.cs
 @@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
@@ -323,7 +323,7 @@ index 3a141d7..f2c4ac1 100644
  }
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsControllerTest.cs b/Components/AllocationsTest/AllocationsControllerTest.cs
-index fe62485..152aad1 100644
+index 51322ec..1d38713 100644
 --- a/Components/AllocationsTest/AllocationsControllerTest.cs
 +++ b/Components/AllocationsTest/AllocationsControllerTest.cs
 @@ -4,6 +4,7 @@ using System.Net.Http;
@@ -334,12 +334,12 @@ index fe62485..152aad1 100644
  using TestSupport;
  using Xunit;
  using static TestSupport.TestServers;
-@@ -30,7 +31,7 @@ namespace AllocationsTest
+@@ -37,7 +38,7 @@ namespace AllocationsTest
  
              var controller =
-                 new AllocationController(new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+                 new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)),
 -                    new ProjectClient(_client));
-+                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
++                    new ProjectClient(_client,  new LoggerFactory().CreateLogger<ProjectClient>()));
  
              var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
                  DateTime.Parse("2014-05-26"), ""));
@@ -448,7 +448,7 @@ index 1017b3a..5f23836 100644
  }
 \ No newline at end of file
 diff --git a/Components/BacklogTest/StoryControllerTest.cs b/Components/BacklogTest/StoryControllerTest.cs
-index d027fad..650556d 100755
+index db291c5..f2d1579 100755
 --- a/Components/BacklogTest/StoryControllerTest.cs
 +++ b/Components/BacklogTest/StoryControllerTest.cs
 @@ -3,6 +3,7 @@ using System.Net.Http;
@@ -459,19 +459,19 @@ index d027fad..650556d 100755
  using TestSupport;
  using Xunit;
  using static TestSupport.TestServers;
-@@ -30,7 +31,7 @@ namespace BacklogTest
+@@ -37,7 +38,7 @@ namespace BacklogTest
  
              var controller =
-                 new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+                 new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 -                    new ProjectClient(_client));
 +                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
  
              var value = controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
              var actual = (StoryInfo) ((ObjectResult) value).Value;
-@@ -48,7 +49,7 @@ namespace BacklogTest
+@@ -55,7 +56,7 @@ namespace BacklogTest
  
              var controller =
-                 new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+                 new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 -                    new ProjectClient(_client));
 +                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
              var result = controller.Get(55432);
@@ -582,7 +582,7 @@ index 4ff6bc1..9c754c1 100755
      <PackageReference Include="MySqlConnector" Version="0.35.0" />
    </ItemGroup>
 diff --git a/Components/TimesheetsTest/TimeEntryControllerTest.cs b/Components/TimesheetsTest/TimeEntryControllerTest.cs
-index 8e84106..3b172f2 100755
+index 09f7a75..25c0859 100755
 --- a/Components/TimesheetsTest/TimeEntryControllerTest.cs
 +++ b/Components/TimesheetsTest/TimeEntryControllerTest.cs
 @@ -3,6 +3,7 @@ using System.Collections.Generic;
@@ -593,19 +593,19 @@ index 8e84106..3b172f2 100755
  using TestSupport;
  using Timesheets;
  using Xunit;
-@@ -31,7 +32,7 @@ namespace TimesheetsTest
+@@ -38,7 +39,7 @@ namespace TimesheetsTest
  
              var controller =
-                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 -                    new ProjectClient(_client));
 +                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
  
              var value = controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
              var actual = (TimeEntryInfo) ((ObjectResult) value).Value;
-@@ -51,7 +52,7 @@ namespace TimesheetsTest
+@@ -58,7 +59,7 @@ namespace TimesheetsTest
  
              var controller =
-                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
+                 new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 -                    new ProjectClient(_client));
 +                    new ProjectClient(_client, new LoggerFactory().CreateLogger<ProjectClient>()));
              var result = controller.Get(4765);

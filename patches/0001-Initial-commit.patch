@@ -1,4 +1,4 @@
-From c76704a7775fe0e35134a06c6070bfa23ae1cffa Mon Sep 17 00:00:00 2001
+From 1a55ce0919c54a082befcb418a606500fd8633c3 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -37,11 +37,11 @@ Subject: [PATCH 1/5] Initial commit
  Components/Accounts/IRegistrationService.cs        |   9 +
  Components/Accounts/RegistrationController.cs      |  24 ++
  Components/Accounts/RegistrationService.cs         |  24 ++
- Components/AccountsTest/AccountControllerTest.cs   |  44 +++
- Components/AccountsTest/AccountDataGatewayTest.cs  |  55 ++++
+ Components/AccountsTest/AccountControllerTest.cs   |  51 ++++
+ Components/AccountsTest/AccountDataGatewayTest.cs  |  62 ++++
  Components/AccountsTest/AccountsTest.csproj        |  17 ++
- .../AccountsTest/RegistrationControllerTest.cs     |  39 +++
- Components/AccountsTest/RegistrationServiceTest.cs |  30 ++
+ .../AccountsTest/RegistrationControllerTest.cs     |  46 +++
+ Components/AccountsTest/RegistrationServiceTest.cs |  37 +++
  Components/Allocations/AllocationController.cs     |  45 +++
  Components/Allocations/AllocationDataGateway.cs    |  43 +++
  Components/Allocations/AllocationInfo.cs           |  25 ++
@@ -51,8 +51,8 @@ Subject: [PATCH 1/5] Initial commit
  Components/Allocations/IProjectClient.cs           |   9 +
  Components/Allocations/ProjectClient.cs            |  25 ++
  Components/Allocations/ProjectInfo.cs              |  16 +
- .../AllocationsTest/AllocationsControllerTest.cs   |  62 ++++
- .../AllocationsTest/AllocationsDataGatewayTest.cs  |  51 ++++
+ .../AllocationsTest/AllocationsControllerTest.cs   |  69 +++++
+ .../AllocationsTest/AllocationsDataGatewayTest.cs  |  58 ++++
  Components/AllocationsTest/AllocationsTest.csproj  |  16 +
  Components/Backlog/Backlog.csproj                  |  15 +
  Components/Backlog/IProjectClient.cs               |   9 +
@@ -64,13 +64,13 @@ Subject: [PATCH 1/5] Initial commit
  Components/Backlog/StoryInfo.cs                    |  19 ++
  Components/Backlog/StoryRecord.cs                  |  17 ++
  Components/BacklogTest/BacklogTest.csproj          |  16 +
- Components/BacklogTest/StoryControllerTest.cs      |  58 ++++
- Components/BacklogTest/StoryDataGatewayTest.cs     |  49 ++++
- Components/DatabaseSupport/DataSourceConfig.cs     |  30 ++
+ Components/BacklogTest/StoryControllerTest.cs      |  65 ++++
+ Components/BacklogTest/StoryDataGatewayTest.cs     |  56 ++++
  Components/DatabaseSupport/DatabaseSupport.csproj  |  10 +
- Components/DatabaseSupport/DatabaseTemplate.cs     | 115 ++++++++
+ Components/DatabaseSupport/DatabaseTemplate.cs     | 115 +++++++
  Components/DatabaseSupport/IDataSourceConfig.cs    |   9 +
  Components/DatabaseSupport/IDatabaseTemplate.cs    |  15 +
+ Components/DatabaseSupport/VcapDataSourceConfig.cs |  30 ++
  .../DatabaseSupportTest/DataSourceConfigTest.cs    |  31 ++
  .../DatabaseSupportTest/DatabaseSupportTest.csproj |  13 +
  Components/DefaultRoute/DefaultController.cs       |  11 +
@@ -81,12 +81,12 @@ Subject: [PATCH 1/5] Initial commit
  Components/Projects/ProjectInfo.cs                 |  21 ++
  Components/Projects/ProjectRecord.cs               |  19 ++
  Components/Projects/Projects.csproj                |  16 +
- Components/ProjectsTest/ProjectControllerTest.cs   |  76 +++++
- Components/ProjectsTest/ProjectDataGatewayTest.cs  |  76 +++++
+ Components/ProjectsTest/ProjectControllerTest.cs   |  83 +++++
+ Components/ProjectsTest/ProjectDataGatewayTest.cs  |  83 +++++
  Components/ProjectsTest/ProjectsTest.csproj        |  18 ++
  Components/TestSupport/IntegrationTestServer.cs    |  26 ++
- Components/TestSupport/TestDatabaseSupport.cs      |  62 ++++
- Components/TestSupport/TestEnvSupport.cs           |  33 +++
+ Components/TestSupport/TestDatabaseSupport.cs      |  68 +++++
+ Components/TestSupport/TestEnvSupport.cs           |  33 ++
  Components/TestSupport/TestServerResponder.cs      |  30 ++
  Components/TestSupport/TestServers.cs              |  10 +
  Components/TestSupport/TestSupport.csproj          |  18 ++
@@ -99,8 +99,8 @@ Subject: [PATCH 1/5] Initial commit
  Components/Timesheets/TimeEntryInfo.cs             |  25 ++
  Components/Timesheets/TimeEntryRecord.cs           |  23 ++
  Components/Timesheets/Timesheets.csproj            |  17 ++
- .../TimesheetsTest/TimeEntryControllerTest.cs      |  61 ++++
- .../TimesheetsTest/TimeEntryDataGatewayTest.cs     |  51 ++++
+ .../TimesheetsTest/TimeEntryControllerTest.cs      |  68 +++++
+ .../TimesheetsTest/TimeEntryDataGatewayTest.cs     |  58 ++++
  Components/TimesheetsTest/TimesheetsTest.csproj    |  16 +
  Components/Users/IUserDataGateway.cs               |   9 +
  Components/Users/UserController.cs                 |  28 ++
@@ -108,15 +108,19 @@ Subject: [PATCH 1/5] Initial commit
  Components/Users/UserInfo.cs                       |  16 +
  Components/Users/UserRecord.cs                     |  14 +
  Components/Users/Users.csproj                      |  14 +
- Components/UsersTest/UserControllerTest.cs         |  33 +++
- Components/UsersTest/UserDataGatewayTest.cs        |  48 +++
+ Components/UsersTest/UserControllerTest.cs         |  40 +++
+ Components/UsersTest/UserDataGatewayTest.cs        |  56 ++++
  Components/UsersTest/UsersTest.csproj              |  16 +
  .../migrations/V1__initial_schema.sql              |  11 +
  .../migrations/V1__initial_schema.sql              |   9 +
  Databases/create_databases.sql                     |  22 ++
  .../migrations/V1__initial_schema.sql              |  34 +++
  .../migrations/V1__initial_schema.sql              |  11 +
- PalTracker.sln                                     | 326 +++++++++++++++++++++
+ IntegrationTest/AppServerBuilder.AppServer.cs      | 121 ++++++++
+ IntegrationTest/AppServerBuilder.cs                |  49 +++
+ IntegrationTest/FlowTest.cs                        | 194 ++++++++++++
+ IntegrationTest/IntegrationTest.csproj             |  13 +
+ PalTracker.sln                                     | 340 +++++++++++++++++++++
  PlatformServices/ConfigServer/build.gradle         |   3 +
  .../io/pivotal/pal/tracker/configserver/App.java   |  14 +
  .../src/main/resources/application.properties      |   3 +
@@ -127,13 +131,13 @@ Subject: [PATCH 1/5] Initial commit
  .../pivotal/pal/tracker/hystrixdashboard/App.java  |  14 +
  .../src/main/resources/application.properties      |   2 +
  PlatformServices/OAuthServer/build.gradle          |   5 +
- .../io/pivotal/pal/tracker/oauthserver/App.java    |  33 +++
+ .../io/pivotal/pal/tracker/oauthserver/App.java    |  33 ++
  .../src/main/resources/application.properties      |   2 +
  PlatformServices/build.gradle                      |  31 ++
  PlatformServices/gradle/wrapper/gradle-wrapper.jar | Bin 0 -> 54208 bytes
  .../gradle/wrapper/gradle-wrapper.properties       |   6 +
  PlatformServices/gradlew                           | 172 +++++++++++
- PlatformServices/gradlew.bat                       |  84 ++++++
+ PlatformServices/gradlew.bat                       |  84 +++++
  PlatformServices/settings.gradle                   |   6 +
  grh-config.json                                    |  21 ++
  manifest-allocations.yml                           |  12 +
@@ -144,9 +148,9 @@ Subject: [PATCH 1/5] Initial commit
  migrate-local.sh                                   |  23 ++
  references.sh                                      |  13 +
  start-server.sh                                    |  51 ++++
- test.sh                                            |   8 +
+ test.sh                                            |  10 +
  vcap_services.json                                 |  22 ++
- 142 files changed, 4078 insertions(+)
+ 146 files changed, 4576 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -209,11 +213,11 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/BacklogTest/BacklogTest.csproj
  create mode 100755 Components/BacklogTest/StoryControllerTest.cs
  create mode 100755 Components/BacklogTest/StoryDataGatewayTest.cs
- create mode 100755 Components/DatabaseSupport/DataSourceConfig.cs
  create mode 100755 Components/DatabaseSupport/DatabaseSupport.csproj
  create mode 100644 Components/DatabaseSupport/DatabaseTemplate.cs
  create mode 100644 Components/DatabaseSupport/IDataSourceConfig.cs
  create mode 100644 Components/DatabaseSupport/IDatabaseTemplate.cs
+ create mode 100755 Components/DatabaseSupport/VcapDataSourceConfig.cs
  create mode 100755 Components/DatabaseSupportTest/DataSourceConfigTest.cs
  create mode 100755 Components/DatabaseSupportTest/DatabaseSupportTest.csproj
  create mode 100755 Components/DefaultRoute/DefaultController.cs
@@ -259,6 +263,10 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100644 Databases/create_databases.sql
  create mode 100644 Databases/registration-database/migrations/V1__initial_schema.sql
  create mode 100644 Databases/timesheets-database/migrations/V1__initial_schema.sql
+ create mode 100644 IntegrationTest/AppServerBuilder.AppServer.cs
+ create mode 100644 IntegrationTest/AppServerBuilder.cs
+ create mode 100644 IntegrationTest/FlowTest.cs
+ create mode 100644 IntegrationTest/IntegrationTest.csproj
  create mode 100644 PalTracker.sln
  create mode 100644 PlatformServices/ConfigServer/build.gradle
  create mode 100644 PlatformServices/ConfigServer/src/main/java/io/pivotal/pal/tracker/configserver/App.java
@@ -386,7 +394,7 @@ index 0000000..3c51fee
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
 new file mode 100755
-index 0000000..ac81eb9
+index 0000000..ddd72b5
 --- /dev/null
 +++ b/Applications/AllocationsServer/Startup.cs
 @@ -0,0 +1,52 @@
@@ -417,7 +425,7 @@ index 0000000..ac81eb9
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
++            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
 +            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
 +            services.AddSingleton<IAllocationDataGateway, AllocationDataGateway>();
 +
@@ -533,7 +541,7 @@ index 0000000..aeb9712
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
 new file mode 100755
-index 0000000..d174a76
+index 0000000..f64f34f
 --- /dev/null
 +++ b/Applications/BacklogServer/Startup.cs
 @@ -0,0 +1,52 @@
@@ -564,7 +572,7 @@ index 0000000..d174a76
 +            // Add framework services.
 +            services.AddMvc();
 +            
-+            services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
++            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
 +            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
 +            services.AddSingleton<IStoryDataGateway, StoryDataGateway>();
 +            
@@ -682,7 +690,7 @@ index 0000000..1faa3b5
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
 new file mode 100755
-index 0000000..9549a8c
+index 0000000..1728e50
 --- /dev/null
 +++ b/Applications/RegistrationServer/Startup.cs
 @@ -0,0 +1,45 @@
@@ -713,7 +721,7 @@ index 0000000..9549a8c
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
++            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
 +            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
 +            services.AddSingleton<IAccountDataGateway, AccountDataGateway>();
 +            services.AddSingleton<IProjectDataGateway, ProjectDataGateway>();
@@ -796,7 +804,7 @@ index 0000000..085cd4f
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
 new file mode 100755
-index 0000000..8fa885a
+index 0000000..129ac5c
 --- /dev/null
 +++ b/Applications/TimesheetsServer/Startup.cs
 @@ -0,0 +1,52 @@
@@ -827,7 +835,7 @@ index 0000000..8fa885a
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, DataSourceConfig>();
++            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
 +            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
 +            services.AddSingleton<ITimeEntryDataGateway, TimeEntryDataGateway>();
 +            
@@ -1380,10 +1388,10 @@ index 0000000..496a971
 \ No newline at end of file
 diff --git a/Components/AccountsTest/AccountControllerTest.cs b/Components/AccountsTest/AccountControllerTest.cs
 new file mode 100755
-index 0000000..cc11310
+index 0000000..8ae6b76
 --- /dev/null
 +++ b/Components/AccountsTest/AccountControllerTest.cs
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,51 @@
 +using System.Collections.Generic;
 +using Accounts;
 +using DatabaseSupport;
@@ -1396,22 +1404,29 @@ index 0000000..cc11310
 +    [Collection("Accounts")]
 +    public class AccountControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static AccountControllerTest() => TestEnvSupport.SetRegistrationVcap();
-+        public AccountControllerTest() => _support.TruncateAllTables();
++        static AccountControllerTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public AccountControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
-+            _support.ExecSql(@"insert into accounts (id, owner_id, name) 
++            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
++            Support.ExecSql(@"insert into accounts (id, owner_id, name) 
 +            values (1673, 4765, 'Jack''s account'), (1674, 4765, 'Jack''s other account'), 
 +            (1675, 4766, 'Fred''s account');");
 +
 +            var controller =
-+                new AccountController(new AccountDataGateway(new DatabaseTemplate(_dataSourceConfig)));
++                new AccountController(new AccountDataGateway(new DatabaseTemplate(DataSourceConfig)));
 +            var result = controller.Get(4765);
 +
 +            var info = (List<AccountInfo>) ((ObjectResult) result).Value;
@@ -1431,10 +1446,10 @@ index 0000000..cc11310
 \ No newline at end of file
 diff --git a/Components/AccountsTest/AccountDataGatewayTest.cs b/Components/AccountsTest/AccountDataGatewayTest.cs
 new file mode 100755
-index 0000000..1f2597f
+index 0000000..dc49045
 --- /dev/null
 +++ b/Components/AccountsTest/AccountDataGatewayTest.cs
-@@ -0,0 +1,55 @@
+@@ -0,0 +1,62 @@
 +using System.Collections.Generic;
 +using System.Data.Common;
 +using System.Linq;
@@ -1448,18 +1463,25 @@ index 0000000..1f2597f
 +    [Collection("Accounts")]
 +    public class AccountDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static AccountDataGatewayTest() => TestEnvSupport.SetRegistrationVcap();
-+        public AccountDataGatewayTest() => _support.TruncateAllTables();
-+        
++        static AccountDataGatewayTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public AccountDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
++
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            _support.ExecSql("insert into users (id, name) values (12, 'Jack');");
++            Support.ExecSql("insert into users (id, name) values (12, 'Jack');");
 +
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var gateway = new AccountDataGateway(template);
 +            gateway.Create(12, "anAccount");
 +
@@ -1472,12 +1494,12 @@ index 0000000..1f2597f
 +        [Fact]
 +        public void TestFindBy()
 +        {
-+            _support.ExecSql(@"
++            Support.ExecSql(@"
 +insert into users (id, name) values (12, 'Jack');
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount'), (2, 12, 'anotherAccount');
 +");
 +
-+            var gateway = new AccountDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
 +
 +            var actual = gateway.FindBy(12);
 +
@@ -1517,10 +1539,10 @@ index 0000000..302c3dc
 \ No newline at end of file
 diff --git a/Components/AccountsTest/RegistrationControllerTest.cs b/Components/AccountsTest/RegistrationControllerTest.cs
 new file mode 100755
-index 0000000..3e00056
+index 0000000..6766278
 --- /dev/null
 +++ b/Components/AccountsTest/RegistrationControllerTest.cs
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,46 @@
 +using Accounts;
 +using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
@@ -1533,21 +1555,28 @@ index 0000000..3e00056
 +    [Collection("Accounts")]
 +    public class RegistrationControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static RegistrationControllerTest() => TestEnvSupport.SetRegistrationVcap();
-+        public RegistrationControllerTest() => _support.TruncateAllTables(); 
++        static RegistrationControllerTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public RegistrationControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            _support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
-+            _support.ExecSql(@"insert into accounts (id, owner_id, name) 
++            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
++            Support.ExecSql(@"insert into accounts (id, owner_id, name) 
 +            values (1673, 4765, 'Jack''s account'), (1674, 4766, 'Fred''s account');");
 +
-+            var userDataGateway = new UserDataGateway(new DatabaseTemplate(_dataSourceConfig));
-+            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var userDataGateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var service = new RegistrationService(userDataGateway, accountDataGateway);
 +
 +            var controller = new RegisationController(service);
@@ -1563,10 +1592,10 @@ index 0000000..3e00056
 \ No newline at end of file
 diff --git a/Components/AccountsTest/RegistrationServiceTest.cs b/Components/AccountsTest/RegistrationServiceTest.cs
 new file mode 100755
-index 0000000..665ebb5
+index 0000000..92a41b0
 --- /dev/null
 +++ b/Components/AccountsTest/RegistrationServiceTest.cs
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,37 @@
 +using Accounts;
 +using DatabaseSupport;
 +using TestSupport;
@@ -1578,17 +1607,24 @@ index 0000000..665ebb5
 +    [Collection("Accounts")]
 +    public class RegistrationServiceTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static RegistrationServiceTest() => TestEnvSupport.SetRegistrationVcap();
-+        public RegistrationServiceTest() => _support.TruncateAllTables();
++        static RegistrationServiceTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public RegistrationServiceTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestFindBy()
 +        {
-+            var userDataGateway = new UserDataGateway(new DatabaseTemplate(_dataSourceConfig));
-+            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var userDataGateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var service = new RegistrationService(userDataGateway, accountDataGateway);
 +
 +            var info = service.CreateUserWithAccount("aUser");
@@ -1876,10 +1912,10 @@ index 0000000..8b4ca90
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsControllerTest.cs b/Components/AllocationsTest/AllocationsControllerTest.cs
 new file mode 100644
-index 0000000..fe62485
+index 0000000..51322ec
 --- /dev/null
 +++ b/Components/AllocationsTest/AllocationsControllerTest.cs
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,69 @@
 +﻿using System;
 +using System.Collections.Generic;
 +using System.Net.Http;
@@ -1895,23 +1931,30 @@ index 0000000..fe62485
 +    [Collection("Allocations")]
 +    public class AllocationsControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
 +        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
 +
-+        static AllocationsControllerTest() => TestEnvSupport.SetAllocationsVcap();
-+        public AllocationsControllerTest() => _support.TruncateAllTables();
++        static AllocationsControllerTest()
++        {
++            TestEnvSupport.SetAllocationsVcap();
++        }
++
++        public AllocationsControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            _support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
++            Support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
 +                (754, 55432, 4765, '2015-05-17', '2015-05-18'), 
 +                (755, 55432, 4766, '2015-05-17', '2015-05-18');");
 +
 +            var controller =
-+                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig)),
++                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)),
 +                    new ProjectClient(_client));
 +
 +            var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
@@ -1929,12 +1972,12 @@ index 0000000..fe62485
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
++            Support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
 +                (754, 55432, 4765, '2015-05-17', '2015-05-18'), 
 +                (755, 55432, 4766, '2015-05-17', '2015-05-18');");
 +
 +            var controller =
-+                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig)), null);
++                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)), null);
 +            var result = controller.Get(55432);
 +
 +            // todo...
@@ -1945,10 +1988,10 @@ index 0000000..fe62485
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsDataGatewayTest.cs b/Components/AllocationsTest/AllocationsDataGatewayTest.cs
 new file mode 100755
-index 0000000..4c5dd0d
+index 0000000..a8de597
 --- /dev/null
 +++ b/Components/AllocationsTest/AllocationsDataGatewayTest.cs
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,58 @@
 +using System;
 +using System.Collections.Generic;
 +using System.Data.Common;
@@ -1963,20 +2006,27 @@ index 0000000..4c5dd0d
 +    [Collection("Allocations")]
 +    public class AllocationDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static AllocationDataGatewayTest() => TestEnvSupport.SetAllocationsVcap();
-+        public AllocationDataGatewayTest() => _support.TruncateAllTables();
++        static AllocationDataGatewayTest()
++        {
++            TestEnvSupport.SetAllocationsVcap();
++        }
++
++        public AllocationDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestCreate()
 +        {            
-+            var gateway = new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            gateway.Create(22, 12, DateTime.Now, DateTime.Now);
 +
 +            // todo...
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var projectIds = template.Query("select project_id from allocations", reader => reader.GetInt64(0),
 +                new List<DbParameter>());
 +
@@ -1986,10 +2036,10 @@ index 0000000..4c5dd0d
 +        [Fact]
 +        public void TestFind()
 +        {
-+            _support.ExecSql(@"insert into allocations 
++            Support.ExecSql(@"insert into allocations 
 +(id, project_id, user_id, first_day, last_day) values (97336, 22, 12, now(), now());");
 +
-+            var gateway = new AllocationDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var list = gateway.FindBy(22);
 +
 +            // todo...
@@ -2305,10 +2355,10 @@ index 0000000..b6b3501
 \ No newline at end of file
 diff --git a/Components/BacklogTest/StoryControllerTest.cs b/Components/BacklogTest/StoryControllerTest.cs
 new file mode 100755
-index 0000000..d027fad
+index 0000000..db291c5
 --- /dev/null
 +++ b/Components/BacklogTest/StoryControllerTest.cs
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,65 @@
 +using System.Collections.Generic;
 +using System.Net.Http;
 +using Backlog;
@@ -2323,24 +2373,31 @@ index 0000000..d027fad
 +    [Collection("Backlog")]
 +    public class StoryControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
 +        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
 +
-+        static StoryControllerTest() => TestEnvSupport.SetBacklogVcap();
-+        public StoryControllerTest() => _support.TruncateAllTables();
++        static StoryControllerTest()
++        {
++            TestEnvSupport.SetBacklogVcap();
++        }
 +
-+        private const string _sql = @"insert into stories (id, project_id, name) values (876, 55432, 'An epic story'), 
++        public StoryControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
++
++        private const string Sql = @"insert into stories (id, project_id, name) values (876, 55432, 'An epic story'), 
 +            (877, 55432, 'Another epic story');";
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(Sql);
 +
 +            var controller =
-+                new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
++                new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 +                    new ProjectClient(_client));
 +
 +            var value = controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
@@ -2355,10 +2412,10 @@ index 0000000..d027fad
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(Sql);
 +
 +            var controller =
-+                new StoryController(new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
++                new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 +                    new ProjectClient(_client));
 +            var result = controller.Get(55432);
 +
@@ -2370,10 +2427,10 @@ index 0000000..d027fad
 \ No newline at end of file
 diff --git a/Components/BacklogTest/StoryDataGatewayTest.cs b/Components/BacklogTest/StoryDataGatewayTest.cs
 new file mode 100755
-index 0000000..84b46c9
+index 0000000..493016e
 --- /dev/null
 +++ b/Components/BacklogTest/StoryDataGatewayTest.cs
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,56 @@
 +using System.Collections.Generic;
 +using System.Data.Common;
 +using System.Linq;
@@ -2387,20 +2444,27 @@ index 0000000..84b46c9
 +    [Collection("Backlog")]
 +    public class StoryDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static StoryDataGatewayTest() => TestEnvSupport.SetBacklogVcap();
-+        public StoryDataGatewayTest() => _support.TruncateAllTables();
++        static StoryDataGatewayTest()
++        {
++            TestEnvSupport.SetBacklogVcap();
++        }
++
++        public StoryDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var gateway = new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new StoryDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            gateway.Create(22, "aStory");
 +
 +            // todo...
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var projectIds = template.Query("select project_id from stories", reader => reader.GetInt64(0),
 +                new List<DbParameter>());
 +
@@ -2410,9 +2474,9 @@ index 0000000..84b46c9
 +        [Fact]
 +        public void TestFind()
 +        {
-+            _support.ExecSql("insert into stories (id, project_id, name) values (1346, 22, 'aStory');");
++            Support.ExecSql("insert into stories (id, project_id, name) values (1346, 22, 'aStory');");
 +
-+            var gateway = new StoryDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new StoryDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var list = gateway.FindBy(22);
 +
 +            // todo...
@@ -2420,43 +2484,6 @@ index 0000000..84b46c9
 +            Assert.Equal(1346, actual.Id);
 +            Assert.Equal(22, actual.ProjectId);
 +            Assert.Equal("aStory", actual.Name);
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/DataSourceConfig.cs b/Components/DatabaseSupport/DataSourceConfig.cs
-new file mode 100755
-index 0000000..a13cb3f
---- /dev/null
-+++ b/Components/DatabaseSupport/DataSourceConfig.cs
-@@ -0,0 +1,30 @@
-+﻿using System;
-+using System.Data.Common;
-+using MySql.Data.MySqlClient;
-+using Newtonsoft.Json.Linq;
-+
-+namespace DatabaseSupport
-+{
-+    public class DataSourceConfig : IDataSourceConfig
-+    {
-+        public DbConnection GetConnection()
-+        {
-+            var json = Environment.GetEnvironmentVariable("VCAP_SERVICES");
-+            var connection = GetConnectionString(json);
-+            return new MySqlConnection(connection); // todo - use db pool lib?
-+        }
-+
-+        private static string GetConnectionString(string json)
-+        {
-+            var services = JObject.Parse(json);
-+            var credentials = services["p-mysql"].First["credentials"];
-+            var host = credentials["hostname"];
-+            var port = credentials["port"];
-+            var database = credentials["name"];
-+            var user = credentials["username"];
-+            var password = credentials["password"];
-+
-+            return $"Server={host};User id={user};password={password};Port={port};Database={database};";
 +        }
 +    }
 +}
@@ -2638,9 +2665,46 @@ index 0000000..dd22cb7
 +    }
 +}
 \ No newline at end of file
+diff --git a/Components/DatabaseSupport/VcapDataSourceConfig.cs b/Components/DatabaseSupport/VcapDataSourceConfig.cs
+new file mode 100755
+index 0000000..2a123e6
+--- /dev/null
++++ b/Components/DatabaseSupport/VcapDataSourceConfig.cs
+@@ -0,0 +1,30 @@
++﻿using System;
++using System.Data.Common;
++using MySql.Data.MySqlClient;
++using Newtonsoft.Json.Linq;
++
++namespace DatabaseSupport
++{
++    public class VcapDataSourceConfig : IDataSourceConfig
++    {
++        public DbConnection GetConnection()
++        {
++            var json = Environment.GetEnvironmentVariable("VCAP_SERVICES");
++            var connection = GetConnectionString(json);
++            return new MySqlConnection(connection); // todo - use db pool lib?
++        }
++
++        private static string GetConnectionString(string json)
++        {
++            var services = JObject.Parse(json);
++            var credentials = services["p-mysql"].First["credentials"];
++            var host = credentials["hostname"];
++            var port = credentials["port"];
++            var database = credentials["name"];
++            var user = credentials["username"];
++            var password = credentials["password"];
++
++            return $"Server={host};User id={user};password={password};Port={port};Database={database};";
++        }
++    }
++}
+\ No newline at end of file
 diff --git a/Components/DatabaseSupportTest/DataSourceConfigTest.cs b/Components/DatabaseSupportTest/DataSourceConfigTest.cs
 new file mode 100755
-index 0000000..0d15730
+index 0000000..3214301
 --- /dev/null
 +++ b/Components/DatabaseSupportTest/DataSourceConfigTest.cs
 @@ -0,0 +1,31 @@
@@ -2650,7 +2714,7 @@ index 0000000..0d15730
 +
 +namespace DatabaseSupportTest
 +{
-+    public class DataSourceConfigTest
++    public class VcapDataSourceConfigTest
 +    {
 +        [Fact]
 +        public void GetConnection()
@@ -2670,7 +2734,7 @@ index 0000000..0d15730
 +                ]
 +            }");
 +
-+            var actual = new DataSourceConfig().GetConnection().ConnectionString;
++            var actual = new VcapDataSourceConfig().GetConnection().ConnectionString;
 +            Assert.Equal("Server=localhost;User Id=a_test_user;Password=a_test_password;Port=3306;Database=a_test_database", actual);
 +        }
 +    }
@@ -2947,10 +3011,10 @@ index 0000000..18701ac
 \ No newline at end of file
 diff --git a/Components/ProjectsTest/ProjectControllerTest.cs b/Components/ProjectsTest/ProjectControllerTest.cs
 new file mode 100755
-index 0000000..c31c63e
+index 0000000..28d19fc
 --- /dev/null
 +++ b/Components/ProjectsTest/ProjectControllerTest.cs
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,83 @@
 +using System.Collections.Generic;
 +using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
@@ -2963,10 +3027,10 @@ index 0000000..c31c63e
 +    [Collection("Projects")]
 +    public class ProjectControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        private readonly string _sql = @"
++        private const string _sql = @"
 +insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');
 +
 +insert into accounts (id, owner_id, name) 
@@ -2976,16 +3040,23 @@ index 0000000..c31c63e
 +values (55432, 1673, 'Flagship', true), (55431, 1673, 'Hovercraft', false);
 +";
 +
-+        static ProjectControllerTest() => TestEnvSupport.SetRegistrationVcap();
-+        public ProjectControllerTest() => _support.TruncateAllTables();
++        static ProjectControllerTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public ProjectControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(_sql);
 +
 +            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig)));
++                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
 +
 +            var value = controller.Post(new ProjectInfo(-1, 1673, "aProject", true, ""));
 +            var actual = (ProjectInfo) ((ObjectResult) value).Value;
@@ -3000,10 +3071,10 @@ index 0000000..c31c63e
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(_sql);
 +
 +            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig)));
++                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
 +            var result = controller.Get(55431);
 +            var actual = (ProjectInfo) ((ObjectResult) result).Value;
 +
@@ -3016,10 +3087,10 @@ index 0000000..c31c63e
 +        [Fact]
 +        public void TestList()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(_sql);
 +
 +            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig)));
++                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
 +            var result = controller.List(1673);
 +
 +            // todo - full asserts?
@@ -3030,10 +3101,10 @@ index 0000000..c31c63e
 \ No newline at end of file
 diff --git a/Components/ProjectsTest/ProjectDataGatewayTest.cs b/Components/ProjectsTest/ProjectDataGatewayTest.cs
 new file mode 100755
-index 0000000..9880f0d
+index 0000000..0643a2b
 --- /dev/null
 +++ b/Components/ProjectsTest/ProjectDataGatewayTest.cs
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,83 @@
 +using System.Collections.Generic;
 +using System.Data.Common;
 +using System.Linq;
@@ -3047,24 +3118,31 @@ index 0000000..9880f0d
 +    [Collection("Projects")]
 +    public class ProjectDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        public ProjectDataGatewayTest() => _support.TruncateAllTables();
-+        static ProjectDataGatewayTest() => TestEnvSupport.SetRegistrationVcap();
++        static ProjectDataGatewayTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public ProjectDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            _support.ExecSql(@"
++            Support.ExecSql(@"
 +insert into users (id, name) values (12, 'Jack');
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            gateway.Create(1, "aProject");
 +
 +            // todo...
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var projects = template.Query("select name from projects where account_id = 1",
 +                reader => reader.GetString(0),
 +                new List<DbParameter>());
@@ -3075,12 +3153,12 @@ index 0000000..9880f0d
 +        [Fact]
 +        public void TestFind()
 +        {
-+            _support.ExecSql(@"
++            Support.ExecSql(@"
 +insert into users (id, name) values (12, 'Jack');
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');
 +insert into projects (id, account_id, name) values (22, 1, 'aProject');");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var list = gateway.FindBy(1);
 +
 +            // todo...
@@ -3094,12 +3172,12 @@ index 0000000..9880f0d
 +        [Fact]
 +        public void TestFindObject()
 +        {
-+            _support.ExecSql(@"
++            Support.ExecSql(@"
 +insert into users (id, name) values (12, 'Jack');
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');
 +insert into projects (id, account_id, name, active) values (22, 1, 'aProject', true);");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var actual = gateway.FindObject(22);
 +
 +            // todo...
@@ -3170,17 +3248,23 @@ index 0000000..30b10ce
 \ No newline at end of file
 diff --git a/Components/TestSupport/TestDatabaseSupport.cs b/Components/TestSupport/TestDatabaseSupport.cs
 new file mode 100644
-index 0000000..4acbdfa
+index 0000000..56f48f9
 --- /dev/null
 +++ b/Components/TestSupport/TestDatabaseSupport.cs
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,68 @@
 +﻿using DatabaseSupport;
 +
 +namespace TestSupport
 +{
 +    public class TestDatabaseSupport
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
++        private readonly IDataSourceConfig _dataSourceConfig;
++        
++        public TestDatabaseSupport(IDataSourceConfig dataSourceConfig)
++        {
++            _dataSourceConfig = dataSourceConfig;
++        }
++
 +
 +        public void ExecSql(string sql)
 +        {
@@ -3636,10 +3720,10 @@ index 0000000..4ff6bc1
 \ No newline at end of file
 diff --git a/Components/TimesheetsTest/TimeEntryControllerTest.cs b/Components/TimesheetsTest/TimeEntryControllerTest.cs
 new file mode 100755
-index 0000000..8e84106
+index 0000000..09f7a75
 --- /dev/null
 +++ b/Components/TimesheetsTest/TimeEntryControllerTest.cs
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,68 @@
 +using System;
 +using System.Collections.Generic;
 +using System.Net.Http;
@@ -3655,24 +3739,31 @@ index 0000000..8e84106
 +    [Collection("Timesheets")]
 +    public class TimeEntryControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
 +        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
 +
-+        static TimeEntryControllerTest() => TestEnvSupport.SetTimesheetsVcap();
-+        public TimeEntryControllerTest() => _support.TruncateAllTables();
++        static TimeEntryControllerTest()
++        {
++            TestEnvSupport.SetTimesheetsVcap();
++        }
 +
-+        private const string _sql = @"insert into time_entries (id, project_id, user_id, date, hours)
++        public TimeEntryControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
++
++        private const string Sql = @"insert into time_entries (id, project_id, user_id, date, hours)
 +        values (1534, 55432, 4765, '2015-05-17', 5), (2534, 55432, 4765, '2015-05-18', 3);";
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(Sql);
 +
 +            var controller =
-+                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
++                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 +                    new ProjectClient(_client));
 +
 +            var value = controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
@@ -3689,10 +3780,10 @@ index 0000000..8e84106
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql(_sql);
++            Support.ExecSql(Sql);
 +
 +            var controller =
-+                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig)),
++                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
 +                    new ProjectClient(_client));
 +            var result = controller.Get(4765);
 +
@@ -3704,10 +3795,10 @@ index 0000000..8e84106
 \ No newline at end of file
 diff --git a/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs b/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs
 new file mode 100755
-index 0000000..36d8a8d
+index 0000000..90d2ba7
 --- /dev/null
 +++ b/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,58 @@
 +using System;
 +using System.Collections.Generic;
 +using System.Data.Common;
@@ -3722,20 +3813,27 @@ index 0000000..36d8a8d
 +    [Collection("Timesheets")]
 +    public class TimeEntryDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static TimeEntryDataGatewayTest() => TestEnvSupport.SetTimesheetsVcap();
-+        public TimeEntryDataGatewayTest() => _support.TruncateAllTables();
++        static TimeEntryDataGatewayTest()
++        {
++            TestEnvSupport.SetTimesheetsVcap();
++        }
++
++        public TimeEntryDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            gateway.Create(22, 12, DateTime.Now, 8);
 +
 +            // todo...
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var projectIds = template.Query("select project_id from time_entries", reader => reader.GetInt64(0),
 +                new List<DbParameter>());
 +
@@ -3745,10 +3843,10 @@ index 0000000..36d8a8d
 +        [Fact]
 +        public void TestFind()
 +        {
-+            _support.ExecSql(@"insert into time_entries (id, project_id, user_id, date, hours) 
++            Support.ExecSql(@"insert into time_entries (id, project_id, user_id, date, hours) 
 +values (2346, 22, 12, now(), 8);");
 +
-+            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig));
 +            var list = gateway.FindBy(12);
 +
 +            // todo...
@@ -3944,10 +4042,10 @@ index 0000000..c58e904
 \ No newline at end of file
 diff --git a/Components/UsersTest/UserControllerTest.cs b/Components/UsersTest/UserControllerTest.cs
 new file mode 100644
-index 0000000..9fc1ced
+index 0000000..5482fb7
 --- /dev/null
 +++ b/Components/UsersTest/UserControllerTest.cs
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,40 @@
 +﻿using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
 +using TestSupport;
@@ -3959,19 +4057,26 @@ index 0000000..9fc1ced
 +    [Collection("Users")]
 +    public class UserControllerTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        static UserControllerTest() => TestEnvSupport.SetRegistrationVcap();
-+        public UserControllerTest() => _support.TruncateAllTables();
++        static UserControllerTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public UserControllerTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            _support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
++            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
 +
 +            var controller =
-+                new UserController(new UserDataGateway(new DatabaseTemplate(_dataSourceConfig)));
++                new UserController(new UserDataGateway(new DatabaseTemplate(DataSourceConfig)));
 +            var result = controller.Get(4765);
 +            var info = ((UserInfo) ((ObjectResult) result).Value);
 +
@@ -3984,10 +4089,10 @@ index 0000000..9fc1ced
 \ No newline at end of file
 diff --git a/Components/UsersTest/UserDataGatewayTest.cs b/Components/UsersTest/UserDataGatewayTest.cs
 new file mode 100755
-index 0000000..73972c8
+index 0000000..031c96f
 --- /dev/null
 +++ b/Components/UsersTest/UserDataGatewayTest.cs
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,56 @@
 +using System.Collections.Generic;
 +using System.Data.Common;
 +using System.Linq;
@@ -4001,15 +4106,23 @@ index 0000000..73972c8
 +    [Collection("Users")]
 +    public class UsersDataGatewayTest
 +    {
-+        private readonly DataSourceConfig _dataSourceConfig = new DataSourceConfig();
-+        private readonly TestDatabaseSupport _support = new TestDatabaseSupport();
++        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
++        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
 +
-+        public UsersDataGatewayTest() => _support.TruncateAllTables();
++        static UsersDataGatewayTest()
++        {
++            TestEnvSupport.SetRegistrationVcap();
++        }
++
++        public UsersDataGatewayTest()
++        {
++            Support.TruncateAllTables();
++        }
 +
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var template = new DatabaseTemplate(_dataSourceConfig);
++            var template = new DatabaseTemplate(DataSourceConfig);
 +            var gateway = new UserDataGateway(template);
 +            gateway.Create("aUser");
 +
@@ -4022,10 +4135,10 @@ index 0000000..73972c8
 +        [Fact]
 +        public void TestFindBy()
 +        {
-+            _support.ExecSql(
++            Support.ExecSql(
 +                @"insert into users (id, name) values (42346, 'aName'), (42347, 'anotherName'), (42348, 'andAnotherName');");
 +
-+            var gateway = new UserDataGateway(new DatabaseTemplate(_dataSourceConfig));
++            var gateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
 +
 +            var actual = gateway.FindObjectBy(42347);
 +
@@ -4178,12 +4291,417 @@ index 0000000..f57f955
 +)
 +engine = innodb
 +default charset = utf8;
+diff --git a/IntegrationTest/AppServerBuilder.AppServer.cs b/IntegrationTest/AppServerBuilder.AppServer.cs
+new file mode 100644
+index 0000000..06658f7
+--- /dev/null
++++ b/IntegrationTest/AppServerBuilder.AppServer.cs
+@@ -0,0 +1,121 @@
++﻿using System;
++using System.Collections.Generic;
++using System.Diagnostics;
++using System.Linq;
++using System.Net.Http;
++using System.Threading;
++using DatabaseSupport;
++using TestSupport;
++
++namespace IntegrationTest
++{
++    public partial class AppServerBuilder
++    {
++        public class AppServer
++        {
++            private readonly IDictionary<string, string> _environmentVariables;
++            private readonly string _database;
++            private readonly string _baseUrl;
++            private readonly Process _process;
++
++            private const string DbUsername = "tracker";
++            private const string DbPassword = "password";
++
++            internal AppServer(int port, string appName, IDictionary<string, string> environmentVariables, string database)
++            {
++                _baseUrl = $"http://localhost:{port}";
++                _environmentVariables = environmentVariables;
++                _database = database;
++
++                var appPath = $"{AppContext.BaseDirectory}../../../../Applications/{appName}";
++
++                _process = new Process
++                {
++                    StartInfo =
++                    {
++                        FileName = "dotnet",
++                        Arguments = $"exec {appPath}/bin/Debug/netcoreapp2.0/{appName}.dll --urls {_baseUrl}",
++                        UseShellExecute = false,
++                        WorkingDirectory = appPath
++                    }
++                };
++            }
++
++            public string Url(string relativePath = "/") => $"{_baseUrl}{relativePath}";
++
++            public void Start()
++            {
++                foreach (var entry in _environmentVariables)
++                {
++                    Environment.SetEnvironmentVariable(entry.Key, entry.Value);
++                }
++
++                ConfigureTestDbVcap(_database);
++
++                // This fails silently if the process is unable to start
++                // (e.g., bad dll name)
++                _process.Start();
++                WaitUntilReady();
++
++                var dbSupport = new TestDatabaseSupport(new VcapDataSourceConfig());
++                dbSupport.TruncateAllTables();
++            }
++
++            public void Stop()
++            {
++                _process.Kill();
++            }
++
++            private void WaitUntilReady()
++            {
++                const int retryThreshold = 6;
++                const int delay = 1000;
++                var httpClient = new HttpClient();
++
++                var tries = 0;
++                Exception failureReason = null;
++
++                while (tries < retryThreshold)
++                {
++                    try
++                    {
++                        if (httpClient.GetAsync(_baseUrl).Result.IsSuccessStatusCode)
++                        {
++                            return;
++                        }
++                    }
++                    catch (Exception ex)
++                    {
++                        failureReason = ex;
++                        Thread.Sleep(delay);
++                    }
++
++                    tries++;
++                }
++
++                throw failureReason;
++            }
++
++            private static void ConfigureTestDbVcap(string database)
++            {
++                var json = $@"
++                {{
++                    ""p-mysql"": [
++                      {{
++                            ""credentials"": {{
++                                ""hostname"": ""localhost"",
++                                ""port"": ""3306"",
++                                ""name"": ""{database}"",
++                                ""username"": ""{DbUsername}"",
++                                ""password"": ""{DbPassword}""
++                            }},
++                            ""name"": ""tracker-{database}-database""
++                        }}
++                    ]
++                }}";
++
++                Environment.SetEnvironmentVariable("VCAP_SERVICES", json);
++            }
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/IntegrationTest/AppServerBuilder.cs b/IntegrationTest/AppServerBuilder.cs
+new file mode 100644
+index 0000000..a0c81ba
+--- /dev/null
++++ b/IntegrationTest/AppServerBuilder.cs
+@@ -0,0 +1,49 @@
++﻿using System;
++using System.Collections.Generic;
++
++namespace IntegrationTest
++{
++    public sealed partial class AppServerBuilder
++    {
++        private int? _port;
++        private string _appName;
++        private readonly IDictionary<string, string> _environmentVariables = new Dictionary<string, string>();
++        private string _database;
++
++        public static AppServerBuilder TestAppServerBuilder() => new AppServerBuilder();
++
++        public AppServerBuilder Port(int port)
++        {
++            _port = port;
++            return this;
++        }
++
++        public AppServerBuilder AppName(string appName)
++        {
++            _appName = appName;
++            return this;
++        }
++
++        public AppServerBuilder SetEnvironmentVariable(string key, string value)
++        {
++            _environmentVariables.Add(key, value);
++            return this;
++        }
++
++        public AppServerBuilder Database(string database)
++        {
++            _database = database;
++            return this;
++        }
++
++        public AppServer Build()
++        {
++            if (_port.HasValue && _appName != null && _database != null)
++            {
++                return new AppServer(_port.Value, _appName, _environmentVariables, _database);
++            }
++
++            throw new InvalidOperationException("AppServer object is fully configured.");
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/IntegrationTest/FlowTest.cs b/IntegrationTest/FlowTest.cs
+new file mode 100644
+index 0000000..34f797d
+--- /dev/null
++++ b/IntegrationTest/FlowTest.cs
+@@ -0,0 +1,194 @@
++﻿using System;
++using System.Collections.Generic;
++using System.Net.Http;
++using System.Text;
++using Microsoft.Rest;
++using Newtonsoft.Json;
++using Newtonsoft.Json.Linq;
++using Xunit;
++using static IntegrationTest.AppServerBuilder;
++
++namespace IntegrationTest
++{
++    public class FlowTest : IDisposable
++    {
++        private readonly HttpClient _httpClient = new HttpClient();
++
++        private readonly AppServer _registrationServer;
++        private readonly AppServer _allocationsServer;
++        private readonly AppServer _backlogServer;
++        private readonly AppServer _timesheetsServer;
++
++        public FlowTest()
++        {
++            _registrationServer = TestAppServerBuilder()
++                .AppName("RegistrationServer")
++                .Port(8883)
++                .Database("tracker_registration_test")
++                .Build();
++
++            _allocationsServer = TestAppServerBuilder()
++                .AppName("AllocationsServer")
++                .Port(8881)
++                .Database("tracker_allocations_test")
++                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
++                .Build();
++
++            _backlogServer = TestAppServerBuilder()
++                .AppName("BacklogServer")
++                .Port(8882)
++                .Database("tracker_backlog_test")
++                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
++                .Build();
++
++            _timesheetsServer = TestAppServerBuilder()
++                .AppName("TimesheetsServer")
++                .Port(8884)
++                .Database("tracker_timesheets_test")
++                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
++                .Build();
++        }
++
++        [Fact]
++        public void TestBasicFlow()
++        {
++            _allocationsServer.Start();
++            _registrationServer.Start();
++            _backlogServer.Start();
++            _timesheetsServer.Start();
++
++            HttpResponseMessage response;
++
++            response = _httpClient.Get(_registrationServer.Url());
++            Assert.Equal("Noop!", response.Content.AsString());
++
++            var createdUserId = _httpClient.Post(_registrationServer.Url("/registration"), new Dictionary<string, object>
++            {
++                {"name", "aUser"}
++            }).Content.FindId();
++            AssertGreaterThan(createdUserId, 0);
++
++            response = _httpClient.Get(_registrationServer.Url($"/users/{createdUserId}"));
++            AssertNotNullOrEmpty(response.Content.AsString());
++            Assert.True(response.IsSuccessStatusCode);
++
++            var createdAccountId = _httpClient.Get(_registrationServer.Url($"/accounts?ownerId={createdUserId}"))
++                .Content.FindId();
++            AssertGreaterThan(createdAccountId, 0);
++
++            var createdProjectId = _httpClient.Post(_registrationServer.Url("/projects"), new Dictionary<string, object>
++            {
++                {"accountId", createdAccountId},
++                {"name", "aProject"}
++            }).Content.FindId();
++            AssertGreaterThan(createdProjectId, 0);
++
++            response = _httpClient.Get(_registrationServer.Url($"/projects?accountId={createdAccountId}"));
++            AssertNotNullOrEmpty(response.Content.AsString());
++            Assert.True(response.IsSuccessStatusCode);
++
++            response = _httpClient.Get(_allocationsServer.Url());
++            Assert.Equal("Noop!", response.Content.AsString());
++
++            var createdAllocationId = _httpClient.Post( _allocationsServer.Url($"/allocations?projectId={createdProjectId}"), new Dictionary<string, object>
++            {
++                {"projectId", createdProjectId},
++                {"userId", createdUserId},
++                {"firstDay", "2015-05-17"},
++                {"lastDay", "2015-05-26"}
++            }).Content.FindId();
++            AssertGreaterThan(createdAllocationId, 0);
++
++            response = _httpClient.Get(_allocationsServer.Url($"/allocations?projectId={createdProjectId}"));
++            AssertNotNullOrEmpty(response.Content.AsString());
++            Assert.True(response.IsSuccessStatusCode);
++
++            response = _httpClient.Get(_backlogServer.Url());
++            Assert.Equal("Noop!", response.Content.AsString());
++
++            var createdStoryId = _httpClient.Post(_backlogServer.Url("/stories"), new Dictionary<string, object>
++            {
++                {"projectId", createdProjectId},
++                {"name", "A story"}
++            }).Content.FindId();
++            AssertGreaterThan(createdStoryId, 0);
++
++            response = _httpClient.Get(_backlogServer.Url($"/stories?projectId={createdProjectId}"));
++            AssertNotNullOrEmpty(response.Content.AsString());
++            Assert.True(response.IsSuccessStatusCode);
++
++            response = _httpClient.Get(_timesheetsServer.Url());
++            Assert.Equal("Noop!", response.Content.AsString());
++
++            var createdTimeEntryId = _httpClient.Post(_timesheetsServer.Url("/time-entries"), new Dictionary<string, object>
++            {
++                {"projectId", createdProjectId},
++                {"userId", createdUserId},
++                {"date", "2015-12-17"},
++                {"hours", 8}
++            }).Content.FindId();
++            AssertGreaterThan(createdTimeEntryId, 0);
++
++            response = _httpClient.Get(_timesheetsServer.Url($"/time-entries?projectId={createdProjectId}"));
++            AssertNotNullOrEmpty(response.Content.AsString());
++            Assert.True(response.IsSuccessStatusCode);
++        }
++
++        public void Dispose()
++        {
++            _allocationsServer.Stop();
++            _backlogServer.Stop();
++            _registrationServer.Stop();
++            _timesheetsServer.Stop();
++        }
++
++        private static void AssertNotNullOrEmpty(string str)
++        {
++            Assert.NotEqual("", str);
++            Assert.NotNull(str);
++        }
++
++        private static void AssertGreaterThan(long actual, long bound)
++        {
++            Assert.InRange(actual, bound + 1, long.MaxValue);
++        }
++    }
++
++    internal static class HttpClientExtensions
++    {
++        internal static HttpResponseMessage Get(this HttpClient client, string url) =>
++            client.GetAsync(url).Result;
++
++        internal static HttpResponseMessage Post(this HttpClient client, string url, IDictionary<string, object> data)
++        {
++            var json = JsonConvert.SerializeObject(data, Formatting.Indented);
++            return client.PostAsync(new Uri(url), new StringContent(json, Encoding.UTF8, "application/json")).Result;
++        }
++    }
++
++    internal static class HttpContentExtensions
++    {
++        internal static long FindId(this HttpContent content)
++        {
++            var body = JToken.Parse(content.ReadAsStringAsync().Result);
++            JToken id = null;
++
++            switch (body)
++            {
++                case JObject _:
++                    id = body.SelectToken("$.id");
++                    break;
++                case JArray _:
++                    id = body.SelectToken("$[0].id");
++                    break;
++            }
++
++            if (id == null)
++            {
++                Assert.True(false, $"Could not find id in response body. Response was: \n {body}");
++            }
++
++            return id.ToObject<long>();
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/IntegrationTest/IntegrationTest.csproj b/IntegrationTest/IntegrationTest.csproj
+new file mode 100644
+index 0000000..624474e
+--- /dev/null
++++ b/IntegrationTest/IntegrationTest.csproj
+@@ -0,0 +1,13 @@
++﻿<Project Sdk="Microsoft.NET.Sdk">
++  <PropertyGroup>
++    <TargetFramework>netcoreapp2.0</TargetFramework>
++    <IsPackable>false</IsPackable>
++  </PropertyGroup>
++  <ItemGroup>
++    <ProjectReference Include="../Components/TestSupport/TestSupport.csproj" />
++    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
++    <PackageReference Include="xunit" Version="2.3.1" />
++    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
++    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
++  </ItemGroup>
++</Project>
+\ No newline at end of file
 diff --git a/PalTracker.sln b/PalTracker.sln
 new file mode 100644
-index 0000000..bbc5568
+index 0000000..44c82ba
 --- /dev/null
 +++ b/PalTracker.sln
-@@ -0,0 +1,326 @@
+@@ -0,0 +1,340 @@
 +
 +Microsoft Visual Studio Solution File, Format Version 12.00
 +# Visual Studio 15
@@ -4232,6 +4750,8 @@ index 0000000..bbc5568
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTest", "Components\UsersTest\UsersTest.csproj", "{3251E09D-4C88-4489-9A0F-2FCE8011820A}"
 +EndProject
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultRoute", "Components\DefaultRoute\DefaultRoute.csproj", "{4227E6F1-9913-4A2A-AC0E-2A975445086E}"
++EndProject
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "IntegrationTest\IntegrationTest.csproj", "{5D1F334E-943C-4162-845F-81D960056748}"
 +EndProject
 +Global
 +	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4486,6 +5006,18 @@ index 0000000..bbc5568
 +		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x64.Build.0 = Release|x64
 +		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x86.ActiveCfg = Release|x86
 +		{4227E6F1-9913-4A2A-AC0E-2A975445086E}.Release|x86.Build.0 = Release|x86
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|x64.ActiveCfg = Debug|x64
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|x64.Build.0 = Debug|x64
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|x86.ActiveCfg = Debug|x86
++		{5D1F334E-943C-4162-845F-81D960056748}.Debug|x86.Build.0 = Debug|x86
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|Any CPU.ActiveCfg = Release|Any CPU
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|Any CPU.Build.0 = Release|Any CPU
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|x64.ActiveCfg = Release|x64
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|x64.Build.0 = Release|x64
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|x86.ActiveCfg = Release|x86
++		{5D1F334E-943C-4162-845F-81D960056748}.Release|x86.Build.0 = Release|x86
 +	EndGlobalSection
 +	GlobalSection(NestedProjects) = preSolution
 +		{115E2983-51A0-4722-BA01-75223ACC33F8} = {61F0A7C3-5DE2-4C07-AF32-C9BAE2560760}
@@ -6242,10 +6774,10 @@ index 0000000..2c08400
 \ No newline at end of file
 diff --git a/test.sh b/test.sh
 new file mode 100755
-index 0000000..1e8fc0d
+index 0000000..392a896
 --- /dev/null
 +++ b/test.sh
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,10 @@
 +#!/usr/bin/env bash
 +
 +set -e
@@ -6254,6 +6786,8 @@ index 0000000..1e8fc0d
 +do
 +    dotnet test ${dir}/*.csproj;
 +done
++
++dotnet test IntegrationTest/*.csproj
 diff --git a/vcap_services.json b/vcap_services.json
 new file mode 100644
 index 0000000..7521eb5

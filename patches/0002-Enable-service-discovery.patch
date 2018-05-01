@@ -1,4 +1,4 @@
-From 4696ec9d5e04d45e7efaeb8b3eee16e23620bb81 Mon Sep 17 00:00:00 2001
+From c54c36d9f978c0156ce10cf281c60e3d0f8a0515 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 13 Feb 2018 11:30:42 -0700
 Subject: [PATCH 2/5] Enable service discovery
@@ -63,7 +63,7 @@ index 3c51fee..c7add05 100755
  }
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
-index ac81eb9..297e65c 100755
+index ddd72b5..d8e95f1 100755
 --- a/Applications/AllocationsServer/Startup.cs
 +++ b/Applications/AllocationsServer/Startup.cs
 @@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
@@ -158,7 +158,7 @@ index aeb9712..6184e37 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
-index d174a76..12b81c3 100755
+index f64f34f..cb3fd23 100755
 --- a/Applications/BacklogServer/Startup.cs
 +++ b/Applications/BacklogServer/Startup.cs
 @@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
@@ -252,7 +252,7 @@ index 1faa3b5..774c2d1 100755
  </Project>
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
-index 9549a8c..761206f 100755
+index 1728e50..7c3f79f 100755
 --- a/Applications/RegistrationServer/Startup.cs
 +++ b/Applications/RegistrationServer/Startup.cs
 @@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
@@ -327,7 +327,7 @@ index 085cd4f..dbe5eec 100755
  }
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
-index 8fa885a..6c3ba03 100755
+index 129ac5c..ee818a3 100755
 --- a/Applications/TimesheetsServer/Startup.cs
 +++ b/Applications/TimesheetsServer/Startup.cs
 @@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
