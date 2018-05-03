@@ -1,4 +1,4 @@
-From c1624bdecf37cd094487d9eb70b8f011f23d0d68 Mon Sep 17 00:00:00 2001
+From 3ddf1e43d924eabd310e3126b410b259bc2d44e1 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 15 Feb 2018 15:49:55 -0700
 Subject: [PATCH 3/5] Enable circuit breaker

@@ -1,4 +1,4 @@
-From 2e7ec8e537003c061dc9dea187fe876189df7e6c Mon Sep 17 00:00:00 2001
+From 2d41148a248bd92bac4874e95fec8332dc6ad063 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 13 Feb 2018 11:30:42 -0700
 Subject: [PATCH 2/5] Enable service discovery

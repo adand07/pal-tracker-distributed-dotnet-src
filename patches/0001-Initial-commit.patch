@@ -1,4 +1,4 @@
-From dc2d412488813a3ee17f63bdff852051d0268151 Mon Sep 17 00:00:00 2001
+From 6fb43772bb6f6a35d366f11c10b0fa87ef9bfa9a Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -116,6 +116,7 @@ Subject: [PATCH 1/5] Initial commit
  Databases/create_databases.sql                     |  22 ++
  .../migrations/V1__initial_schema.sql              |  34 +++
  .../migrations/V1__initial_schema.sql              |  11 +
+ Directory.Build.targets                            |   5 +
  IntegrationTest/AppServerBuilder.AppServer.cs      | 121 ++++++++
  IntegrationTest/AppServerBuilder.cs                |  49 +++
  IntegrationTest/FlowTest.cs                        | 194 ++++++++++++
@@ -139,6 +140,7 @@ Subject: [PATCH 1/5] Initial commit
  PlatformServices/gradlew                           | 172 +++++++++++
  PlatformServices/gradlew.bat                       |  84 +++++
  PlatformServices/settings.gradle                   |   6 +
+ after.PalTracker.sln.targets                       |   5 +
  grh-config.json                                    |  21 ++
  manifest-allocations.yml                           |  12 +
  manifest-backlog.yml                               |  12 +
@@ -150,7 +152,7 @@ Subject: [PATCH 1/5] Initial commit
  start-server.sh                                    |  51 ++++
  test.sh                                            |  15 +
  vcap_services.json                                 |  22 ++
- 146 files changed, 4587 insertions(+)
+ 148 files changed, 4597 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -263,6 +265,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100644 Databases/create_databases.sql
  create mode 100644 Databases/registration-database/migrations/V1__initial_schema.sql
  create mode 100644 Databases/timesheets-database/migrations/V1__initial_schema.sql
+ create mode 100644 Directory.Build.targets
  create mode 100644 IntegrationTest/AppServerBuilder.AppServer.cs
  create mode 100644 IntegrationTest/AppServerBuilder.cs
  create mode 100644 IntegrationTest/FlowTest.cs
@@ -286,6 +289,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 PlatformServices/gradlew
  create mode 100644 PlatformServices/gradlew.bat
  create mode 100644 PlatformServices/settings.gradle
+ create mode 100644 after.PalTracker.sln.targets
  create mode 100644 grh-config.json
  create mode 100644 manifest-allocations.yml
  create mode 100644 manifest-backlog.yml
@@ -4297,6 +4301,18 @@ index 0000000..f57f955
 +)
 +engine = innodb
 +default charset = utf8;
+diff --git a/Directory.Build.targets b/Directory.Build.targets
+new file mode 100644
+index 0000000..0802144
+--- /dev/null
++++ b/Directory.Build.targets
+@@ -0,0 +1,5 @@
++<Project>
++    <Target Name="VSTestIfTestProject">
++        <CallTarget Targets="VSTest" Condition="'$(IsTestProject)' == 'true'" />
++    </Target>
++</Project>
+\ No newline at end of file
 diff --git a/IntegrationTest/AppServerBuilder.AppServer.cs b/IntegrationTest/AppServerBuilder.AppServer.cs
 new file mode 100644
 index 0000000..06658f7
@@ -6507,6 +6523,18 @@ index 0000000..4d92f21
 +include "OAuthServer"
 +include "ConfigServer"
 +include "HystrixDashboard"
+diff --git a/after.PalTracker.sln.targets b/after.PalTracker.sln.targets
+new file mode 100644
+index 0000000..81ea6b3
+--- /dev/null
++++ b/after.PalTracker.sln.targets
+@@ -0,0 +1,5 @@
++<Project>
++    <Target Name="VSTest">
++        <MSBuild Projects="@(ProjectReference)" Targets="VSTestIfTestProject" />
++    </Target>
++</Project>
+\ No newline at end of file
 diff --git a/grh-config.json b/grh-config.json
 new file mode 100644
 index 0000000..79e94c9
