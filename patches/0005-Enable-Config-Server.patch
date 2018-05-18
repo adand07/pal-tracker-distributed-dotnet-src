@@ -1,37 +1,36 @@
-From 22d4888b134b825fa68f9f0eac728d8c7695e2e4 Mon Sep 17 00:00:00 2001
+From b5650ce7a67f82a888cedf3005d3369e3cebc34b Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
-Date: Tue, 20 Feb 2018 14:49:27 -0700
+Date: Fri, 18 May 2018 11:13:48 -0600
 Subject: [PATCH 5/5] Enable Config Server
 
 ---
- .../AllocationsServer/AllocationsServer.csproj        |  1 +
- Applications/AllocationsServer/Program.cs             |  4 ++--
- Applications/AllocationsServer/appsettings.json       | 11 ++++++++++-
- Applications/BacklogServer/BacklogServer.csproj       |  1 +
- Applications/BacklogServer/Program.cs                 |  4 ++--
- Applications/BacklogServer/appsettings.json           | 11 ++++++++++-
- Applications/RegistrationServer/Program.cs            |  4 ++--
- .../RegistrationServer/RegistrationServer.csproj      |  1 +
- Applications/RegistrationServer/appsettings.json      | 10 ++++++++++
- Applications/TimesheetsServer/Program.cs              |  4 ++--
- Applications/TimesheetsServer/TimesheetsServer.csproj |  1 +
- Applications/TimesheetsServer/appsettings.json        | 11 ++++++++++-
- config-server.json                                    |  6 ++++++
- manifest-allocations.yml                              |  3 ++-
- manifest-backlog.yml                                  |  3 ++-
- manifest-registration.yml                             |  3 ++-
- manifest-timesheets.yml                               |  3 ++-
- vcap_services.json                                    | 19 ++++++++++++++++++-
- 18 files changed, 84 insertions(+), 16 deletions(-)
+ Applications/AllocationsServer/AllocationsServer.csproj   |  1 +
+ Applications/AllocationsServer/Program.cs                 |  4 ++--
+ Applications/AllocationsServer/appsettings.json           | 12 +++++++++++-
+ Applications/BacklogServer/BacklogServer.csproj           |  1 +
+ Applications/BacklogServer/Program.cs                     |  4 ++--
+ Applications/BacklogServer/appsettings.json               | 12 +++++++++++-
+ Applications/RegistrationServer/Program.cs                |  4 ++--
+ Applications/RegistrationServer/RegistrationServer.csproj |  1 +
+ Applications/RegistrationServer/appsettings.json          | 11 +++++++++++
+ Applications/TimesheetsServer/Program.cs                  |  4 ++--
+ Applications/TimesheetsServer/TimesheetsServer.csproj     |  1 +
+ Applications/TimesheetsServer/appsettings.json            | 12 +++++++++++-
+ config-server.json                                        |  6 ++++++
+ manifest-allocations.yml                                  |  3 ++-
+ manifest-backlog.yml                                      |  3 ++-
+ manifest-registration.yml                                 |  3 ++-
+ manifest-timesheets.yml                                   |  3 ++-
+ 17 files changed, 70 insertions(+), 15 deletions(-)
  create mode 100644 config-server.json
 
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
-index 637b189..e98e6bf 100755
+index cbb6718..38a53df 100755
 --- a/Applications/AllocationsServer/AllocationsServer.csproj
 +++ b/Applications/AllocationsServer/AllocationsServer.csproj
-@@ -17,6 +17,7 @@
-     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+@@ -11,6 +11,7 @@
+     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+     <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -61,18 +60,18 @@ index c7add05..3725b44 100755
  }
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
-index e581e67..ee8e78a 100755
+index cc79e66..03de02b 100755
 --- a/Applications/AllocationsServer/appsettings.json
 +++ b/Applications/AllocationsServer/appsettings.json
-@@ -5,7 +5,6 @@
-             "Default": "Warning"
+@@ -10,7 +10,6 @@
+             "ConnectionString": "Server=localhost;Database=tracker_allocations_dev;Uid=tracker;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
      "eureka": {
          "client": {
              "serviceUrl": "http://localhost:8761/eureka/",
-@@ -25,5 +24,15 @@
+@@ -30,5 +29,16 @@
                  }
              }
          }
@@ -83,19 +82,20 @@ index e581e67..ee8e78a 100755
 +        },
 +        "cloud": {
 +            "config": {
-+                "failFast": true
++                "failFast": true,
++                "uri": "http://localhost:8777"
 +            }
 +        }
      }
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
-index 0367892..65a9392 100755
+index d88b40d..75bf3c9 100755
 --- a/Applications/BacklogServer/BacklogServer.csproj
 +++ b/Applications/BacklogServer/BacklogServer.csproj
-@@ -17,6 +17,7 @@
-     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+@@ -11,6 +11,7 @@
+     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+     <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -125,18 +125,18 @@ index 6184e37..e8149f3 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
-index e581e67..6e24856 100755
+index 0b7ffdf..7b28e79 100755
 --- a/Applications/BacklogServer/appsettings.json
 +++ b/Applications/BacklogServer/appsettings.json
-@@ -5,7 +5,6 @@
-             "Default": "Warning"
+@@ -10,7 +10,6 @@
+             "ConnectionString": "Server=localhost;Database=tracker_backlog_dev;Uid=tracker;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
      "eureka": {
          "client": {
              "serviceUrl": "http://localhost:8761/eureka/",
-@@ -25,5 +24,15 @@
+@@ -30,5 +29,16 @@
                  }
              }
          }
@@ -147,7 +147,8 @@ index e581e67..6e24856 100755
 +        },
 +        "cloud": {
 +            "config": {
-+                "failFast": true
++                "failFast": true,
++                "uri": "http://localhost:8777"
 +            }
 +        }
      }
@@ -177,22 +178,22 @@ index b8cfb80..e900120 100755
  }
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
-index 0c94526..63d39c1 100755
+index 936e173..09d56bc 100755
 --- a/Applications/RegistrationServer/RegistrationServer.csproj
 +++ b/Applications/RegistrationServer/RegistrationServer.csproj
-@@ -19,6 +19,7 @@
-     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+@@ -13,6 +13,7 @@
+     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+     <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
    </ItemGroup>
 diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
-index 9eab605..f36cef4 100755
+index 044adcd..90e0bdc 100755
 --- a/Applications/RegistrationServer/appsettings.json
 +++ b/Applications/RegistrationServer/appsettings.json
-@@ -16,5 +16,15 @@
+@@ -21,5 +21,16 @@
              "hostname": "localhost",
              "port": 8883
          }
@@ -203,7 +204,8 @@ index 9eab605..f36cef4 100755
 +        },
 +        "cloud": {
 +            "config": {
-+                "failFast": true
++                "failFast": true,
++                "uri": "http://localhost:8777"
 +            }
 +        }
      }
@@ -233,30 +235,30 @@ index dbe5eec..1ea0db6 100755
  }
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
-index 9c8a8cd..965310b 100755
+index d46ff62..781d39b 100755
 --- a/Applications/TimesheetsServer/TimesheetsServer.csproj
 +++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
-@@ -17,6 +17,7 @@
-     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.0" />
+@@ -11,6 +11,7 @@
+     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+     <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
    </ItemGroup>
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
-index e581e67..3eefa71 100755
+index 6b896c4..391744b 100755
 --- a/Applications/TimesheetsServer/appsettings.json
 +++ b/Applications/TimesheetsServer/appsettings.json
-@@ -5,7 +5,6 @@
-             "Default": "Warning"
+@@ -10,7 +10,6 @@
+             "ConnectionString": "Server=localhost;Database=tracker_timesheets_dev;Uid=tracker;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
      "eureka": {
          "client": {
              "serviceUrl": "http://localhost:8761/eureka/",
-@@ -25,5 +24,15 @@
+@@ -30,5 +29,16 @@
                  }
              }
          }
@@ -267,7 +269,8 @@ index e581e67..3eefa71 100755
 +        },
 +        "cloud": {
 +            "config": {
-+                "failFast": true
++                "failFast": true,
++                "uri": "http://localhost:8777"
 +            }
 +        }
      }
@@ -275,22 +278,22 @@ index e581e67..3eefa71 100755
 \ No newline at end of file
 diff --git a/config-server.json b/config-server.json
 new file mode 100644
-index 0000000..5355b55
+index 0000000..3fc8263
 --- /dev/null
 +++ b/config-server.json
 @@ -0,0 +1,6 @@
 +{
-+  "git": {
-+    "uri": "https://github.com/<your-github-username>/tracker-config.git",
-+    "label": "master"
-+  }
++    "git": {
++        "uri": "https://github.com/<your-github-username>/tracker-config.git",
++        "label": "master"
++    }
 +}
 \ No newline at end of file
 diff --git a/manifest-allocations.yml b/manifest-allocations.yml
-index dd6e548..85527ec 100644
+index 109b6d9..ce47b17 100644
 --- a/manifest-allocations.yml
 +++ b/manifest-allocations.yml
-@@ -13,4 +13,5 @@ applications:
+@@ -12,4 +12,5 @@ applications:
    - tracker-service-registry
    - tracker-circuit-breaker-dashboard
    - tracker-amqp
@@ -300,10 +303,10 @@ index dd6e548..85527ec 100644
 +  - tracker-config-server
 \ No newline at end of file
 diff --git a/manifest-backlog.yml b/manifest-backlog.yml
-index 5e838ec..ae5c470 100644
+index dac3f1a..e578fab 100644
 --- a/manifest-backlog.yml
 +++ b/manifest-backlog.yml
-@@ -13,4 +13,5 @@ applications:
+@@ -12,4 +12,5 @@ applications:
    - tracker-service-registry
    - tracker-circuit-breaker-dashboard
    - tracker-amqp
@@ -313,10 +316,10 @@ index 5e838ec..ae5c470 100644
 +  - tracker-config-server
 \ No newline at end of file
 diff --git a/manifest-registration.yml b/manifest-registration.yml
-index d7dba22..48c10f4 100644
+index 3349d68..e383712 100644
 --- a/manifest-registration.yml
 +++ b/manifest-registration.yml
-@@ -11,4 +11,5 @@ applications:
+@@ -10,4 +10,5 @@ applications:
    services:
    - tracker-registration-database
    - tracker-service-registry
@@ -326,10 +329,10 @@ index d7dba22..48c10f4 100644
 +  - tracker-config-server
 \ No newline at end of file
 diff --git a/manifest-timesheets.yml b/manifest-timesheets.yml
-index 1729417..70be7f2 100644
+index 58d9fbe..4331e9e 100644
 --- a/manifest-timesheets.yml
 +++ b/manifest-timesheets.yml
-@@ -13,4 +13,5 @@ applications:
+@@ -12,4 +12,5 @@ applications:
    - tracker-service-registry
    - tracker-circuit-breaker-dashboard
    - tracker-amqp
@@ -337,39 +340,6 @@ index 1729417..70be7f2 100644
 \ No newline at end of file
 +  - tracker-sso
 +  - tracker-config-server
-\ No newline at end of file
-diff --git a/vcap_services.json b/vcap_services.json
-index 2c9cef7..c3c9cb7 100644
---- a/vcap_services.json
-+++ b/vcap_services.json
-@@ -1,4 +1,21 @@
- {
-+    "p-config-server": [
-+        {
-+            "credentials": {
-+                "uri": "http://localhost:8777"
-+            },
-+            "label": "p-config-server",
-+            "name": "tracker-config-server",
-+            "plan": "standard",
-+            "provider": null,
-+            "syslog_drain_url": null,
-+            "tags": [
-+                "configuration",
-+                "spring-cloud"
-+            ],
-+            "volume_mounts": []
-+        }
-+    ],
-     "p-identity": [
-         {
-             "credentials": {
-@@ -35,4 +52,4 @@
-             "tags": ["mysql", "relational"]
-         }
-     ]
--}
-+}
 \ No newline at end of file
 -- 
 2.12.3

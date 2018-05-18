@@ -1,127 +1,122 @@
-From 6fb43772bb6f6a35d366f11c10b0fa87ef9bfa9a Mon Sep 17 00:00:00 2001
+From 66d01bbd03cfa3db37cc5009befcf1d0cb263ac5 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
 
 ---
- .gitignore                                         |  32 ++
+ .gitignore                                         |  32 +++
  .../AllocationsServer/AllocationsServer.csproj     |  19 ++
- Applications/AllocationsServer/Program.cs          |  23 ++
- Applications/AllocationsServer/Startup.cs          |  52 ++++
+ Applications/AllocationsServer/Program.cs          |  25 ++
+ Applications/AllocationsServer/Startup.cs          |  51 ++++
  .../AllocationsServer/appsettings.Development.json |  10 +
- Applications/AllocationsServer/appsettings.json    |   8 +
+ Applications/AllocationsServer/appsettings.json    |  14 +
  Applications/BacklogServer/BacklogServer.csproj    |  19 ++
- Applications/BacklogServer/Program.cs              |  23 ++
- Applications/BacklogServer/Startup.cs              |  52 ++++
+ Applications/BacklogServer/Program.cs              |  25 ++
+ Applications/BacklogServer/Startup.cs              |  51 ++++
  .../BacklogServer/appsettings.Development.json     |  10 +
- Applications/BacklogServer/appsettings.json        |   8 +
- Applications/RegistrationServer/Program.cs         |  23 ++
+ Applications/BacklogServer/appsettings.json        |  14 +
+ Applications/RegistrationServer/Program.cs         |  25 ++
  .../RegistrationServer/RegistrationServer.csproj   |  21 ++
- Applications/RegistrationServer/Startup.cs         |  45 +++
+ Applications/RegistrationServer/Startup.cs         |  47 ++++
  .../appsettings.Development.json                   |  10 +
- Applications/RegistrationServer/appsettings.json   |   8 +
- Applications/TimesheetsServer/Program.cs           |  23 ++
- Applications/TimesheetsServer/Startup.cs           |  52 ++++
+ Applications/RegistrationServer/appsettings.json   |  13 +
+ Applications/TimesheetsServer/Program.cs           |  25 ++
+ Applications/TimesheetsServer/Startup.cs           |  51 ++++
  .../TimesheetsServer/TimesheetsServer.csproj       |  19 ++
  .../TimesheetsServer/appsettings.Development.json  |  10 +
- Applications/TimesheetsServer/appsettings.json     |   8 +
+ Applications/TimesheetsServer/appsettings.json     |  14 +
  CI/build.yml                                       |  68 +++++
- CI/pipeline.yml                                    | 130 ++++++++
+ CI/pipeline.yml                                    | 130 +++++++++
  CI/variables.example.yml                           |  12 +
+ Components/Accounts/AccountContext.cs              |  13 +
  Components/Accounts/AccountController.cs           |  26 ++
- Components/Accounts/AccountDataGateway.cs          |  38 +++
+ Components/Accounts/AccountDataGateway.cs          |  31 +++
  Components/Accounts/AccountInfo.cs                 |  18 ++
- Components/Accounts/AccountRecord.cs               |  16 +
+ Components/Accounts/AccountRecord.cs               |  27 ++
  Components/Accounts/Accounts.csproj                |  15 +
  Components/Accounts/IAccountDataGateway.cs         |  11 +
  Components/Accounts/IRegistrationService.cs        |   9 +
  Components/Accounts/RegistrationController.cs      |  24 ++
  Components/Accounts/RegistrationService.cs         |  24 ++
- Components/AccountsTest/AccountControllerTest.cs   |  51 ++++
- Components/AccountsTest/AccountDataGatewayTest.cs  |  62 ++++
+ Components/AccountsTest/AccountControllerTest.cs   |  45 +++
+ Components/AccountsTest/AccountDataGatewayTest.cs  |  56 ++++
  Components/AccountsTest/AccountsTest.csproj        |  17 ++
- .../AccountsTest/RegistrationControllerTest.cs     |  46 +++
- Components/AccountsTest/RegistrationServiceTest.cs |  37 +++
+ .../AccountsTest/RegistrationControllerTest.cs     |  35 +++
+ Components/AccountsTest/RegistrationServiceTest.cs |  40 +++
+ Components/Allocations/AllocationContext.cs        |  13 +
  Components/Allocations/AllocationController.cs     |  45 +++
- Components/Allocations/AllocationDataGateway.cs    |  43 +++
+ Components/Allocations/AllocationDataGateway.cs    |  32 +++
  Components/Allocations/AllocationInfo.cs           |  25 ++
- Components/Allocations/AllocationRecord.cs         |  23 ++
+ Components/Allocations/AllocationRecord.cs         |  33 +++
  Components/Allocations/Allocations.csproj          |  15 +
  Components/Allocations/IAllocationDataGateway.cs   |  12 +
  Components/Allocations/IProjectClient.cs           |   9 +
  Components/Allocations/ProjectClient.cs            |  25 ++
- Components/Allocations/ProjectInfo.cs              |  16 +
- .../AllocationsTest/AllocationsControllerTest.cs   |  69 +++++
- .../AllocationsTest/AllocationsDataGatewayTest.cs  |  58 ++++
- Components/AllocationsTest/AllocationsTest.csproj  |  16 +
+ Components/Allocations/ProjectInfo.cs              |  16 ++
+ .../AllocationsTest/AllocationsControllerTest.cs   |  90 ++++++
+ .../AllocationsTest/AllocationsDataGatewayTest.cs  |  53 ++++
+ Components/AllocationsTest/AllocationsTest.csproj  |  16 ++
  Components/Backlog/Backlog.csproj                  |  15 +
  Components/Backlog/IProjectClient.cs               |   9 +
  Components/Backlog/IStoryDataGateway.cs            |  11 +
  Components/Backlog/ProjectClient.cs                |  25 ++
- Components/Backlog/ProjectInfo.cs                  |  16 +
+ Components/Backlog/ProjectInfo.cs                  |  16 ++
+ Components/Backlog/StoryContext.cs                 |  13 +
  Components/Backlog/StoryController.cs              |  43 +++
- Components/Backlog/StoryDataGateway.cs             |  38 +++
+ Components/Backlog/StoryDataGateway.cs             |  31 +++
  Components/Backlog/StoryInfo.cs                    |  19 ++
- Components/Backlog/StoryRecord.cs                  |  17 ++
- Components/BacklogTest/BacklogTest.csproj          |  16 +
- Components/BacklogTest/StoryControllerTest.cs      |  65 ++++
- Components/BacklogTest/StoryDataGatewayTest.cs     |  56 ++++
- Components/DatabaseSupport/DatabaseSupport.csproj  |  10 +
- Components/DatabaseSupport/DatabaseTemplate.cs     | 115 +++++++
- Components/DatabaseSupport/IDataSourceConfig.cs    |   9 +
- Components/DatabaseSupport/IDatabaseTemplate.cs    |  15 +
- Components/DatabaseSupport/VcapDataSourceConfig.cs |  30 ++
- .../DatabaseSupportTest/DataSourceConfigTest.cs    |  31 ++
- .../DatabaseSupportTest/DatabaseSupportTest.csproj |  13 +
+ Components/Backlog/StoryRecord.cs                  |  27 ++
+ Components/BacklogTest/BacklogTest.csproj          |  16 ++
+ Components/BacklogTest/StoryControllerTest.cs      |  77 +++++
+ Components/BacklogTest/StoryDataGatewayTest.cs     |  50 ++++
  Components/DefaultRoute/DefaultController.cs       |  11 +
  Components/DefaultRoute/DefaultRoute.csproj        |  10 +
  Components/Projects/IProjectDataGateway.cs         |  13 +
- Components/Projects/ProjectController.cs           |  48 +++
- Components/Projects/ProjectDataGateway.cs          |  56 ++++
+ Components/Projects/ProjectContext.cs              |  13 +
+ Components/Projects/ProjectController.cs           |  48 ++++
+ Components/Projects/ProjectDataGateway.cs          |  36 +++
  Components/Projects/ProjectInfo.cs                 |  21 ++
- Components/Projects/ProjectRecord.cs               |  19 ++
- Components/Projects/Projects.csproj                |  16 +
- Components/ProjectsTest/ProjectControllerTest.cs   |  83 +++++
- Components/ProjectsTest/ProjectDataGatewayTest.cs  |  83 +++++
+ Components/Projects/ProjectRecord.cs               |  29 ++
+ Components/Projects/Projects.csproj                |  14 +
+ Components/ProjectsTest/ProjectControllerTest.cs   |  90 ++++++
+ Components/ProjectsTest/ProjectDataGatewayTest.cs  |  79 ++++++
  Components/ProjectsTest/ProjectsTest.csproj        |  18 ++
- Components/TestSupport/IntegrationTestServer.cs    |  26 ++
- Components/TestSupport/TestDatabaseSupport.cs      |  68 +++++
- Components/TestSupport/TestEnvSupport.cs           |  33 ++
- Components/TestSupport/TestServerResponder.cs      |  30 ++
- Components/TestSupport/TestServers.cs              |  10 +
- Components/TestSupport/TestSupport.csproj          |  18 ++
+ Components/TestSupport/TestDatabaseSupport.cs      | 113 ++++++++
+ Components/TestSupport/TestSupport.csproj          |  15 +
  Components/Timesheets/IProjectClient.cs            |   9 +
  Components/Timesheets/ITimeEntryDataGateway.cs     |  12 +
  Components/Timesheets/ProjectClient.cs             |  25 ++
- Components/Timesheets/ProjectInfo.cs               |  16 +
+ Components/Timesheets/ProjectInfo.cs               |  16 ++
+ Components/Timesheets/TimeEntryContext.cs          |  13 +
  Components/Timesheets/TimeEntryController.cs       |  45 +++
- Components/Timesheets/TimeEntryDataGateway.cs      |  43 +++
+ Components/Timesheets/TimeEntryDataGateway.cs      |  32 +++
  Components/Timesheets/TimeEntryInfo.cs             |  25 ++
- Components/Timesheets/TimeEntryRecord.cs           |  23 ++
- Components/Timesheets/Timesheets.csproj            |  17 ++
- .../TimesheetsTest/TimeEntryControllerTest.cs      |  68 +++++
- .../TimesheetsTest/TimeEntryDataGatewayTest.cs     |  58 ++++
- Components/TimesheetsTest/TimesheetsTest.csproj    |  16 +
+ Components/Timesheets/TimeEntryRecord.cs           |  33 +++
+ Components/Timesheets/Timesheets.csproj            |  15 +
+ .../TimesheetsTest/TimeEntryControllerTest.cs      |  96 +++++++
+ .../TimesheetsTest/TimeEntryDataGatewayTest.cs     |  53 ++++
+ Components/TimesheetsTest/TimesheetsTest.csproj    |  16 ++
  Components/Users/IUserDataGateway.cs               |   9 +
+ Components/Users/UserContext.cs                    |  13 +
  Components/Users/UserController.cs                 |  28 ++
- Components/Users/UserDataGateway.cs                |  36 +++
- Components/Users/UserInfo.cs                       |  16 +
- Components/Users/UserRecord.cs                     |  14 +
+ Components/Users/UserDataGateway.cs                |  30 ++
+ Components/Users/UserInfo.cs                       |  16 ++
+ Components/Users/UserRecord.cs                     |  25 ++
  Components/Users/Users.csproj                      |  14 +
- Components/UsersTest/UserControllerTest.cs         |  40 +++
- Components/UsersTest/UserDataGatewayTest.cs        |  56 ++++
- Components/UsersTest/UsersTest.csproj              |  16 +
+ Components/UsersTest/UserControllerTest.cs         |  43 +++
+ Components/UsersTest/UserDataGatewayTest.cs        |  50 ++++
+ Components/UsersTest/UsersTest.csproj              |  16 ++
  .../migrations/V1__initial_schema.sql              |  11 +
  .../migrations/V1__initial_schema.sql              |   9 +
  Databases/create_databases.sql                     |  22 ++
  .../migrations/V1__initial_schema.sql              |  34 +++
  .../migrations/V1__initial_schema.sql              |  11 +
  Directory.Build.targets                            |   5 +
- IntegrationTest/AppServerBuilder.AppServer.cs      | 121 ++++++++
- IntegrationTest/AppServerBuilder.cs                |  49 +++
- IntegrationTest/FlowTest.cs                        | 194 ++++++++++++
+ IntegrationTest/AppServerBuilder.AppServer.cs      |  97 +++++++
+ IntegrationTest/AppServerBuilder.cs                |  49 ++++
+ IntegrationTest/FlowTest.cs                        | 194 +++++++++++++
  IntegrationTest/IntegrationTest.csproj             |  13 +
- PalTracker.sln                                     | 340 +++++++++++++++++++++
+ PalTracker.sln                                     | 310 +++++++++++++++++++++
  PlatformServices/ConfigServer/build.gradle         |   3 +
  .../io/pivotal/pal/tracker/configserver/App.java   |  14 +
  .../src/main/resources/application.properties      |   3 +
@@ -132,27 +127,28 @@ Subject: [PATCH 1/5] Initial commit
  .../pivotal/pal/tracker/hystrixdashboard/App.java  |  14 +
  .../src/main/resources/application.properties      |   2 +
  PlatformServices/OAuthServer/build.gradle          |   5 +
- .../io/pivotal/pal/tracker/oauthserver/App.java    |  33 ++
+ .../io/pivotal/pal/tracker/oauthserver/App.java    |  33 +++
  .../src/main/resources/application.properties      |   2 +
- PlatformServices/build.gradle                      |  31 ++
+ PlatformServices/build.gradle                      |  31 +++
  PlatformServices/gradle/wrapper/gradle-wrapper.jar | Bin 0 -> 54208 bytes
  .../gradle/wrapper/gradle-wrapper.properties       |   6 +
- PlatformServices/gradlew                           | 172 +++++++++++
- PlatformServices/gradlew.bat                       |  84 +++++
+ PlatformServices/gradlew                           | 172 ++++++++++++
+ PlatformServices/gradlew.bat                       |  84 ++++++
  PlatformServices/settings.gradle                   |   6 +
  after.PalTracker.sln.targets                       |   5 +
  grh-config.json                                    |  21 ++
- manifest-allocations.yml                           |  12 +
- manifest-backlog.yml                               |  12 +
- manifest-registration.yml                          |  10 +
- manifest-timesheets.yml                            |  12 +
+ manifest-allocations.yml                           |  11 +
+ manifest-backlog.yml                               |  11 +
+ manifest-registration.yml                          |   9 +
+ manifest-timesheets.yml                            |  11 +
  migrate-cf.sh                                      |  55 ++++
  migrate-local.sh                                   |  23 ++
  references.sh                                      |  13 +
- start-server.sh                                    |  51 ++++
+ requests.http                                      |  49 ++++
+ rest-client.env.json                               |  14 +
+ start-server.sh                                    |  38 +++
  test.sh                                            |  15 +
- vcap_services.json                                 |  22 ++
- 148 files changed, 4597 insertions(+)
+ 144 files changed, 4416 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -177,6 +173,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100644 CI/build.yml
  create mode 100644 CI/pipeline.yml
  create mode 100644 CI/variables.example.yml
+ create mode 100644 Components/Accounts/AccountContext.cs
  create mode 100644 Components/Accounts/AccountController.cs
  create mode 100644 Components/Accounts/AccountDataGateway.cs
  create mode 100755 Components/Accounts/AccountInfo.cs
@@ -191,6 +188,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/AccountsTest/AccountsTest.csproj
  create mode 100755 Components/AccountsTest/RegistrationControllerTest.cs
  create mode 100755 Components/AccountsTest/RegistrationServiceTest.cs
+ create mode 100644 Components/Allocations/AllocationContext.cs
  create mode 100755 Components/Allocations/AllocationController.cs
  create mode 100644 Components/Allocations/AllocationDataGateway.cs
  create mode 100755 Components/Allocations/AllocationInfo.cs
@@ -208,6 +206,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/Backlog/IStoryDataGateway.cs
  create mode 100644 Components/Backlog/ProjectClient.cs
  create mode 100644 Components/Backlog/ProjectInfo.cs
+ create mode 100644 Components/Backlog/StoryContext.cs
  create mode 100755 Components/Backlog/StoryController.cs
  create mode 100755 Components/Backlog/StoryDataGateway.cs
  create mode 100755 Components/Backlog/StoryInfo.cs
@@ -215,16 +214,10 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/BacklogTest/BacklogTest.csproj
  create mode 100755 Components/BacklogTest/StoryControllerTest.cs
  create mode 100755 Components/BacklogTest/StoryDataGatewayTest.cs
- create mode 100755 Components/DatabaseSupport/DatabaseSupport.csproj
- create mode 100644 Components/DatabaseSupport/DatabaseTemplate.cs
- create mode 100644 Components/DatabaseSupport/IDataSourceConfig.cs
- create mode 100644 Components/DatabaseSupport/IDatabaseTemplate.cs
- create mode 100755 Components/DatabaseSupport/VcapDataSourceConfig.cs
- create mode 100755 Components/DatabaseSupportTest/DataSourceConfigTest.cs
- create mode 100755 Components/DatabaseSupportTest/DatabaseSupportTest.csproj
  create mode 100755 Components/DefaultRoute/DefaultController.cs
  create mode 100755 Components/DefaultRoute/DefaultRoute.csproj
  create mode 100644 Components/Projects/IProjectDataGateway.cs
+ create mode 100644 Components/Projects/ProjectContext.cs
  create mode 100644 Components/Projects/ProjectController.cs
  create mode 100644 Components/Projects/ProjectDataGateway.cs
  create mode 100644 Components/Projects/ProjectInfo.cs
@@ -233,16 +226,13 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/ProjectsTest/ProjectControllerTest.cs
  create mode 100755 Components/ProjectsTest/ProjectDataGatewayTest.cs
  create mode 100755 Components/ProjectsTest/ProjectsTest.csproj
- create mode 100644 Components/TestSupport/IntegrationTestServer.cs
  create mode 100644 Components/TestSupport/TestDatabaseSupport.cs
- create mode 100644 Components/TestSupport/TestEnvSupport.cs
- create mode 100644 Components/TestSupport/TestServerResponder.cs
- create mode 100644 Components/TestSupport/TestServers.cs
  create mode 100755 Components/TestSupport/TestSupport.csproj
  create mode 100644 Components/Timesheets/IProjectClient.cs
  create mode 100755 Components/Timesheets/ITimeEntryDataGateway.cs
  create mode 100644 Components/Timesheets/ProjectClient.cs
  create mode 100644 Components/Timesheets/ProjectInfo.cs
+ create mode 100644 Components/Timesheets/TimeEntryContext.cs
  create mode 100755 Components/Timesheets/TimeEntryController.cs
  create mode 100755 Components/Timesheets/TimeEntryDataGateway.cs
  create mode 100755 Components/Timesheets/TimeEntryInfo.cs
@@ -252,6 +242,7 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Components/TimesheetsTest/TimeEntryDataGatewayTest.cs
  create mode 100755 Components/TimesheetsTest/TimesheetsTest.csproj
  create mode 100644 Components/Users/IUserDataGateway.cs
+ create mode 100644 Components/Users/UserContext.cs
  create mode 100644 Components/Users/UserController.cs
  create mode 100644 Components/Users/UserDataGateway.cs
  create mode 100644 Components/Users/UserInfo.cs
@@ -298,9 +289,10 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 migrate-cf.sh
  create mode 100755 migrate-local.sh
  create mode 100755 references.sh
+ create mode 100644 requests.http
+ create mode 100644 rest-client.env.json
  create mode 100755 start-server.sh
  create mode 100755 test.sh
- create mode 100644 vcap_services.json
 
 diff --git a/.gitignore b/.gitignore
 new file mode 100644
@@ -342,7 +334,7 @@ index 0000000..00ea66f
 +CI/variables.yml
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
 new file mode 100755
-index 0000000..192f32d
+index 0000000..f96abac
 --- /dev/null
 +++ b/Applications/AllocationsServer/AllocationsServer.csproj
 @@ -0,0 +1,19 @@
@@ -355,8 +347,8 @@ index 0000000..192f32d
 +  </ItemGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../../Components/Allocations/Allocations.csproj" />
-+    <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -368,13 +360,14 @@ index 0000000..192f32d
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/Program.cs b/Applications/AllocationsServer/Program.cs
 new file mode 100755
-index 0000000..3c51fee
+index 0000000..eb5dfb9
 --- /dev/null
 +++ b/Applications/AllocationsServer/Program.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +﻿using Microsoft.AspNetCore;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
 +
 +namespace AllocationsServer
 +{
@@ -392,25 +385,26 @@ index 0000000..3c51fee
 +            WebHost.CreateDefaultBuilder(args)
 +                // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
 +                .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .AddCloudFoundry()
 +                .UseStartup<Startup>();
 +    }
 +}
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
 new file mode 100755
-index 0000000..ddd72b5
+index 0000000..46c800b
 --- /dev/null
 +++ b/Applications/AllocationsServer/Startup.cs
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +﻿using System;
 +using System.Net.Http;
 +using Allocations;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Builder;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
 +using Microsoft.Extensions.DependencyInjection;
 +using Microsoft.Extensions.Logging;
++using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 +
 +namespace AllocationsServer
 +{
@@ -429,9 +423,8 @@ index 0000000..ddd72b5
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
-+            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
-+            services.AddSingleton<IAllocationDataGateway, AllocationDataGateway>();
++            services.AddDbContext<AllocationContext>(options => options.UseMySql(Configuration));
++            services.AddScoped<IAllocationDataGateway, AllocationDataGateway>();
 +
 +            services.AddSingleton<IProjectClient>(sp =>
 +            {
@@ -474,22 +467,28 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
 new file mode 100755
-index 0000000..2929763
+index 0000000..e7bd9e0
 --- /dev/null
 +++ b/Applications/AllocationsServer/appsettings.json
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,14 @@
 +﻿{
 +    "Logging": {
 +        "IncludeScopes": false,
 +        "LogLevel": {
 +            "Default": "Warning"
 +        }
-+    }
++    },
++    "mysql": {
++        "client": {
++            "ConnectionString": "Server=localhost;Database=tracker_allocations_dev;Uid=tracker;Pwd=password;"
++        }
++    },
++    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
 +}
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
 new file mode 100755
-index 0000000..28987a2
+index 0000000..7d98917
 --- /dev/null
 +++ b/Applications/BacklogServer/BacklogServer.csproj
 @@ -0,0 +1,19 @@
@@ -502,8 +501,8 @@ index 0000000..28987a2
 +  </ItemGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../../Components/Backlog/Backlog.csproj" />
-+    <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -515,13 +514,14 @@ index 0000000..28987a2
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/Program.cs b/Applications/BacklogServer/Program.cs
 new file mode 100755
-index 0000000..aeb9712
+index 0000000..7d1b855
 --- /dev/null
 +++ b/Applications/BacklogServer/Program.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +﻿using Microsoft.AspNetCore;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
 +
 +namespace BacklogServer
 +{
@@ -539,25 +539,26 @@ index 0000000..aeb9712
 +            WebHost.CreateDefaultBuilder(args)
 +                // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
 +                .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .AddCloudFoundry()
 +                .UseStartup<Startup>();
 +    }
 +}
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
 new file mode 100755
-index 0000000..f64f34f
+index 0000000..d849d3b
 --- /dev/null
 +++ b/Applications/BacklogServer/Startup.cs
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +﻿using System;
 +using System.Net.Http;
 +using Backlog;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Builder;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
 +using Microsoft.Extensions.DependencyInjection;
 +using Microsoft.Extensions.Logging;
++using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 +
 +namespace BacklogServer
 +{
@@ -575,11 +576,10 @@ index 0000000..f64f34f
 +        {
 +            // Add framework services.
 +            services.AddMvc();
-+            
-+            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
-+            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
-+            services.AddSingleton<IStoryDataGateway, StoryDataGateway>();
-+            
++
++            services.AddDbContext<StoryContext>(options => options.UseMySql(Configuration));
++            services.AddScoped<IStoryDataGateway, StoryDataGateway>();
++
 +            services.AddSingleton<IProjectClient>(sp =>
 +            {
 +                var httpClient = new HttpClient
@@ -621,28 +621,35 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
 new file mode 100755
-index 0000000..2929763
+index 0000000..beea0f4
 --- /dev/null
 +++ b/Applications/BacklogServer/appsettings.json
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,14 @@
 +﻿{
 +    "Logging": {
 +        "IncludeScopes": false,
 +        "LogLevel": {
 +            "Default": "Warning"
 +        }
-+    }
++    },
++    "mysql": {
++        "client": {
++            "ConnectionString": "Server=localhost;Database=tracker_backlog_dev;Uid=tracker;Pwd=password;"
++        }
++    },
++    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
 +}
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/Program.cs b/Applications/RegistrationServer/Program.cs
 new file mode 100755
-index 0000000..34ddd73
+index 0000000..fdd176b
 --- /dev/null
 +++ b/Applications/RegistrationServer/Program.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +﻿using Microsoft.AspNetCore;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
 +
 +namespace RegistrationServer
 +{
@@ -660,13 +667,14 @@ index 0000000..34ddd73
 +            WebHost.CreateDefaultBuilder(args)
 +                // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
 +                .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .AddCloudFoundry()
 +                .UseStartup<Startup>();
 +    }
 +}
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
 new file mode 100755
-index 0000000..1faa3b5
+index 0000000..1f584f5
 --- /dev/null
 +++ b/Applications/RegistrationServer/RegistrationServer.csproj
 @@ -0,0 +1,21 @@
@@ -681,8 +689,8 @@ index 0000000..1faa3b5
 +    <ProjectReference Include="../../Components/Accounts/Accounts.csproj" />
 +    <ProjectReference Include="../../Components/Projects/Projects.csproj" />
 +    <ProjectReference Include="../../Components/Users/Users.csproj" />
-+    <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -694,18 +702,18 @@ index 0000000..1faa3b5
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
 new file mode 100755
-index 0000000..1728e50
+index 0000000..9aa1423
 --- /dev/null
 +++ b/Applications/RegistrationServer/Startup.cs
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,47 @@
 +﻿using Accounts;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Builder;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
 +using Microsoft.Extensions.DependencyInjection;
 +using Microsoft.Extensions.Logging;
 +using Projects;
++using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 +using Users;
 +
 +namespace RegistrationServer
@@ -725,12 +733,14 @@ index 0000000..1728e50
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
-+            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
-+            services.AddSingleton<IAccountDataGateway, AccountDataGateway>();
-+            services.AddSingleton<IProjectDataGateway, ProjectDataGateway>();
-+            services.AddSingleton<IUserDataGateway, UserDataGateway>();
-+            services.AddSingleton<IRegistrationService, RegistrationService>();
++            services.AddDbContext<AccountContext>(options => options.UseMySql(Configuration));
++            services.AddDbContext<ProjectContext>(options => options.UseMySql(Configuration));
++            services.AddDbContext<UserContext>(options => options.UseMySql(Configuration));
++
++            services.AddScoped<IAccountDataGateway, AccountDataGateway>();
++            services.AddScoped<IProjectDataGateway, ProjectDataGateway>();
++            services.AddScoped<IUserDataGateway, UserDataGateway>();
++            services.AddScoped<IRegistrationService, RegistrationService>();
 +        }
 +
 +        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -763,28 +773,34 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
 new file mode 100755
-index 0000000..2929763
+index 0000000..2c62cf1
 --- /dev/null
 +++ b/Applications/RegistrationServer/appsettings.json
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,13 @@
 +﻿{
 +    "Logging": {
 +        "IncludeScopes": false,
 +        "LogLevel": {
 +            "Default": "Warning"
 +        }
++    },
++    "mysql": {
++        "client": {
++            "ConnectionString": "Server=localhost;Database=tracker_registration_dev;Uid=tracker;Pwd=password;"
++        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/Program.cs b/Applications/TimesheetsServer/Program.cs
 new file mode 100755
-index 0000000..085cd4f
+index 0000000..95fcb23
 --- /dev/null
 +++ b/Applications/TimesheetsServer/Program.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +﻿using Microsoft.AspNetCore;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
++using Steeltoe.Extensions.Configuration.CloudFoundry;
 +
 +namespace TimesheetsServer
 +{
@@ -802,24 +818,25 @@ index 0000000..085cd4f
 +            WebHost.CreateDefaultBuilder(args)
 +                // https://github.com/aspnet/KestrelHttpServer/issues/1998#issuecomment-322922164
 +                .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
++                .AddCloudFoundry()
 +                .UseStartup<Startup>();
 +    }
 +}
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
 new file mode 100755
-index 0000000..129ac5c
+index 0000000..15dd03c
 --- /dev/null
 +++ b/Applications/TimesheetsServer/Startup.cs
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +﻿using System;
 +using System.Net.Http;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Builder;
 +using Microsoft.AspNetCore.Hosting;
 +using Microsoft.Extensions.Configuration;
 +using Microsoft.Extensions.DependencyInjection;
 +using Microsoft.Extensions.Logging;
++using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 +using Timesheets;
 +
 +namespace TimesheetsServer
@@ -839,9 +856,8 @@ index 0000000..129ac5c
 +            // Add framework services.
 +            services.AddMvc();
 +
-+            services.AddSingleton<IDataSourceConfig, VcapDataSourceConfig>();
-+            services.AddSingleton<IDatabaseTemplate, DatabaseTemplate>();
-+            services.AddSingleton<ITimeEntryDataGateway, TimeEntryDataGateway>();
++            services.AddDbContext<TimeEntryContext>(options => options.UseMySql(Configuration));
++            services.AddScoped<ITimeEntryDataGateway, TimeEntryDataGateway>();
 +            
 +            services.AddSingleton<IProjectClient>(sp =>
 +            {
@@ -867,7 +883,7 @@ index 0000000..129ac5c
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
 new file mode 100755
-index 0000000..df92a0d
+index 0000000..74bf0c6
 --- /dev/null
 +++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
 @@ -0,0 +1,19 @@
@@ -880,8 +896,8 @@ index 0000000..df92a0d
 +  </ItemGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../../Components/Timesheets/Timesheets.csproj" />
-+    <ProjectReference Include="../../Components/DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
++    <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -910,17 +926,23 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
 new file mode 100755
-index 0000000..2929763
+index 0000000..3b43b21
 --- /dev/null
 +++ b/Applications/TimesheetsServer/appsettings.json
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,14 @@
 +﻿{
 +    "Logging": {
 +        "IncludeScopes": false,
 +        "LogLevel": {
 +            "Default": "Warning"
 +        }
-+    }
++    },
++    "mysql": {
++        "client": {
++            "ConnectionString": "Server=localhost;Database=tracker_timesheets_dev;Uid=tracker;Pwd=password;"
++        }
++    },
++    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
 +}
 \ No newline at end of file
 diff --git a/CI/build.yml b/CI/build.yml
@@ -1152,6 +1174,26 @@ index 0000000..ccff6b1
 +  -----BEGIN RSA PRIVATE KEY-----
 +  REPLACE WITH YOUR PRIVATE KEY HERE
 +  -----END RSA PRIVATE KEY-----
+diff --git a/Components/Accounts/AccountContext.cs b/Components/Accounts/AccountContext.cs
+new file mode 100644
+index 0000000..09c2190
+--- /dev/null
++++ b/Components/Accounts/AccountContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Accounts
++{
++    public class AccountContext : DbContext
++    {
++        public AccountContext(DbContextOptions<AccountContext> options) : base(options)
++        {
++        }
++
++        public DbSet<AccountRecord> AccountRecords { get; set; }
++    }
++}
+\ No newline at end of file
 diff --git a/Components/Accounts/AccountController.cs b/Components/Accounts/AccountController.cs
 new file mode 100644
 index 0000000..e19ed13
@@ -1187,46 +1229,39 @@ index 0000000..e19ed13
 \ No newline at end of file
 diff --git a/Components/Accounts/AccountDataGateway.cs b/Components/Accounts/AccountDataGateway.cs
 new file mode 100644
-index 0000000..4b6ac0b
+index 0000000..beb5aed
 --- /dev/null
 +++ b/Components/Accounts/AccountDataGateway.cs
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,31 @@
 +﻿using System.Collections.Generic;
 +using System.Linq;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Accounts
 +{
 +    public class AccountDataGateway : IAccountDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly AccountContext _context;
 +
-+        public AccountDataGateway(IDatabaseTemplate template)
++        public AccountDataGateway(AccountContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public AccountRecord Create(long ownerId, string name)
 +        {
-+            var sql = "insert into accounts (owner_id, name) values (@ownerId, @name)";
++            var recordToCreate = new AccountRecord(ownerId, name);
 +
-+            return _template.Create(sql, id => new AccountRecord(id, ownerId, name),
-+                new KeyValuePair<string, object>("@ownerId", ownerId),
-+                new KeyValuePair<string, object>("@name", name));
++            _context.AccountRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public List<AccountRecord> FindBy(long ownerId)
-+        {
-+            var sql = "select id, owner_id, name from accounts where owner_id = @ownerId";
-+
-+            var records = _template.FindBy(sql, reader => new AccountRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetString(2)
-+            ), "@ownerId", ownerId);
-+            
-+            return records;
-+        }
++        public List<AccountRecord> FindBy(long ownerId) => _context.AccountRecords
++            .AsNoTracking()
++            .Where(a => a.OwnerId == ownerId)
++            .ToList();
 +    }
 +}
 \ No newline at end of file
@@ -1257,17 +1292,28 @@ index 0000000..7c576d7
 \ No newline at end of file
 diff --git a/Components/Accounts/AccountRecord.cs b/Components/Accounts/AccountRecord.cs
 new file mode 100644
-index 0000000..34e927e
+index 0000000..cf28181
 --- /dev/null
 +++ b/Components/Accounts/AccountRecord.cs
-@@ -0,0 +1,16 @@
-+﻿namespace Accounts
+@@ -0,0 +1,27 @@
++﻿using System.ComponentModel.DataAnnotations.Schema;
++
++namespace Accounts
 +{
++    [Table("accounts")]
 +    public class AccountRecord
 +    {
-+        public long Id { get; }
-+        public long OwnerId { get; }
-+        public string Name { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("owner_id")] public long OwnerId { get; private set; }
++        [Column("name")] public string Name { get; private set; }
++
++        private AccountRecord()
++        {
++        }
++
++        public AccountRecord(long ownerId, string name) : this(default(long), ownerId, name)
++        {
++        }
 +
 +        public AccountRecord(long id, long ownerId, string name)
 +        {
@@ -1280,7 +1326,7 @@ index 0000000..34e927e
 \ No newline at end of file
 diff --git a/Components/Accounts/Accounts.csproj b/Components/Accounts/Accounts.csproj
 new file mode 100755
-index 0000000..2daa9c4
+index 0000000..1bd8ef4
 --- /dev/null
 +++ b/Components/Accounts/Accounts.csproj
 @@ -0,0 +1,15 @@
@@ -1289,9 +1335,9 @@ index 0000000..2daa9c4
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +    <ProjectReference Include="../Users/Users.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -1398,73 +1444,64 @@ index 0000000..496a971
 \ No newline at end of file
 diff --git a/Components/AccountsTest/AccountControllerTest.cs b/Components/AccountsTest/AccountControllerTest.cs
 new file mode 100755
-index 0000000..8ae6b76
+index 0000000..3206713
 --- /dev/null
 +++ b/Components/AccountsTest/AccountControllerTest.cs
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,45 @@
 +using System.Collections.Generic;
 +using Accounts;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
++using Moq;
 +using Xunit;
 +
 +namespace AccountsTest
 +{
-+    [Collection("Accounts")]
 +    public class AccountControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        static AccountControllerTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private readonly Mock<IAccountDataGateway> _gateway;
++        private readonly AccountController _controller;
 +
 +        public AccountControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<IAccountDataGateway>();
++            _controller = new AccountController(_gateway.Object);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
-+            Support.ExecSql(@"insert into accounts (id, owner_id, name) 
-+            values (1673, 4765, 'Jack''s account'), (1674, 4765, 'Jack''s other account'), 
-+            (1675, 4766, 'Fred''s account');");
++            _gateway.Setup(g => g.FindBy(4765)).Returns(new List<AccountRecord>
++            {
++                new AccountRecord(1673, 4765, "Jack's account"),
++                new AccountRecord(1674, 4765, "Jack's other account")
++            });
 +
-+            var controller =
-+                new AccountController(new AccountDataGateway(new DatabaseTemplate(DataSourceConfig)));
-+            var result = controller.Get(4765);
++            var response = _controller.Get(4765);
++            var body = (List<AccountInfo>) ((ObjectResult) response).Value;
 +
-+            var info = (List<AccountInfo>) ((ObjectResult) result).Value;
++            Assert.IsType<OkObjectResult>(response);
 +
-+            Assert.Equal(2, info.Count);
-+            Assert.Equal(1673, info[0].Id);
-+            Assert.Equal(4765, info[0].OwnerId);
-+            Assert.Equal("Jack's account", info[0].Name);
-+            Assert.Equal("account info", info[0].Info);
-+            Assert.Equal(1674, info[1].Id);
-+            Assert.Equal(4765, info[1].OwnerId);
-+            Assert.Equal("Jack's other account", info[1].Name);
-+            Assert.Equal("account info", info[1].Info);
++            Assert.Equal(2, body.Count);
++            Assert.Equal(1673, body[0].Id);
++            Assert.Equal(4765, body[0].OwnerId);
++            Assert.Equal("Jack's account", body[0].Name);
++            Assert.Equal("account info", body[0].Info);
++            Assert.Equal(1674, body[1].Id);
++            Assert.Equal(4765, body[1].OwnerId);
++            Assert.Equal("Jack's other account", body[1].Name);
++            Assert.Equal("account info", body[1].Info);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/AccountsTest/AccountDataGatewayTest.cs b/Components/AccountsTest/AccountDataGatewayTest.cs
 new file mode 100755
-index 0000000..dc49045
+index 0000000..72fb253
 --- /dev/null
 +++ b/Components/AccountsTest/AccountDataGatewayTest.cs
-@@ -0,0 +1,62 @@
-+using System.Collections.Generic;
-+using System.Data.Common;
-+using System.Linq;
+@@ -0,0 +1,56 @@
 +using Accounts;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Xunit;
 +
@@ -1473,13 +1510,12 @@ index 0000000..dc49045
 +    [Collection("Accounts")]
 +    public class AccountDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.RegistrationConnectionString);
 +
-+        static AccountDataGatewayTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private static readonly DbContextOptions<AccountContext> DbContextOptions =
++            new DbContextOptionsBuilder<AccountContext>().UseMySql(TestDatabaseSupport.RegistrationConnectionString)
++                .Options;
 +
 +        public AccountDataGatewayTest()
 +        {
@@ -1491,14 +1527,12 @@ index 0000000..dc49045
 +        {
 +            Support.ExecSql("insert into users (id, name) values (12, 'Jack');");
 +
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var gateway = new AccountDataGateway(template);
++            var gateway = new AccountDataGateway(new AccountContext(DbContextOptions));
 +            gateway.Create(12, "anAccount");
 +
-+            var names = template.Query("select name from accounts", reader => reader.GetString(0),
-+                new List<DbParameter>());
++            var names = Support.QuerySql("select name from accounts");
 +
-+            Assert.Equal("anAccount", names.First());
++            Assert.Equal("anAccount", names[0]["name"]);
 +        }
 +
 +        [Fact]
@@ -1509,7 +1543,7 @@ index 0000000..dc49045
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount'), (2, 12, 'anotherAccount');
 +");
 +
-+            var gateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new AccountDataGateway(new AccountContext(DbContextOptions));
 +
 +            var actual = gateway.FindBy(12);
 +
@@ -1525,7 +1559,7 @@ index 0000000..dc49045
 \ No newline at end of file
 diff --git a/Components/AccountsTest/AccountsTest.csproj b/Components/AccountsTest/AccountsTest.csproj
 new file mode 100755
-index 0000000..302c3dc
+index 0000000..649c158
 --- /dev/null
 +++ b/Components/AccountsTest/AccountsTest.csproj
 @@ -0,0 +1,17 @@
@@ -1535,7 +1569,6 @@ index 0000000..302c3dc
 +  </PropertyGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../Accounts/Accounts.csproj" />
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj" />
 +    <ProjectReference Include="../Users/Users.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
@@ -1544,70 +1577,60 @@ index 0000000..302c3dc
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 +    <PackageReference Include="xunit" Version="2.2.0" />
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
 diff --git a/Components/AccountsTest/RegistrationControllerTest.cs b/Components/AccountsTest/RegistrationControllerTest.cs
 new file mode 100755
-index 0000000..6766278
+index 0000000..3543154
 --- /dev/null
 +++ b/Components/AccountsTest/RegistrationControllerTest.cs
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,35 @@
 +using Accounts;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
++using Moq;
 +using Users;
 +using Xunit;
 +
 +namespace AccountsTest
 +{
-+    [Collection("Accounts")]
 +    public class RegistrationControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        static RegistrationControllerTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private readonly Mock<IRegistrationService> _service;
++        private readonly RegisationController _controller;
 +
 +        public RegistrationControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _service = new Mock<IRegistrationService>();
++            _controller = new RegisationController(_service.Object);
 +        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
-+            Support.ExecSql(@"insert into accounts (id, owner_id, name) 
-+            values (1673, 4765, 'Jack''s account'), (1674, 4766, 'Fred''s account');");
++            _service.Setup(s => s.CreateUserWithAccount("aUser")).Returns(new UserRecord(123, "aUser"));
 +
-+            var userDataGateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
-+            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
-+            var service = new RegistrationService(userDataGateway, accountDataGateway);
++            var response = _controller.Post(new UserInfo(-1, "aUser", ""));
++            var body = (UserInfo) ((ObjectResult) response).Value;
 +
-+            var controller = new RegisationController(service);
-+            var value = controller.Post(new UserInfo(-1, "aUser", ""));
-+            var actual = (UserInfo) ((ObjectResult) value).Value;
++            Assert.IsType<CreatedResult>(response);
 +
-+            Assert.True(actual.Id > 0);
-+            Assert.Equal("aUser", actual.Name);
-+            Assert.Equal("registration info", actual.Info);
++            Assert.Equal(123, body.Id);
++            Assert.Equal("aUser", body.Name);
++            Assert.Equal("registration info", body.Info);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/AccountsTest/RegistrationServiceTest.cs b/Components/AccountsTest/RegistrationServiceTest.cs
 new file mode 100755
-index 0000000..92a41b0
+index 0000000..f8412b7
 --- /dev/null
 +++ b/Components/AccountsTest/RegistrationServiceTest.cs
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,40 @@
 +using Accounts;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Users;
 +using Xunit;
@@ -1617,13 +1640,16 @@ index 0000000..92a41b0
 +    [Collection("Accounts")]
 +    public class RegistrationServiceTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.RegistrationConnectionString);
 +
-+        static RegistrationServiceTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private static readonly DbContextOptions<AccountContext> AccountDbContextOptions =
++            new DbContextOptionsBuilder<AccountContext>().UseMySql(TestDatabaseSupport.RegistrationConnectionString)
++                .Options;
++
++        private static readonly DbContextOptions<UserContext> UserDbContextOptions =
++            new DbContextOptionsBuilder<UserContext>().UseMySql(TestDatabaseSupport.RegistrationConnectionString)
++                .Options;
 +
 +        public RegistrationServiceTest()
 +        {
@@ -1633,14 +1659,34 @@ index 0000000..92a41b0
 +        [Fact]
 +        public void TestFindBy()
 +        {
-+            var userDataGateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
-+            var accountDataGateway = new AccountDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var userDataGateway = new UserDataGateway(new UserContext(UserDbContextOptions));
++            var accountDataGateway = new AccountDataGateway(new AccountContext(AccountDbContextOptions));
 +            var service = new RegistrationService(userDataGateway, accountDataGateway);
 +
 +            var info = service.CreateUserWithAccount("aUser");
 +
 +            Assert.Equal("aUser", info.Name);
 +        }
++    }
++}
+\ No newline at end of file
+diff --git a/Components/Allocations/AllocationContext.cs b/Components/Allocations/AllocationContext.cs
+new file mode 100644
+index 0000000..424a4f6
+--- /dev/null
++++ b/Components/Allocations/AllocationContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Allocations
++{
++    public class AllocationContext : DbContext
++    {
++        public AllocationContext(DbContextOptions<AllocationContext> options) : base(options)
++        {
++        }
++
++        public DbSet<AllocationRecord> AllocationRecords { get; set; }
 +    }
 +}
 \ No newline at end of file
@@ -1698,51 +1744,40 @@ index 0000000..06384d7
 \ No newline at end of file
 diff --git a/Components/Allocations/AllocationDataGateway.cs b/Components/Allocations/AllocationDataGateway.cs
 new file mode 100644
-index 0000000..1f5cfb0
+index 0000000..9ca9f38
 --- /dev/null
 +++ b/Components/Allocations/AllocationDataGateway.cs
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,32 @@
 +﻿using System;
 +using System.Collections.Generic;
-+using DatabaseSupport;
++using System.Linq;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Allocations
 +{
 +    public class AllocationDataGateway : IAllocationDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly AllocationContext _context;
 +
-+        public AllocationDataGateway(IDatabaseTemplate template)
++        public AllocationDataGateway(AllocationContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public AllocationRecord Create(long projectId, long userId, DateTime firstDay, DateTime lastDay)
 +        {
-+            var sql = @"
-+insert into allocations (project_id, user_id, first_day, last_day) values (@projectId, @userId, @firstDay, @lastDay)";
++            var recordToCreate = new AllocationRecord(projectId, userId, firstDay, lastDay);
 +
-+            return _template.Create(sql, id => new AllocationRecord(id, projectId, userId, firstDay, lastDay),
-+                new KeyValuePair<string, object>("@projectId", projectId),
-+                new KeyValuePair<string, object>("@userId", userId),
-+                new KeyValuePair<string, object>("@firstDay", firstDay),
-+                new KeyValuePair<string, object>("@lastDay", lastDay)
-+            );
++            _context.AllocationRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public List<AllocationRecord> FindBy(long projectId)
-+        {
-+            const string sql = @"
-+select id, project_id, user_id, first_day, last_day from allocations where project_id = @projectId order by first_day";
-+
-+            return _template.FindBy(sql, reader => new AllocationRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetInt64(2),
-+                reader.GetDateTime(3),
-+                reader.GetDateTime(4)
-+            ), "@projectId", projectId);
-+        }
++        public List<AllocationRecord> FindBy(long projectId) => _context.AllocationRecords
++            .AsNoTracking()
++            .Where(a => a.ProjectId == projectId)
++            .ToList();
 +    }
 +}
 \ No newline at end of file
@@ -1780,22 +1815,32 @@ index 0000000..6d67091
 \ No newline at end of file
 diff --git a/Components/Allocations/AllocationRecord.cs b/Components/Allocations/AllocationRecord.cs
 new file mode 100644
-index 0000000..0cc0a4b
+index 0000000..6fb671f
 --- /dev/null
 +++ b/Components/Allocations/AllocationRecord.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,33 @@
 +﻿using System;
++using System.ComponentModel.DataAnnotations.Schema;
 +
 +namespace Allocations
 +{
++    [Table("allocations")]
 +    public class AllocationRecord
 +    {
-+        public long Id { get; }
-+        public long ProjectId { get; }
-+        public long UserId { get; }
-+        public DateTime FirstDay { get; }
-+        public DateTime LastDay { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("project_id")] public long ProjectId { get; private set; }
++        [Column("user_id")] public long UserId { get; private set; }
++        [Column("first_day")] public DateTime FirstDay { get; private set; }
++        [Column("last_day")] public DateTime LastDay { get; private set; }
 +
++        private AllocationRecord()
++        {
++        }
++
++        public AllocationRecord(long projectId, long userId, DateTime firstDay, DateTime lastDay) :
++            this(default(long), projectId, userId, firstDay, lastDay)
++        {
++        }
 +
 +        public AllocationRecord(long id, long projectId, long userId, DateTime firstDay, DateTime lastDay)
 +        {
@@ -1810,7 +1855,7 @@ index 0000000..0cc0a4b
 \ No newline at end of file
 diff --git a/Components/Allocations/Allocations.csproj b/Components/Allocations/Allocations.csproj
 new file mode 100755
-index 0000000..e7dac9d
+index 0000000..d970631
 --- /dev/null
 +++ b/Components/Allocations/Allocations.csproj
 @@ -0,0 +1,15 @@
@@ -1819,8 +1864,8 @@ index 0000000..e7dac9d
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -1922,92 +1967,111 @@ index 0000000..8b4ca90
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsControllerTest.cs b/Components/AllocationsTest/AllocationsControllerTest.cs
 new file mode 100644
-index 0000000..51322ec
+index 0000000..0e4961d
 --- /dev/null
 +++ b/Components/AllocationsTest/AllocationsControllerTest.cs
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,90 @@
 +﻿using System;
 +using System.Collections.Generic;
-+using System.Net.Http;
++using System.Threading.Tasks;
 +using Allocations;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
++using Moq;
 +using Xunit;
-+using static TestSupport.TestServers;
 +
 +namespace AllocationsTest
 +{
-+    [Collection("Allocations")]
 +    public class AllocationsControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
-+
-+        static AllocationsControllerTest()
-+        {
-+            TestEnvSupport.SetAllocationsVcap();
-+        }
++        private readonly Mock<IAllocationDataGateway> _gateway;
++        private readonly Mock<IProjectClient> _client;
++        private readonly AllocationController _controller;
 +
 +        public AllocationsControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<IAllocationDataGateway>();
++            _client = new Mock<IProjectClient>();
++            _controller = new AllocationController(_gateway.Object, _client.Object);
 +        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            Support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
-+                (754, 55432, 4765, '2015-05-17', '2015-05-18'), 
-+                (755, 55432, 4766, '2015-05-17', '2015-05-18');");
++            _gateway.Setup(g => g.Create(55432, 4765, DateTime.Parse("2014-05-16"), DateTime.Parse("2014-05-26")))
++                .Returns(new AllocationRecord(3, 55432, 4765, DateTime.Parse("2014-05-16"), DateTime.Parse("2014-05-26")));
 +
-+            var controller =
-+                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)),
-+                    new ProjectClient(_client));
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(true)));
 +
-+            var value = controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"),
-+                DateTime.Parse("2014-05-26"), ""));
-+            var actual = (AllocationInfo) ((ObjectResult) value).Value;
++            var response = _controller.Post(new AllocationInfo(-1, 55432, 4765, DateTime.Parse("2014-05-16"), DateTime.Parse("2014-05-26"), ""));
++            var body = (AllocationInfo) ((ObjectResult) response).Value;
 +
-+            Assert.True(actual.Id > 0);
-+            Assert.Equal(55432L, actual.ProjectId);
-+            Assert.Equal(4765L, actual.UserId);
-+            Assert.Equal(16, actual.FirstDay.Day);
-+            Assert.Equal(26, actual.LastDay.Day);
-+            Assert.Equal("allocation info", actual.Info);
++            Assert.IsType<CreatedResult>(response);
++            
++            Assert.Equal(3, body.Id);
++            Assert.Equal(55432L, body.ProjectId);
++            Assert.Equal(4765L, body.UserId);
++            Assert.Equal(16, body.FirstDay.Day);
++            Assert.Equal(5, body.FirstDay.Month);
++            Assert.Equal(2014, body.FirstDay.Year);
++            Assert.Equal(26, body.LastDay.Day);
++            Assert.Equal(5, body.FirstDay.Month);
++            Assert.Equal(2014, body.FirstDay.Year);
++            Assert.Equal("allocation info", body.Info);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql(@"insert into allocations (id, project_id, user_id, first_day, last_day) values 
-+                (754, 55432, 4765, '2015-05-17', '2015-05-18'), 
-+                (755, 55432, 4766, '2015-05-17', '2015-05-18');");
++            _gateway.Setup(g => g.FindBy(55432)).Returns(new List<AllocationRecord>
++            {
++                new AllocationRecord(754, 55432, 4765, DateTime.Parse("2015-05-16"), DateTime.Parse("2015-05-17")),
++                new AllocationRecord(755, 55432, 4766, DateTime.Parse("2015-05-17"), DateTime.Parse("2015-05-18"))
++            });
 +
-+            var controller =
-+                new AllocationController(new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig)), null);
-+            var result = controller.Get(55432);
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(true)));
 +
-+            // todo...
-+            Assert.Equal(2, ((List<AllocationInfo>) ((ObjectResult) result).Value).Count);
++            var response = _controller.Get(55432);
++            var body = (List<AllocationInfo>) ((ObjectResult) response).Value;
++
++            Assert.IsType<OkObjectResult>(response);
++
++            Assert.Equal(2, body.Count);
++
++            Assert.Equal(754L, body[0].Id);
++            Assert.Equal(55432L, body[0].ProjectId);
++            Assert.Equal(4765L, body[0].UserId);
++            Assert.Equal(16, body[0].FirstDay.Day);
++            Assert.Equal(5, body[0].FirstDay.Month);
++            Assert.Equal(2015, body[0].FirstDay.Year);
++            Assert.Equal(17, body[0].LastDay.Day);
++            Assert.Equal(5, body[0].FirstDay.Month);
++            Assert.Equal(2015, body[0].FirstDay.Year);
++            Assert.Equal("allocation info", body[0].Info);
++
++            Assert.Equal(755L, body[1].Id);
++            Assert.Equal(55432L, body[1].ProjectId);
++            Assert.Equal(4766L, body[1].UserId);
++            Assert.Equal(17, body[1].FirstDay.Day);
++            Assert.Equal(5, body[1].FirstDay.Month);
++            Assert.Equal(2015, body[1].FirstDay.Year);
++            Assert.Equal(18, body[1].LastDay.Day);
++            Assert.Equal(5, body[1].FirstDay.Month);
++            Assert.Equal(2015, body[1].FirstDay.Year);
++            Assert.Equal("allocation info", body[1].Info);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsDataGatewayTest.cs b/Components/AllocationsTest/AllocationsDataGatewayTest.cs
 new file mode 100755
-index 0000000..a8de597
+index 0000000..e142c06
 --- /dev/null
 +++ b/Components/AllocationsTest/AllocationsDataGatewayTest.cs
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,53 @@
 +using System;
-+using System.Collections.Generic;
-+using System.Data.Common;
 +using System.Linq;
 +using Allocations;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Xunit;
 +
@@ -2016,13 +2080,12 @@ index 0000000..a8de597
 +    [Collection("Allocations")]
 +    public class AllocationDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.AllocationsConnectionString);
 +
-+        static AllocationDataGatewayTest()
-+        {
-+            TestEnvSupport.SetAllocationsVcap();
-+        }
++        private static readonly DbContextOptions<AllocationContext> DbContextOptions =
++            new DbContextOptionsBuilder<AllocationContext>().UseMySql(TestDatabaseSupport.AllocationsConnectionString)
++                .Options;
 +
 +        public AllocationDataGatewayTest()
 +        {
@@ -2031,16 +2094,14 @@ index 0000000..a8de597
 +
 +        [Fact]
 +        public void TestCreate()
-+        {            
-+            var gateway = new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig));
++        {
++            var gateway = new AllocationDataGateway(new AllocationContext(DbContextOptions));
 +            gateway.Create(22, 12, DateTime.Now, DateTime.Now);
 +
 +            // todo...
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var projectIds = template.Query("select project_id from allocations", reader => reader.GetInt64(0),
-+                new List<DbParameter>());
++            var projectIds = Support.QuerySql("select project_id from allocations");
 +
-+            Assert.Equal(22, projectIds.First());
++            Assert.Equal(22L, projectIds[0]["project_id"]);
 +        }
 +
 +        [Fact]
@@ -2049,7 +2110,7 @@ index 0000000..a8de597
 +            Support.ExecSql(@"insert into allocations 
 +(id, project_id, user_id, first_day, last_day) values (97336, 22, 12, now(), now());");
 +
-+            var gateway = new AllocationDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new AllocationDataGateway(new AllocationContext(DbContextOptions));
 +            var list = gateway.FindBy(22);
 +
 +            // todo...
@@ -2063,7 +2124,7 @@ index 0000000..a8de597
 \ No newline at end of file
 diff --git a/Components/AllocationsTest/AllocationsTest.csproj b/Components/AllocationsTest/AllocationsTest.csproj
 new file mode 100755
-index 0000000..008e340
+index 0000000..ad02c65
 --- /dev/null
 +++ b/Components/AllocationsTest/AllocationsTest.csproj
 @@ -0,0 +1,16 @@
@@ -2073,7 +2134,6 @@ index 0000000..008e340
 +  </PropertyGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../Allocations/Allocations.csproj" />
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
@@ -2081,12 +2141,13 @@ index 0000000..008e340
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 +    <PackageReference Include="xunit" Version="2.2.0" />
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
 diff --git a/Components/Backlog/Backlog.csproj b/Components/Backlog/Backlog.csproj
 new file mode 100755
-index 0000000..e7dac9d
+index 0000000..d970631
 --- /dev/null
 +++ b/Components/Backlog/Backlog.csproj
 @@ -0,0 +1,15 @@
@@ -2095,8 +2156,8 @@ index 0000000..e7dac9d
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -2195,6 +2256,26 @@ index 0000000..40f0fa7
 +    }
 +}
 \ No newline at end of file
+diff --git a/Components/Backlog/StoryContext.cs b/Components/Backlog/StoryContext.cs
+new file mode 100644
+index 0000000..3812782
+--- /dev/null
++++ b/Components/Backlog/StoryContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Backlog
++{
++    public class StoryContext : DbContext
++    {
++        public StoryContext(DbContextOptions<StoryContext> options) : base(options)
++        {
++        }
++
++        public DbSet<StoryRecord> StoryRecords { get; set; }
++    }
++}
+\ No newline at end of file
 diff --git a/Components/Backlog/StoryController.cs b/Components/Backlog/StoryController.cs
 new file mode 100755
 index 0000000..844ddc9
@@ -2247,46 +2328,39 @@ index 0000000..844ddc9
 \ No newline at end of file
 diff --git a/Components/Backlog/StoryDataGateway.cs b/Components/Backlog/StoryDataGateway.cs
 new file mode 100755
-index 0000000..6727c74
+index 0000000..45b49fe
 --- /dev/null
 +++ b/Components/Backlog/StoryDataGateway.cs
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,31 @@
 +﻿using System.Collections.Generic;
-+using DatabaseSupport;
++using System.Linq;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Backlog
 +{
 +    public class StoryDataGateway : IStoryDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly StoryContext _context;
 +
-+        public StoryDataGateway(IDatabaseTemplate template)
++        public StoryDataGateway(StoryContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public StoryRecord Create(long projectId, string name)
 +        {
-+            var sql = @"
-+insert into stories (project_id, name) values (@projectId, @name)";
++            var recordToCreate = new StoryRecord(projectId, name);
 +
-+            return _template.Create(sql, id => new StoryRecord(id, projectId, name),
-+                new KeyValuePair<string, object>("@projectId", projectId),
-+                new KeyValuePair<string, object>("@name", name)
-+            );
++            _context.StoryRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public List<StoryRecord> FindBy(long projectId)
-+        {
-+            const string sql = @"
-+select id, project_id, name from stories where project_id = @projectId";
-+
-+            return _template.FindBy(sql, reader => new StoryRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetString(2)
-+            ), "@projectId", projectId);
-+        }
++        public List<StoryRecord> FindBy(long projectId) => _context.StoryRecords
++            .AsNoTracking()
++            .Where(s => s.ProjectId == projectId)
++            .ToList();
 +    }
 +}
 \ No newline at end of file
@@ -2318,18 +2392,28 @@ index 0000000..fa9331c
 \ No newline at end of file
 diff --git a/Components/Backlog/StoryRecord.cs b/Components/Backlog/StoryRecord.cs
 new file mode 100755
-index 0000000..98a8b6c
+index 0000000..9e15c7b
 --- /dev/null
 +++ b/Components/Backlog/StoryRecord.cs
-@@ -0,0 +1,17 @@
-+﻿namespace Backlog
+@@ -0,0 +1,27 @@
++﻿using System.ComponentModel.DataAnnotations.Schema;
++
++namespace Backlog
 +{
++    [Table("stories")]
 +    public class StoryRecord
 +    {
-+        public long Id { get; }
-+        public long ProjectId { get; }
-+        public string Name { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("project_id")] public long ProjectId { get; private set; }
++        [Column("name")] public string Name { get; private set; }
 +
++        private StoryRecord()
++        {
++        }
++
++        public StoryRecord(long projectId, string name) : this(default(long), projectId, name)
++        {
++        }
 +
 +        public StoryRecord(long id, long projectId, string name)
 +        {
@@ -2342,7 +2426,7 @@ index 0000000..98a8b6c
 \ No newline at end of file
 diff --git a/Components/BacklogTest/BacklogTest.csproj b/Components/BacklogTest/BacklogTest.csproj
 new file mode 100755
-index 0000000..b6b3501
+index 0000000..bc5d32b
 --- /dev/null
 +++ b/Components/BacklogTest/BacklogTest.csproj
 @@ -0,0 +1,16 @@
@@ -2352,7 +2436,6 @@ index 0000000..b6b3501
 +  </PropertyGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../Backlog/Backlog.csproj" />
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
@@ -2360,92 +2443,103 @@ index 0000000..b6b3501
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 +    <PackageReference Include="xunit" Version="2.2.0" />
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
 diff --git a/Components/BacklogTest/StoryControllerTest.cs b/Components/BacklogTest/StoryControllerTest.cs
 new file mode 100755
-index 0000000..db291c5
+index 0000000..0cdd51d
 --- /dev/null
 +++ b/Components/BacklogTest/StoryControllerTest.cs
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,77 @@
 +using System.Collections.Generic;
-+using System.Net.Http;
++using System.Threading.Tasks;
 +using Backlog;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
++using Moq;
 +using Xunit;
-+using static TestSupport.TestServers;
 +
 +namespace BacklogTest
 +{
-+    [Collection("Backlog")]
 +    public class StoryControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
-+
-+        static StoryControllerTest()
-+        {
-+            TestEnvSupport.SetBacklogVcap();
-+        }
++        private readonly Mock<IStoryDataGateway> _gateway;
++        private readonly Mock<IProjectClient> _client;
++        private readonly StoryController _controller;
 +
 +        public StoryControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<IStoryDataGateway>();
++            _client = new Mock<IProjectClient>();
++            _controller = new StoryController(_gateway.Object, _client.Object);
 +        }
-+
-+        private const string Sql = @"insert into stories (id, project_id, name) values (876, 55432, 'An epic story'), 
-+            (877, 55432, 'Another epic story');";
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            Support.ExecSql(Sql);
++            _gateway.Setup(g => g.Create(55432, "An epic story")).Returns(new StoryRecord(1234, 55432, "An epic story"));
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(true)));
 +
-+            var controller =
-+                new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-+                    new ProjectClient(_client));
++            var response = _controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
++            var body = (StoryInfo) ((ObjectResult) response).Value;
 +
-+            var value = controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
-+            var actual = (StoryInfo) ((ObjectResult) value).Value;
++            Assert.IsType<CreatedResult>(response);
 +
-+            Assert.True(actual.Id > 0);
-+            Assert.Equal(55432, actual.ProjectId);
-+            Assert.Equal("An epic story", actual.Name);
-+            Assert.Equal("story info", actual.Info);
++            Assert.Equal(1234, body.Id);
++            Assert.Equal(55432, body.ProjectId);
++            Assert.Equal("An epic story", body.Name);
++            Assert.Equal("story info", body.Info);
++        }
++
++        [Fact]
++        public void TestPost_InactiveProject()
++        {
++            _gateway.Setup(g => g.Create(55432, "An epic story")).Returns(new StoryRecord(1234, 55432, "An epic story"));
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(false)));
++
++            var response = _controller.Post(new StoryInfo(-1, 55432, "An epic story", ""));
++
++            Assert.IsType<StatusCodeResult>(response);
++            Assert.Equal(304, ((StatusCodeResult) response).StatusCode);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql(Sql);
++            _gateway.Setup(g => g.FindBy(55432)).Returns(new List<StoryRecord>
++            {
++                new StoryRecord(1234, 55432, "An epic story"),
++                new StoryRecord(5678, 55432, "An even more epic story")
++            });
 +
-+            var controller =
-+                new StoryController(new StoryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-+                    new ProjectClient(_client));
-+            var result = controller.Get(55432);
++            var response = _controller.Get(55432);
++            var body = (List<StoryInfo>) ((ObjectResult) response).Value;
 +
-+            // todo...
-+            Assert.Equal(2, ((List<StoryInfo>) ((ObjectResult) result).Value).Count);
++            Assert.IsType<OkObjectResult>(response);
++            
++            Assert.Equal(2, ((List<StoryInfo>) ((ObjectResult) response).Value).Count);
++
++            Assert.Equal(1234, body[0].Id);
++            Assert.Equal("An epic story", body[0].Name);
++            Assert.Equal("story info", body[0].Info);
++
++            Assert.Equal(5678, body[1].Id);
++            Assert.Equal("An even more epic story", body[1].Name);
++            Assert.Equal("story info", body[1].Info);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/BacklogTest/StoryDataGatewayTest.cs b/Components/BacklogTest/StoryDataGatewayTest.cs
 new file mode 100755
-index 0000000..493016e
+index 0000000..494d6d8
 --- /dev/null
 +++ b/Components/BacklogTest/StoryDataGatewayTest.cs
-@@ -0,0 +1,56 @@
-+using System.Collections.Generic;
-+using System.Data.Common;
+@@ -0,0 +1,50 @@
 +using System.Linq;
 +using Backlog;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Xunit;
 +
@@ -2454,13 +2548,11 @@ index 0000000..493016e
 +    [Collection("Backlog")]
 +    public class StoryDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.BacklogConnectionString);
 +
-+        static StoryDataGatewayTest()
-+        {
-+            TestEnvSupport.SetBacklogVcap();
-+        }
++        private static readonly DbContextOptions<StoryContext> DbContextOptions =
++            new DbContextOptionsBuilder<StoryContext>().UseMySql(TestDatabaseSupport.BacklogConnectionString).Options;
 +
 +        public StoryDataGatewayTest()
 +        {
@@ -2470,15 +2562,13 @@ index 0000000..493016e
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var gateway = new StoryDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new StoryDataGateway(new StoryContext(DbContextOptions));
 +            gateway.Create(22, "aStory");
 +
 +            // todo...
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var projectIds = template.Query("select project_id from stories", reader => reader.GetInt64(0),
-+                new List<DbParameter>());
++            var projectIds = Support.QuerySql("select project_id from stories");
 +
-+            Assert.Equal(22, projectIds.First());
++            Assert.Equal(22L, projectIds[0]["project_id"]);
 +        }
 +
 +        [Fact]
@@ -2486,7 +2576,7 @@ index 0000000..493016e
 +        {
 +            Support.ExecSql("insert into stories (id, project_id, name) values (1346, 22, 'aStory');");
 +
-+            var gateway = new StoryDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new StoryDataGateway(new StoryContext(DbContextOptions));
 +            var list = gateway.FindBy(22);
 +
 +            // todo...
@@ -2497,278 +2587,6 @@ index 0000000..493016e
 +        }
 +    }
 +}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/DatabaseSupport.csproj b/Components/DatabaseSupport/DatabaseSupport.csproj
-new file mode 100755
-index 0000000..fe25432
---- /dev/null
-+++ b/Components/DatabaseSupport/DatabaseSupport.csproj
-@@ -0,0 +1,10 @@
-+﻿<Project Sdk="Microsoft.NET.Sdk">
-+  <PropertyGroup>
-+    <TargetFramework>netcoreapp2.0</TargetFramework>
-+  </PropertyGroup>
-+  <ItemGroup>
-+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
-+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-+  </ItemGroup>
-+</Project>
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/DatabaseTemplate.cs b/Components/DatabaseSupport/DatabaseTemplate.cs
-new file mode 100644
-index 0000000..c0ab70b
---- /dev/null
-+++ b/Components/DatabaseSupport/DatabaseTemplate.cs
-@@ -0,0 +1,115 @@
-+﻿using System;
-+using System.Collections.Generic;
-+using System.Data;
-+using System.Data.Common;
-+using MySql.Data.MySqlClient;
-+
-+namespace DatabaseSupport
-+{
-+    public class DatabaseTemplate : IDatabaseTemplate
-+    {
-+        private readonly IDataSourceConfig _dataSourceConfig;
-+
-+        public DatabaseTemplate(IDataSourceConfig dataSourceConfig)
-+        {
-+            _dataSourceConfig = dataSourceConfig;
-+        }
-+
-+        public List<T> FindBy<T>(string sql, Func<DbDataReader, T> mapper, string name, long id)
-+        {
-+            return Query(sql, mapper,
-+                new List<DbParameter>
-+                {
-+                    new MySqlParameter
-+                    {
-+                        ParameterName = name,
-+                        DbType = DbType.Int32,
-+                        Value = id,
-+                    }
-+                });
-+        }
-+
-+        public List<T> Query<T>(string sql, Func<DbDataReader, T> mapper, List<DbParameter> parameters)
-+        {
-+            var list = new List<T>();
-+
-+            using (var connection = _dataSourceConfig.GetConnection())
-+            {
-+                connection.Open();
-+
-+                var command = connection.CreateCommand();
-+
-+                command.CommandText = sql;
-+
-+                foreach (var param in parameters)
-+                {
-+                    command.Parameters.Add(param);
-+                }
-+
-+                using (var reader = command.ExecuteReader())
-+                {
-+                    while (reader.Read())
-+                    {
-+                        list.Add(mapper(reader));
-+                    }
-+                }
-+            }
-+            return list;
-+        }
-+
-+
-+        public T Create<T>(string sql, Func<long, T> mapper, params KeyValuePair<string, object>[] list)
-+        {
-+            using (var connection = _dataSourceConfig.GetConnection())
-+            {
-+                connection.Open();
-+
-+                var command = connection.CreateCommand() as MySqlCommand;
-+
-+                command.CommandText = sql;
-+
-+                foreach (var pair in list)
-+                {
-+                    switch (pair.Value.GetType().ToString())
-+                    {
-+                        case "System.String":
-+                            command.Parameters.Add(new MySqlParameter
-+                            {
-+                                ParameterName = pair.Key,
-+                                DbType = DbType.String,
-+                                Value = pair.Value,
-+                            });
-+                            break;
-+                        case "System.Int32":
-+                            command.Parameters.Add(new MySqlParameter
-+                            {
-+                                ParameterName = pair.Key,
-+                                DbType = DbType.Int32,
-+                                Value = pair.Value,
-+                            });
-+                            break;
-+                        case "System.Int64":
-+                            command.Parameters.Add(new MySqlParameter
-+                            {
-+                                ParameterName = pair.Key,
-+                                DbType = DbType.Int32,
-+                                Value = pair.Value,
-+                            });
-+                            break;
-+                        case "System.DateTime":
-+                            command.Parameters.Add(new MySqlParameter
-+                            {
-+                                ParameterName = pair.Key,
-+                                DbType = DbType.DateTime,
-+                                Value = pair.Value,
-+                            });
-+                            break;
-+                    }
-+                }
-+                command.ExecuteNonQuery();
-+
-+                return mapper(command.LastInsertedId);
-+            }
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/IDataSourceConfig.cs b/Components/DatabaseSupport/IDataSourceConfig.cs
-new file mode 100644
-index 0000000..01c452f
---- /dev/null
-+++ b/Components/DatabaseSupport/IDataSourceConfig.cs
-@@ -0,0 +1,9 @@
-+﻿using System.Data.Common;
-+
-+namespace DatabaseSupport
-+{
-+    public interface IDataSourceConfig
-+    {
-+        DbConnection GetConnection();
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/IDatabaseTemplate.cs b/Components/DatabaseSupport/IDatabaseTemplate.cs
-new file mode 100644
-index 0000000..dd22cb7
---- /dev/null
-+++ b/Components/DatabaseSupport/IDatabaseTemplate.cs
-@@ -0,0 +1,15 @@
-+﻿using System;
-+using System.Collections.Generic;
-+using System.Data.Common;
-+
-+namespace DatabaseSupport
-+{
-+    public interface IDatabaseTemplate
-+    {
-+        List<T> FindBy<T>(string sql, Func<DbDataReader, T> mapper, string name, long id);
-+
-+        List<T> Query<T>(string sql, Func<DbDataReader, T> mapper, List<DbParameter> parameters);
-+
-+        T Create<T>(string sql, Func<long, T> mapper, params KeyValuePair<string, object>[] list);
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupport/VcapDataSourceConfig.cs b/Components/DatabaseSupport/VcapDataSourceConfig.cs
-new file mode 100755
-index 0000000..2a123e6
---- /dev/null
-+++ b/Components/DatabaseSupport/VcapDataSourceConfig.cs
-@@ -0,0 +1,30 @@
-+﻿using System;
-+using System.Data.Common;
-+using MySql.Data.MySqlClient;
-+using Newtonsoft.Json.Linq;
-+
-+namespace DatabaseSupport
-+{
-+    public class VcapDataSourceConfig : IDataSourceConfig
-+    {
-+        public DbConnection GetConnection()
-+        {
-+            var json = Environment.GetEnvironmentVariable("VCAP_SERVICES");
-+            var connection = GetConnectionString(json);
-+            return new MySqlConnection(connection); // todo - use db pool lib?
-+        }
-+
-+        private static string GetConnectionString(string json)
-+        {
-+            var services = JObject.Parse(json);
-+            var credentials = services["p-mysql"].First["credentials"];
-+            var host = credentials["hostname"];
-+            var port = credentials["port"];
-+            var database = credentials["name"];
-+            var user = credentials["username"];
-+            var password = credentials["password"];
-+
-+            return $"Server={host};User id={user};password={password};Port={port};Database={database};";
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupportTest/DataSourceConfigTest.cs b/Components/DatabaseSupportTest/DataSourceConfigTest.cs
-new file mode 100755
-index 0000000..3214301
---- /dev/null
-+++ b/Components/DatabaseSupportTest/DataSourceConfigTest.cs
-@@ -0,0 +1,31 @@
-+using System;
-+using DatabaseSupport;
-+using Xunit;
-+
-+namespace DatabaseSupportTest
-+{
-+    public class VcapDataSourceConfigTest
-+    {
-+        [Fact]
-+        public void GetConnection()
-+        {
-+            Environment.SetEnvironmentVariable("VCAP_SERVICES", @"
-+            {
-+                ""p-mysql"": [
-+                    {
-+                        ""credentials"": {
-+                            ""hostname"": ""localhost"",
-+                            ""port"": ""3306"",
-+                            ""name"": ""a_test_database"",
-+                            ""username"": ""a_test_user"",
-+                            ""password"": ""a_test_password""
-+                        }
-+                    }
-+                ]
-+            }");
-+
-+            var actual = new VcapDataSourceConfig().GetConnection().ConnectionString;
-+            Assert.Equal("Server=localhost;User Id=a_test_user;Password=a_test_password;Port=3306;Database=a_test_database", actual);
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/DatabaseSupportTest/DatabaseSupportTest.csproj b/Components/DatabaseSupportTest/DatabaseSupportTest.csproj
-new file mode 100755
-index 0000000..819b8ab
---- /dev/null
-+++ b/Components/DatabaseSupportTest/DatabaseSupportTest.csproj
-@@ -0,0 +1,13 @@
-+﻿<Project Sdk="Microsoft.NET.Sdk">
-+  <PropertyGroup>
-+    <TargetFramework>netcoreapp2.0</TargetFramework>
-+  </PropertyGroup>
-+  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-+    <PackageReference Include="xunit" Version="2.2.0" />
-+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-+  </ItemGroup>
-+</Project>
 \ No newline at end of file
 diff --git a/Components/DefaultRoute/DefaultController.cs b/Components/DefaultRoute/DefaultController.cs
 new file mode 100755
@@ -2821,6 +2639,26 @@ index 0000000..72a0ce7
 +        List<ProjectRecord> FindBy(long accountId);
 +
 +        ProjectRecord FindObject(long projectId);
++    }
++}
+\ No newline at end of file
+diff --git a/Components/Projects/ProjectContext.cs b/Components/Projects/ProjectContext.cs
+new file mode 100644
+index 0000000..f9368d4
+--- /dev/null
++++ b/Components/Projects/ProjectContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Projects
++{
++    public class ProjectContext : DbContext
++    {
++        public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
++        {
++        }
++        
++        public DbSet<ProjectRecord> ProjectRecords { get; set; }
 +    }
 +}
 \ No newline at end of file
@@ -2881,64 +2719,44 @@ index 0000000..0f97cd2
 \ No newline at end of file
 diff --git a/Components/Projects/ProjectDataGateway.cs b/Components/Projects/ProjectDataGateway.cs
 new file mode 100644
-index 0000000..8e06ef1
+index 0000000..09ebf18
 --- /dev/null
 +++ b/Components/Projects/ProjectDataGateway.cs
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,36 @@
 +﻿using System.Collections.Generic;
 +using System.Linq;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Projects
 +{
 +    public class ProjectDataGateway : IProjectDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly ProjectContext _context;
 +
-+        public ProjectDataGateway(IDatabaseTemplate template)
++        public ProjectDataGateway(ProjectContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public ProjectRecord Create(long accountId, string name)
 +        {
-+            var sql = @"
-+insert into projects (account_id, name, active) values (@accountId, @name, true)";
++            var recordToCreate = new ProjectRecord(accountId, name, true);
 +
-+            return _template.Create(sql, id => new ProjectRecord(id, accountId, name, true),
-+                new KeyValuePair<string, object>("@accountId", accountId),
-+                new KeyValuePair<string, object>("@name", name)
-+            );
++            _context.ProjectRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public List<ProjectRecord> FindBy(long accountId)
-+        {
-+            const string sql = @"
-+select id, account_id, name, active from projects where account_id = @accountId order by name asc";
++        public List<ProjectRecord> FindBy(long accountId) => _context.ProjectRecords
++            .AsNoTracking()
++            .Where(a => a.AccountId == accountId)
++            .ToList();
 +
-+            return _template.FindBy(sql, reader => new ProjectRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetString(2),
-+                reader.GetBoolean(3)
-+            ), "@accountId", accountId);
-+        }
-+
-+
-+        public ProjectRecord FindObject(long projectId)
-+        {
-+            const string sql = @"
-+select id, account_id, name, active from projects where id = @projectId order by name asc";
-+
-+            var projectRecords = _template.FindBy(sql, reader => new ProjectRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetString(2),
-+                reader.GetBoolean(3)
-+            ), "@projectId", projectId);
-+
-+            return projectRecords.Count > 0 ? projectRecords.First() : null;
-+        }
++        public ProjectRecord FindObject(long projectId) => _context.ProjectRecords
++            .AsNoTracking()
++            .DefaultIfEmpty()
++            .Single(a => a.Id == projectId);
 +    }
 +}
 \ No newline at end of file
@@ -2972,19 +2790,29 @@ index 0000000..b0a5c81
 \ No newline at end of file
 diff --git a/Components/Projects/ProjectRecord.cs b/Components/Projects/ProjectRecord.cs
 new file mode 100644
-index 0000000..afe72a5
+index 0000000..7a4f7b2
 --- /dev/null
 +++ b/Components/Projects/ProjectRecord.cs
-@@ -0,0 +1,19 @@
-+﻿namespace Projects
+@@ -0,0 +1,29 @@
++﻿using System.ComponentModel.DataAnnotations.Schema;
++
++namespace Projects
 +{
++    [Table("projects")]
 +    public class ProjectRecord
 +    {
-+        public long Id { get; }
-+        public long AccountId { get; }
-+        public string Name { get; }
-+        public bool Active { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("account_id")] public long AccountId { get; private set; }
++        [Column("name")] public string Name { get; private set; }
++        [Column("active")] public bool Active { get; private set; }
 +
++        private ProjectRecord()
++        {
++        }
++
++        public ProjectRecord(long accountId, string name, bool active) : this(default(long), accountId, name, active)
++        {
++        }
 +
 +        public ProjectRecord(long id, long accountId, string name, bool active)
 +        {
@@ -2998,127 +2826,130 @@ index 0000000..afe72a5
 \ No newline at end of file
 diff --git a/Components/Projects/Projects.csproj b/Components/Projects/Projects.csproj
 new file mode 100755
-index 0000000..18701ac
+index 0000000..f86dfd5
 --- /dev/null
 +++ b/Components/Projects/Projects.csproj
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,14 @@
 +﻿<Project Sdk="Microsoft.NET.Sdk">
 +  <PropertyGroup>
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
-+  
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +  </ItemGroup>
-+  
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
-+<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
++    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
 +    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
 diff --git a/Components/ProjectsTest/ProjectControllerTest.cs b/Components/ProjectsTest/ProjectControllerTest.cs
 new file mode 100755
-index 0000000..28d19fc
+index 0000000..7644b51
 --- /dev/null
 +++ b/Components/ProjectsTest/ProjectControllerTest.cs
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,90 @@
 +using System.Collections.Generic;
-+using DatabaseSupport;
 +using Microsoft.AspNetCore.Mvc;
++using Moq;
 +using Projects;
-+using TestSupport;
 +using Xunit;
 +
 +namespace ProjectsTest
 +{
-+    [Collection("Projects")]
 +    public class ProjectControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        private const string _sql = @"
-+insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');
-+
-+insert into accounts (id, owner_id, name) 
-+values (1673, 4765, 'Jack''s account'), (1674, 4766, 'Fred''s account');
-+
-+insert into projects (id, account_id, name, active) 
-+values (55432, 1673, 'Flagship', true), (55431, 1673, 'Hovercraft', false);
-+";
-+
-+        static ProjectControllerTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private readonly Mock<IProjectDataGateway> _gateway;
++        private readonly ProjectController _controller;
 +
 +        public ProjectControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<IProjectDataGateway>();
++            _controller = new ProjectController(_gateway.Object);
 +        }
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            Support.ExecSql(_sql);
++            _gateway.Setup(g => g.Create(1673, "aProject")).Returns(new ProjectRecord(123, 1673, "aProject", true));
 +
-+            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
++            var response = _controller.Post(new ProjectInfo(-1, 1673, "aProject", true, ""));
++            var body = (ProjectInfo) ((ObjectResult) response).Value;
 +
-+            var value = controller.Post(new ProjectInfo(-1, 1673, "aProject", true, ""));
-+            var actual = (ProjectInfo) ((ObjectResult) value).Value;
++            Assert.IsType<CreatedResult>(response);
 +
-+            Assert.True(actual.Id > 0);
-+            Assert.Equal(1673, actual.AccountId);
-+            Assert.Equal("aProject", actual.Name);
-+            Assert.Equal(true, actual.Active);
-+            Assert.Equal("project info", actual.Info);
++            Assert.Equal(123, body.Id);
++            Assert.Equal(1673, body.AccountId);
++            Assert.Equal("aProject", body.Name);
++            Assert.Equal(true, body.Active);
++            Assert.Equal("project info", body.Info);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql(_sql);
++            _gateway.Setup(g => g.FindObject(55431)).Returns(new ProjectRecord(55431, 1673, "aProject", true));
 +
-+            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
-+            var result = controller.Get(55431);
-+            var actual = (ProjectInfo) ((ObjectResult) result).Value;
++            var response = _controller.Get(55431);
++            var body = (ProjectInfo) ((ObjectResult) response).Value;
 +
-+            Assert.Equal(55431, actual.Id);
-+            Assert.Equal(1673, actual.AccountId);
-+            Assert.Equal("Hovercraft", actual.Name);
-+            Assert.Equal(false, actual.Active);
++            Assert.IsType<OkObjectResult>(response);
++            
++            Assert.Equal(55431, body.Id);
++            Assert.Equal(1673, body.AccountId);
++            Assert.Equal("aProject", body.Name);
++            Assert.Equal(true, body.Active);
++        }
++
++        [Fact]
++        public void TestGet_NotFound()
++        {
++            _gateway.Setup(g => g.FindObject(1673)).Returns(new ProjectRecord(55431, 1673, "aProject", true));
++
++            var response = _controller.Get(99999);
++
++            Assert.IsType<NotFoundResult>(response);
 +        }
 +
 +        [Fact]
 +        public void TestList()
 +        {
-+            Support.ExecSql(_sql);
++            _gateway.Setup(g => g.FindBy(1673)).Returns(new List<ProjectRecord>
++            {
++                new ProjectRecord(55431, 1673, "aProject", false),
++                new ProjectRecord(55432, 1673, "anotherProject", true)
++            });
 +
-+            var controller =
-+                new ProjectController(new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig)));
-+            var result = controller.List(1673);
++            var response = _controller.List(1673);
++            var body = (List<ProjectInfo>) ((ObjectResult) response).Value;
 +
-+            // todo - full asserts?
-+            Assert.Equal(2, ((List<ProjectInfo>) ((ObjectResult) result).Value).Count);
++            Assert.IsType<OkObjectResult>(response);
++
++            Assert.Equal(2, ((List<ProjectInfo>) ((ObjectResult) response).Value).Count);
++            
++            Assert.Equal(55431, body[0].Id);
++            Assert.Equal(1673, body[0].AccountId);
++            Assert.Equal("aProject", body[0].Name);
++            Assert.Equal(false, body[0].Active);
++            
++            Assert.Equal(55432, body[1].Id);
++            Assert.Equal(1673, body[1].AccountId);
++            Assert.Equal("anotherProject", body[1].Name);
++            Assert.Equal(true, body[1].Active);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/ProjectsTest/ProjectDataGatewayTest.cs b/Components/ProjectsTest/ProjectDataGatewayTest.cs
 new file mode 100755
-index 0000000..0643a2b
+index 0000000..7e2f497
 --- /dev/null
 +++ b/Components/ProjectsTest/ProjectDataGatewayTest.cs
-@@ -0,0 +1,83 @@
-+using System.Collections.Generic;
-+using System.Data.Common;
+@@ -0,0 +1,79 @@
 +using System.Linq;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using Projects;
 +using TestSupport;
 +using Xunit;
@@ -3128,13 +2959,12 @@ index 0000000..0643a2b
 +    [Collection("Projects")]
 +    public class ProjectDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.RegistrationConnectionString);
 +
-+        static ProjectDataGatewayTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private static readonly DbContextOptions<ProjectContext> DbContextOptions =
++            new DbContextOptionsBuilder<ProjectContext>().UseMySql(TestDatabaseSupport.RegistrationConnectionString)
++                .Options;
 +
 +        public ProjectDataGatewayTest()
 +        {
@@ -3148,16 +2978,13 @@ index 0000000..0643a2b
 +insert into users (id, name) values (12, 'Jack');
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new ProjectDataGateway(new ProjectContext(DbContextOptions));
 +            gateway.Create(1, "aProject");
 +
 +            // todo...
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var projects = template.Query("select name from projects where account_id = 1",
-+                reader => reader.GetString(0),
-+                new List<DbParameter>());
++            var projects = Support.QuerySql("select name from projects where account_id = 1");
 +
-+            Assert.Equal("aProject", projects.First());
++            Assert.Equal("aProject", projects[0]["name"]);
 +        }
 +
 +        [Fact]
@@ -3168,7 +2995,7 @@ index 0000000..0643a2b
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');
 +insert into projects (id, account_id, name) values (22, 1, 'aProject');");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new ProjectDataGateway(new ProjectContext(DbContextOptions));
 +            var list = gateway.FindBy(1);
 +
 +            // todo...
@@ -3187,21 +3014,23 @@ index 0000000..0643a2b
 +insert into accounts (id, owner_id, name) values (1, 12, 'anAccount');
 +insert into projects (id, account_id, name, active) values (22, 1, 'aProject', true);");
 +
-+            var gateway = new ProjectDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new ProjectDataGateway(new ProjectContext(DbContextOptions));
 +            var actual = gateway.FindObject(22);
 +
-+            // todo...
++            // todo...    
 +            Assert.Equal(22, actual.Id);
 +            Assert.Equal(1, actual.AccountId);
 +            Assert.Equal("aProject", actual.Name);
 +            Assert.Equal(true, actual.Active);
++
++            Assert.Null(gateway.FindObject(23));
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/ProjectsTest/ProjectsTest.csproj b/Components/ProjectsTest/ProjectsTest.csproj
 new file mode 100755
-index 0000000..fb5d4a9
+index 0000000..83dd349
 --- /dev/null
 +++ b/Components/ProjectsTest/ProjectsTest.csproj
 @@ -0,0 +1,18 @@
@@ -3212,7 +3041,6 @@ index 0000000..fb5d4a9
 +
 +  <ItemGroup>
 +    <ProjectReference Include="../Projects/Projects.csproj"/>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj"/>
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj"/>
 +    <PackageReference Include="MySqlConnector" Version="0.35.0"/>
 +  </ItemGroup>
@@ -3221,82 +3049,97 @@ index 0000000..fb5d4a9
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0"/>
 +    <PackageReference Include="xunit" Version="2.2.0"/>
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0"/>
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
-diff --git a/Components/TestSupport/IntegrationTestServer.cs b/Components/TestSupport/IntegrationTestServer.cs
-new file mode 100644
-index 0000000..30b10ce
---- /dev/null
-+++ b/Components/TestSupport/IntegrationTestServer.cs
-@@ -0,0 +1,26 @@
-+﻿using System;
-+using Microsoft.AspNetCore;
-+using Microsoft.AspNetCore.Hosting;
-+using Microsoft.AspNetCore.TestHost;
-+using Microsoft.Extensions.DependencyInjection;
-+
-+namespace TestSupport
-+{
-+    public static class IntegrationTestServer
-+    {
-+        public static TestServer Start(string response, int port)
-+        {
-+            var url = $"http://localhost:{port}/";
-+
-+            var testServer = new TestServer(
-+                WebHost.CreateDefaultBuilder(new string[] { })
-+                    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/hosting?tabs=aspnetcore2x#troubleshooting-systemargumentexception
-+                    .Configure(_ => { })
-+                    .ConfigureServices(services => services.AddSingleton<IStartup>(new TestServerResponder(response)))
-+                    .UseUrls(url)
-+            ) {BaseAddress = new Uri(url)};
-+
-+            return testServer;
-+        }
-+    }
-+}
-\ No newline at end of file
 diff --git a/Components/TestSupport/TestDatabaseSupport.cs b/Components/TestSupport/TestDatabaseSupport.cs
 new file mode 100644
-index 0000000..56f48f9
+index 0000000..803a14d
 --- /dev/null
 +++ b/Components/TestSupport/TestDatabaseSupport.cs
-@@ -0,0 +1,68 @@
-+﻿using DatabaseSupport;
+@@ -0,0 +1,113 @@
++﻿using System.Collections.Generic;
++using System.Linq;
++using MySql.Data.MySqlClient;
 +
 +namespace TestSupport
 +{
 +    public class TestDatabaseSupport
 +    {
-+        private readonly IDataSourceConfig _dataSourceConfig;
-+        
-+        public TestDatabaseSupport(IDataSourceConfig dataSourceConfig)
++        public static string RegistrationConnectionString => ConnectionString("tracker_registration_test");
++        public static string BacklogConnectionString => ConnectionString("tracker_backlog_test");
++        public static string AllocationsConnectionString => ConnectionString("tracker_allocations_test");
++        public static string TimesheetsConnectionString => ConnectionString("tracker_timesheets_test");
++
++        private const string DbUser = "tracker";
++        private const string DbPassword = "password";
++
++        public static string ConnectionString(string database) =>
++            $"server=127.0.0.1;uid={DbUser};pwd={DbPassword};database={database}";
++
++        private readonly string _connectionString;
++
++        public TestDatabaseSupport(string connectionString)
 +        {
-+            _dataSourceConfig = dataSourceConfig;
++            _connectionString = connectionString;
 +        }
 +
 +
 +        public void ExecSql(string sql)
 +        {
-+            var connection = _dataSourceConfig.GetConnection();
-+            connection.Open();
-+            var command = connection.CreateCommand();
-+            command.CommandText = sql;
-+            command.ExecuteNonQuery();
-+            connection.Close();
++            using (var connection = new MySqlConnection(_connectionString))
++            {
++                connection.Open();
++                using (var command = connection.CreateCommand())
++                {
++                    command.CommandText = sql;
++                    command.ExecuteNonQuery();
++                }
++            }
++        }
++
++        public IList<IDictionary<string, object>> QuerySql(string sql)
++        {
++            var result = new List<IDictionary<string, object>>();
++
++            using (var connection = new MySqlConnection(_connectionString))
++            {
++                connection.Open();
++                using (var command = connection.CreateCommand())
++                {
++                    command.CommandText = sql;
++                    using (var reader = command.ExecuteReader())
++                    {
++                        while (reader.HasRows)
++                        {
++                            while (reader.Read())
++                            {
++                                var rowData = Enumerable.Range(0, reader.FieldCount)
++                                    .ToDictionary(reader.GetName, reader.GetValue);
++
++                                result.Add(rowData);
++                            }
++
++                            reader.NextResult();
++                        }
++                    }
++                }
++            }
++
++            return result;
 +        }
 +
 +        public void TruncateAllTables()
 +        {
-+            var dbName = _dataSourceConfig.GetConnection().Database;
-+            
++            var dbName = new MySqlConnectionStringBuilder(_connectionString).Database;
++
 +            var tableNameSql = $@"set foreign_key_checks = 0;
 +                select table_name FROM information_schema.tables
 +                where table_schema='{dbName}' and table_name != 'schema_version';";
 +
 +            var truncateSql = "";
 +
-+            using (var connection = _dataSourceConfig.GetConnection())
++            using (var connection = new MySqlConnection(_connectionString))
 +            {
 +                connection.Open();
 +
@@ -3324,126 +3167,27 @@ index 0000000..56f48f9
 +                    command.CommandText = truncateSql;
 +                    command.ExecuteNonQuery();
 +                }
-+
-+                connection.Close();
 +            }
 +        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/TestSupport/TestEnvSupport.cs b/Components/TestSupport/TestEnvSupport.cs
-new file mode 100644
-index 0000000..c29e67f
---- /dev/null
-+++ b/Components/TestSupport/TestEnvSupport.cs
-@@ -0,0 +1,33 @@
-+﻿using System;
-+
-+namespace TestSupport
-+{
-+    public static class TestEnvSupport
-+    {
-+        private static void SetRegistrationVcap(string db)
-+        {
-+            var json = $@"
-+                {{
-+                    ""p-mysql"": [
-+                      {{
-+                            ""credentials"": {{
-+                                ""hostname"": ""localhost"",
-+                                ""port"": ""3306"",
-+                                ""name"": ""tracker_{db}_test"",
-+                                ""username"": ""tracker"",
-+                                ""password"": ""password""
-+                            }},
-+                            ""name"": ""tracker-{db}-database""
-+                        }}
-+                    ]
-+                }}";
-+
-+            Environment.SetEnvironmentVariable("VCAP_SERVICES", json);
-+        }
-+
-+        public static void SetRegistrationVcap() => SetRegistrationVcap("registration");
-+        public static void SetBacklogVcap() => SetRegistrationVcap("backlog");
-+        public static void SetAllocationsVcap() => SetRegistrationVcap("allocations");
-+        public static void SetTimesheetsVcap() => SetRegistrationVcap("timesheets");
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/TestSupport/TestServerResponder.cs b/Components/TestSupport/TestServerResponder.cs
-new file mode 100644
-index 0000000..2938605
---- /dev/null
-+++ b/Components/TestSupport/TestServerResponder.cs
-@@ -0,0 +1,30 @@
-+﻿using System;
-+using Microsoft.AspNetCore.Builder;
-+using Microsoft.AspNetCore.Hosting;
-+using Microsoft.AspNetCore.Http;
-+using Microsoft.Extensions.DependencyInjection;
-+
-+namespace TestSupport
-+{
-+        public sealed class TestServerResponder : IStartup
-+        {
-+            private readonly string _response;
-+
-+            public TestServerResponder(string response)
-+            {
-+                _response = response;
-+            }
-+
-+            public IServiceProvider ConfigureServices(IServiceCollection services) =>
-+                services.BuildServiceProvider();
-+
-+            public void Configure(IApplicationBuilder app)
-+            {
-+                app.Run(context =>
-+                {
-+                    context.Response.ContentLength = _response.Length;
-+                    return context.Response.WriteAsync(_response);
-+                });
-+            }
-+        }
-+}
-\ No newline at end of file
-diff --git a/Components/TestSupport/TestServers.cs b/Components/TestSupport/TestServers.cs
-new file mode 100644
-index 0000000..3031bb4
---- /dev/null
-+++ b/Components/TestSupport/TestServers.cs
-@@ -0,0 +1,10 @@
-+﻿using Microsoft.AspNetCore.TestHost;
-+
-+namespace TestSupport
-+{
-+    public static class TestServers
-+    {
-+        public static TestServer ActiveProjectServer =>
-+            IntegrationTestServer.Start(response: "{\"active\" : true }", port: 3001);
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/TestSupport/TestSupport.csproj b/Components/TestSupport/TestSupport.csproj
 new file mode 100755
-index 0000000..fbb6835
+index 0000000..525c5a5
 --- /dev/null
 +++ b/Components/TestSupport/TestSupport.csproj
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,15 @@
 +﻿<Project Sdk="Microsoft.NET.Sdk">
 +  <PropertyGroup>
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
-+  
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
-+  
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
-+<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
++    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
 +    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
 +    <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
 +    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.1" />
@@ -3540,6 +3284,26 @@ index 0000000..f5808a0
 +    }
 +}
 \ No newline at end of file
+diff --git a/Components/Timesheets/TimeEntryContext.cs b/Components/Timesheets/TimeEntryContext.cs
+new file mode 100644
+index 0000000..0106c2f
+--- /dev/null
++++ b/Components/Timesheets/TimeEntryContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Timesheets
++{
++    public class TimeEntryContext : DbContext
++    {
++        public TimeEntryContext(DbContextOptions<TimeEntryContext> options) : base(options)
++        {
++        }
++
++        public DbSet<TimeEntryRecord> TimeEntryRecords { get; set; }
++    }
++}
+\ No newline at end of file
 diff --git a/Components/Timesheets/TimeEntryController.cs b/Components/Timesheets/TimeEntryController.cs
 new file mode 100755
 index 0000000..e0da580
@@ -3594,51 +3358,40 @@ index 0000000..e0da580
 \ No newline at end of file
 diff --git a/Components/Timesheets/TimeEntryDataGateway.cs b/Components/Timesheets/TimeEntryDataGateway.cs
 new file mode 100755
-index 0000000..b511d2b
+index 0000000..d1cfba4
 --- /dev/null
 +++ b/Components/Timesheets/TimeEntryDataGateway.cs
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,32 @@
 +﻿using System;
 +using System.Collections.Generic;
-+using DatabaseSupport;
++using System.Linq;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Timesheets
 +{
 +    public class TimeEntryDataGateway : ITimeEntryDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly TimeEntryContext _context;
 +
-+        public TimeEntryDataGateway(IDatabaseTemplate template)
++        public TimeEntryDataGateway(TimeEntryContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public TimeEntryRecord Create(long projectId, long userId, DateTime date, int hours)
 +        {
-+            var sql = @"
-+insert into time_entries (project_id, user_id, date, hours) values (@projectId, @userId, @date, @hours)";
++            var recordToCreate = new TimeEntryRecord(projectId, userId, date, hours);
 +
-+            return _template.Create(sql, id => new TimeEntryRecord(id, projectId, userId, date, hours),
-+                new KeyValuePair<string, object>("@projectId", projectId),
-+                new KeyValuePair<string, object>("@userId", userId),
-+                new KeyValuePair<string, object>("@date", date),
-+                new KeyValuePair<string, object>("@hours", hours)
-+            );
++            _context.TimeEntryRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public List<TimeEntryRecord> FindBy(long userId)
-+        {
-+            const string sql = @"
-+select id, project_id, user_id, date, hours from time_entries where user_id = @userId";
-+
-+            return _template.FindBy(sql, reader => new TimeEntryRecord(
-+                reader.GetInt64(0),
-+                reader.GetInt64(1),
-+                reader.GetInt64(2),
-+                reader.GetDateTime(3),
-+                reader.GetInt32(4)
-+            ), "@userId", userId);
-+        }
++        public List<TimeEntryRecord> FindBy(long userId) => _context.TimeEntryRecords
++            .AsNoTracking()
++            .Where(te => te.UserId == userId)
++            .ToList();
 +    }
 +}
 \ No newline at end of file
@@ -3676,22 +3429,32 @@ index 0000000..6d85c0a
 \ No newline at end of file
 diff --git a/Components/Timesheets/TimeEntryRecord.cs b/Components/Timesheets/TimeEntryRecord.cs
 new file mode 100755
-index 0000000..bd70712
+index 0000000..a637e8d
 --- /dev/null
 +++ b/Components/Timesheets/TimeEntryRecord.cs
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,33 @@
 +﻿using System;
++using System.ComponentModel.DataAnnotations.Schema;
 +
 +namespace Timesheets
 +{
++    [Table("time_entries")]
 +    public class TimeEntryRecord
 +    {
-+        public long Id { get; }
-+        public long ProjectId { get; }
-+        public long UserId { get; }
-+        public DateTime Date { get; }
-+        public int Hours { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("project_id")] public long ProjectId { get; private set; }
++        [Column("user_id")] public long UserId { get; private set; }
++        [Column("date")] public DateTime Date { get; private set; }
++        [Column("hours")] public int Hours { get; private set; }
 +
++        private TimeEntryRecord()
++        {
++        }
++
++        public TimeEntryRecord(long projectId, long userId, DateTime date, int hours) :
++            this(default(long), projectId, userId, date, hours)
++        {
++        }
 +
 +        public TimeEntryRecord(long id, long projectId, long userId, DateTime date, int hours)
 +        {
@@ -3706,20 +3469,18 @@ index 0000000..bd70712
 \ No newline at end of file
 diff --git a/Components/Timesheets/Timesheets.csproj b/Components/Timesheets/Timesheets.csproj
 new file mode 100755
-index 0000000..4ff6bc1
+index 0000000..d970631
 --- /dev/null
 +++ b/Components/Timesheets/Timesheets.csproj
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,15 @@
 +﻿<Project Sdk="Microsoft.NET.Sdk">
 +  <PropertyGroup>
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
-+  
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +  </ItemGroup>
-+  
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 +    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
@@ -3730,90 +3491,116 @@ index 0000000..4ff6bc1
 \ No newline at end of file
 diff --git a/Components/TimesheetsTest/TimeEntryControllerTest.cs b/Components/TimesheetsTest/TimeEntryControllerTest.cs
 new file mode 100755
-index 0000000..09f7a75
+index 0000000..1182626
 --- /dev/null
 +++ b/Components/TimesheetsTest/TimeEntryControllerTest.cs
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,96 @@
 +using System;
 +using System.Collections.Generic;
-+using System.Net.Http;
-+using DatabaseSupport;
++using System.Threading.Tasks;
 +using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
++using Moq;
 +using Timesheets;
 +using Xunit;
-+using static TestSupport.TestServers;
 +
 +namespace TimesheetsTest
 +{
-+    [Collection("Timesheets")]
 +    public class TimeEntryControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        private readonly HttpClient _client = ActiveProjectServer.CreateClient();
-+
-+        static TimeEntryControllerTest()
-+        {
-+            TestEnvSupport.SetTimesheetsVcap();
-+        }
++        private readonly Mock<ITimeEntryDataGateway> _gateway;
++        private readonly Mock<IProjectClient> _client;
++        private readonly TimeEntryController _controller;
 +
 +        public TimeEntryControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<ITimeEntryDataGateway>();
++            _client = new Mock<IProjectClient>();
++            _controller = new TimeEntryController(_gateway.Object, _client.Object);
 +        }
-+
-+        private const string Sql = @"insert into time_entries (id, project_id, user_id, date, hours)
-+        values (1534, 55432, 4765, '2015-05-17', 5), (2534, 55432, 4765, '2015-05-18', 3);";
 +
 +        [Fact]
 +        public void TestPost()
 +        {
-+            Support.ExecSql(Sql);
++            _gateway.Setup(g => g.Create(55432, 4765, DateTime.Parse("2015-05-17"), 8))
++                .Returns(new TimeEntryRecord(1234, 55432, 4765, DateTime.Parse("2015-05-17"), 8));
 +
-+            var controller =
-+                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-+                    new ProjectClient(_client));
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(true)));
 +
-+            var value = controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
-+            var actual = (TimeEntryInfo) ((ObjectResult) value).Value;
++            var response = _controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
++            var body = (TimeEntryInfo) ((ObjectResult) response).Value;
 +
-+            Assert.True(actual.Id > 0);
-+            Assert.Equal(55432, actual.ProjectId);
-+            Assert.Equal(4765, actual.UserId);
-+            Assert.Equal(17, actual.Date.Day);
-+            Assert.Equal(8, actual.Hours);
-+            Assert.Equal("entry info", actual.Info);
++            Assert.IsType<CreatedResult>(response);
++
++            Assert.Equal(1234, body.Id);
++            Assert.Equal(55432, body.ProjectId);
++            Assert.Equal(4765, body.UserId);
++            Assert.Equal(17, body.Date.Day);
++            Assert.Equal(5, body.Date.Month);
++            Assert.Equal(2015, body.Date.Year);
++            Assert.Equal(8, body.Hours);
++            Assert.Equal("entry info", body.Info);
++        }
++
++        [Fact]
++        public void TestPost_InactiveProject()
++        {
++            _gateway.Setup(g => g.Create(55432, 4765, DateTime.Parse("2015-05-17"), 8))
++                .Returns(new TimeEntryRecord(1234, 55432, 4765, DateTime.Parse("2015-05-17"), 8));
++
++            _client.Setup(c => c.Get(55432)).Returns(Task.FromResult(new ProjectInfo(false)));
++
++            var response = _controller.Post(new TimeEntryInfo(-1, 55432, 4765, DateTime.Parse("2015-05-17"), 8, ""));
++
++            Assert.IsType<StatusCodeResult>(response);
++            Assert.Equal(304, ((StatusCodeResult) response).StatusCode);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql(Sql);
++            _gateway.Setup(g => g.FindBy(4765)).Returns(new List<TimeEntryRecord>
++            {
++                new TimeEntryRecord(1234, 55432, 4765, DateTime.Parse("2015-05-17"), 8),
++                new TimeEntryRecord(5678, 55433, 4765, DateTime.Parse("2015-05-18"), 6)
++            });
 +
-+            var controller =
-+                new TimeEntryController(new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig)),
-+                    new ProjectClient(_client));
-+            var result = controller.Get(4765);
++            var response = _controller.Get(4765);
++            var body = (List<TimeEntryInfo>) ((ObjectResult) response).Value;
 +
-+            // todo...
-+            Assert.Equal(2, ((List<TimeEntryInfo>) ((ObjectResult) result).Value).Count);
++            Assert.IsType<OkObjectResult>(response);
++
++            Assert.Equal(2, ((List<TimeEntryInfo>) ((ObjectResult) response).Value).Count);
++
++            Assert.Equal(1234, body[0].Id);
++            Assert.Equal(55432, body[0].ProjectId);
++            Assert.Equal(4765, body[0].UserId);
++            Assert.Equal(17, body[0].Date.Day);
++            Assert.Equal(5, body[0].Date.Month);
++            Assert.Equal(2015, body[0].Date.Year);
++            Assert.Equal(8, body[0].Hours);
++            Assert.Equal("entry info", body[0].Info);
++
++            Assert.Equal(5678, body[1].Id);
++            Assert.Equal(55433, body[1].ProjectId);
++            Assert.Equal(4765, body[1].UserId);
++            Assert.Equal(18, body[1].Date.Day);
++            Assert.Equal(5, body[1].Date.Month);
++            Assert.Equal(2015, body[1].Date.Year);
++            Assert.Equal(6, body[1].Hours);
++            Assert.Equal("entry info", body[1].Info);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs b/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs
 new file mode 100755
-index 0000000..90d2ba7
+index 0000000..58cec92
 --- /dev/null
 +++ b/Components/TimesheetsTest/TimeEntryDataGatewayTest.cs
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,53 @@
 +using System;
-+using System.Collections.Generic;
-+using System.Data.Common;
 +using System.Linq;
-+using DatabaseSupport;
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Timesheets;
 +using Xunit;
@@ -3823,13 +3610,12 @@ index 0000000..90d2ba7
 +    [Collection("Timesheets")]
 +    public class TimeEntryDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.TimesheetsConnectionString);
 +
-+        static TimeEntryDataGatewayTest()
-+        {
-+            TestEnvSupport.SetTimesheetsVcap();
-+        }
++        private static readonly DbContextOptions<TimeEntryContext> DbContextOptions =
++            new DbContextOptionsBuilder<TimeEntryContext>().UseMySql(TestDatabaseSupport.TimesheetsConnectionString)
++                .Options;
 +
 +        public TimeEntryDataGatewayTest()
 +        {
@@ -3839,15 +3625,13 @@ index 0000000..90d2ba7
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new TimeEntryDataGateway(new TimeEntryContext(DbContextOptions));
 +            gateway.Create(22, 12, DateTime.Now, 8);
 +
 +            // todo...
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var projectIds = template.Query("select project_id from time_entries", reader => reader.GetInt64(0),
-+                new List<DbParameter>());
++            var projectIds = Support.QuerySql("select project_id from time_entries");
 +
-+            Assert.Equal(22, projectIds.First());
++            Assert.Equal(22L, projectIds[0]["project_id"]);
 +        }
 +
 +        [Fact]
@@ -3856,7 +3640,7 @@ index 0000000..90d2ba7
 +            Support.ExecSql(@"insert into time_entries (id, project_id, user_id, date, hours) 
 +values (2346, 22, 12, now(), 8);");
 +
-+            var gateway = new TimeEntryDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new TimeEntryDataGateway(new TimeEntryContext(DbContextOptions));
 +            var list = gateway.FindBy(12);
 +
 +            // todo...
@@ -3870,7 +3654,7 @@ index 0000000..90d2ba7
 \ No newline at end of file
 diff --git a/Components/TimesheetsTest/TimesheetsTest.csproj b/Components/TimesheetsTest/TimesheetsTest.csproj
 new file mode 100755
-index 0000000..587db08
+index 0000000..f1297ae
 --- /dev/null
 +++ b/Components/TimesheetsTest/TimesheetsTest.csproj
 @@ -0,0 +1,16 @@
@@ -3880,7 +3664,6 @@ index 0000000..587db08
 +  </PropertyGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../Timesheets/Timesheets.csproj" />
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
@@ -3888,6 +3671,7 @@ index 0000000..587db08
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 +    <PackageReference Include="xunit" Version="2.2.0" />
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
@@ -3904,6 +3688,26 @@ index 0000000..c0275bc
 +        UserRecord Create(string name);
 +
 +        UserRecord FindObjectBy(long id);
++    }
++}
+\ No newline at end of file
+diff --git a/Components/Users/UserContext.cs b/Components/Users/UserContext.cs
+new file mode 100644
+index 0000000..0aaf847
+--- /dev/null
++++ b/Components/Users/UserContext.cs
+@@ -0,0 +1,13 @@
++﻿using Microsoft.EntityFrameworkCore;
++
++namespace Users
++{
++    public class UserContext : DbContext
++    {
++        public UserContext(DbContextOptions<UserContext> options) : base(options)
++        {
++        }
++        
++        public DbSet<UserRecord> UserRecords { get; set; }
 +    }
 +}
 \ No newline at end of file
@@ -3944,44 +3748,38 @@ index 0000000..f4dd924
 \ No newline at end of file
 diff --git a/Components/Users/UserDataGateway.cs b/Components/Users/UserDataGateway.cs
 new file mode 100644
-index 0000000..ca0f966
+index 0000000..057265d
 --- /dev/null
 +++ b/Components/Users/UserDataGateway.cs
-@@ -0,0 +1,36 @@
-+﻿using System.Collections.Generic;
-+using System.Linq;
-+using DatabaseSupport;
+@@ -0,0 +1,30 @@
++﻿using System.Linq;
++using Microsoft.EntityFrameworkCore;
 +
 +namespace Users
 +{
 +    public class UserDataGateway : IUserDataGateway
 +    {
-+        private readonly IDatabaseTemplate _template;
++        private readonly UserContext _context;
 +
-+        public UserDataGateway(IDatabaseTemplate template)
++        public UserDataGateway(UserContext context)
 +        {
-+            _template = template;
++            _context = context;
 +        }
 +
 +        public UserRecord Create(string name)
 +        {
-+            var sql = @"insert into users (name) values (@name)";
++            var recordToCreate = new UserRecord(name);
 +
-+            return _template.Create(sql, id => new UserRecord(id, name),
-+                new KeyValuePair<string, object>("@name", name));
++            _context.UserRecords.Add(recordToCreate);
++            _context.SaveChanges();
++
++            return recordToCreate;
 +        }
 +
-+        public UserRecord FindObjectBy(long id)
-+        {
-+            var sql = @"select id, name from users where id = @id limit 1";
-+
-+            var userRecords = _template.FindBy(sql, reader => new UserRecord(
-+                reader.GetInt64(0),
-+                reader.GetString(1)
-+            ), "@id", id);
-+
-+            return userRecords.Count > 0 ? userRecords.First() : null;
-+        }
++        public UserRecord FindObjectBy(long id) => _context.UserRecords
++            .AsNoTracking()
++            .DefaultIfEmpty()
++            .Single(u => u.Id == id);
 +    }
 +}
 \ No newline at end of file
@@ -4010,16 +3808,27 @@ index 0000000..40d35de
 \ No newline at end of file
 diff --git a/Components/Users/UserRecord.cs b/Components/Users/UserRecord.cs
 new file mode 100755
-index 0000000..e863857
+index 0000000..c315465
 --- /dev/null
 +++ b/Components/Users/UserRecord.cs
-@@ -0,0 +1,14 @@
-+﻿namespace Users
+@@ -0,0 +1,25 @@
++﻿using System.ComponentModel.DataAnnotations.Schema;
++
++namespace Users
 +{
++    [Table("users")]
 +    public class UserRecord
 +    {
-+        public long Id { get; }
-+        public string Name { get; }
++        [Column("id")] public long Id { get; private set; }
++        [Column("name")] public string Name { get; private set; }
++
++        private UserRecord()
++        {
++        }
++
++        public UserRecord(string name) : this(default(long), name)
++        {
++        }
 +
 +        public UserRecord(long id, string name)
 +        {
@@ -4031,7 +3840,7 @@ index 0000000..e863857
 \ No newline at end of file
 diff --git a/Components/Users/Users.csproj b/Components/Users/Users.csproj
 new file mode 100755
-index 0000000..c58e904
+index 0000000..f86dfd5
 --- /dev/null
 +++ b/Components/Users/Users.csproj
 @@ -0,0 +1,14 @@
@@ -4040,8 +3849,8 @@ index 0000000..c58e904
 +    <TargetFramework>netcoreapp2.0</TargetFramework>
 +  </PropertyGroup>
 +  <ItemGroup>
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
-+    <PackageReference Include="MySqlConnector" Version="0.35.0" />
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
++    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
@@ -4052,61 +3861,61 @@ index 0000000..c58e904
 \ No newline at end of file
 diff --git a/Components/UsersTest/UserControllerTest.cs b/Components/UsersTest/UserControllerTest.cs
 new file mode 100644
-index 0000000..5482fb7
+index 0000000..1b32f9b
 --- /dev/null
 +++ b/Components/UsersTest/UserControllerTest.cs
-@@ -0,0 +1,40 @@
-+﻿using DatabaseSupport;
-+using Microsoft.AspNetCore.Mvc;
-+using TestSupport;
+@@ -0,0 +1,43 @@
++﻿using Microsoft.AspNetCore.Mvc;
++using Moq;
 +using Users;
 +using Xunit;
 +
 +namespace UsersTest
 +{
-+    [Collection("Users")]
 +    public class UserControllerTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
-+
-+        static UserControllerTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private readonly Mock<IUserDataGateway> _gateway;
++        private readonly UserController _controller;
 +
 +        public UserControllerTest()
 +        {
-+            Support.TruncateAllTables();
++            _gateway = new Mock<IUserDataGateway>();
++            _controller = new UserController(_gateway.Object);
 +        }
 +
 +        [Fact]
 +        public void TestGet()
 +        {
-+            Support.ExecSql("insert into users (id, name) values (4765, 'Jack'), (4766, 'Fred');");
++            _gateway.Setup(g => g.FindObjectBy(4765)).Returns(new UserRecord(4765, "Jack"));
 +
-+            var controller =
-+                new UserController(new UserDataGateway(new DatabaseTemplate(DataSourceConfig)));
-+            var result = controller.Get(4765);
-+            var info = ((UserInfo) ((ObjectResult) result).Value);
++            var response = _controller.Get(4765);
++            var body = (UserInfo) ((ObjectResult) response).Value;
 +
-+            Assert.Equal(4765, info.Id);
-+            Assert.Equal("Jack", info.Name);
-+            Assert.Equal("user info", info.Info);
++            Assert.IsType<OkObjectResult>(response);
++            Assert.Equal(4765, body.Id);
++            Assert.Equal("Jack", body.Name);
++            Assert.Equal("user info", body.Info);
++        }
++        
++        [Fact]
++        public void TestGet_NotFound()
++        {
++            _gateway.Setup(g => g.FindObjectBy(4765)).Returns(new UserRecord(4765, "Jack"));
++
++            var response = _controller.Get(9999);
++
++            Assert.IsType<NotFoundResult>(response);
 +        }
 +    }
 +}
 \ No newline at end of file
 diff --git a/Components/UsersTest/UserDataGatewayTest.cs b/Components/UsersTest/UserDataGatewayTest.cs
 new file mode 100755
-index 0000000..031c96f
+index 0000000..c6c78a5
 --- /dev/null
 +++ b/Components/UsersTest/UserDataGatewayTest.cs
-@@ -0,0 +1,56 @@
-+using System.Collections.Generic;
-+using System.Data.Common;
-+using System.Linq;
-+using DatabaseSupport;
+@@ -0,0 +1,50 @@
++using Microsoft.EntityFrameworkCore;
 +using TestSupport;
 +using Users;
 +using Xunit;
@@ -4116,13 +3925,12 @@ index 0000000..031c96f
 +    [Collection("Users")]
 +    public class UsersDataGatewayTest
 +    {
-+        private static readonly IDataSourceConfig DataSourceConfig = new VcapDataSourceConfig();
-+        private static readonly TestDatabaseSupport Support = new TestDatabaseSupport(DataSourceConfig);
++        private static readonly TestDatabaseSupport Support =
++            new TestDatabaseSupport(TestDatabaseSupport.RegistrationConnectionString);
 +
-+        static UsersDataGatewayTest()
-+        {
-+            TestEnvSupport.SetRegistrationVcap();
-+        }
++        private static readonly DbContextOptions<UserContext> DbContextOptions =
++            new DbContextOptionsBuilder<UserContext>().UseMySql(TestDatabaseSupport.RegistrationConnectionString)
++                .Options;
 +
 +        public UsersDataGatewayTest()
 +        {
@@ -4132,14 +3940,12 @@ index 0000000..031c96f
 +        [Fact]
 +        public void TestCreate()
 +        {
-+            var template = new DatabaseTemplate(DataSourceConfig);
-+            var gateway = new UserDataGateway(template);
++            var gateway = new UserDataGateway(new UserContext(DbContextOptions));
 +            gateway.Create("aUser");
 +
-+            var names = template.Query("select name from users", reader => reader.GetString(0),
-+                new List<DbParameter>());
++            var names = Support.QuerySql("select name from users");
 +
-+            Assert.Equal("aUser", names.First());
++            Assert.Equal("aUser", names[0]["name"]);
 +        }
 +
 +        [Fact]
@@ -4148,7 +3954,7 @@ index 0000000..031c96f
 +            Support.ExecSql(
 +                @"insert into users (id, name) values (42346, 'aName'), (42347, 'anotherName'), (42348, 'andAnotherName');");
 +
-+            var gateway = new UserDataGateway(new DatabaseTemplate(DataSourceConfig));
++            var gateway = new UserDataGateway(new UserContext(DbContextOptions));
 +
 +            var actual = gateway.FindObjectBy(42347);
 +
@@ -4162,7 +3968,7 @@ index 0000000..031c96f
 \ No newline at end of file
 diff --git a/Components/UsersTest/UsersTest.csproj b/Components/UsersTest/UsersTest.csproj
 new file mode 100755
-index 0000000..91005d8
+index 0000000..e501218
 --- /dev/null
 +++ b/Components/UsersTest/UsersTest.csproj
 @@ -0,0 +1,16 @@
@@ -4172,7 +3978,6 @@ index 0000000..91005d8
 +  </PropertyGroup>
 +  <ItemGroup>
 +    <ProjectReference Include="../Users/Users.csproj" />
-+    <ProjectReference Include="../DatabaseSupport/DatabaseSupport.csproj" />
 +    <ProjectReference Include="../TestSupport/TestSupport.csproj" />
 +    <PackageReference Include="MySqlConnector" Version="0.35.0" />
 +  </ItemGroup>
@@ -4180,6 +3985,7 @@ index 0000000..91005d8
 +    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 +    <PackageReference Include="xunit" Version="2.2.0" />
 +    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
++    <PackageReference Include="Moq" Version="4.7.63" />
 +  </ItemGroup>
 +</Project>
 \ No newline at end of file
@@ -4315,17 +4121,16 @@ index 0000000..0802144
 \ No newline at end of file
 diff --git a/IntegrationTest/AppServerBuilder.AppServer.cs b/IntegrationTest/AppServerBuilder.AppServer.cs
 new file mode 100644
-index 0000000..06658f7
+index 0000000..e6b0458
 --- /dev/null
 +++ b/IntegrationTest/AppServerBuilder.AppServer.cs
-@@ -0,0 +1,121 @@
+@@ -0,0 +1,97 @@
 +﻿using System;
 +using System.Collections.Generic;
 +using System.Diagnostics;
-+using System.Linq;
++using System.IO;
 +using System.Net.Http;
 +using System.Threading;
-+using DatabaseSupport;
 +using TestSupport;
 +
 +namespace IntegrationTest
@@ -4334,52 +4139,52 @@ index 0000000..06658f7
 +    {
 +        public class AppServer
 +        {
-+            private readonly IDictionary<string, string> _environmentVariables;
 +            private readonly string _database;
 +            private readonly string _baseUrl;
-+            private readonly Process _process;
++            private Process _process;
++            private readonly ProcessStartInfo _startInfo;
++            private readonly string _dllPath;
 +
-+            private const string DbUsername = "tracker";
-+            private const string DbPassword = "password";
-+
-+            internal AppServer(int port, string appName, IDictionary<string, string> environmentVariables, string database)
++            internal AppServer(int port, string appName, IDictionary<string, string> environmentVariables,
++                string database)
 +            {
 +                _baseUrl = $"http://localhost:{port}";
-+                _environmentVariables = environmentVariables;
 +                _database = database;
 +
 +                var appPath = $"{AppContext.BaseDirectory}../../../../Applications/{appName}";
++                _dllPath = $"{appPath}/bin/Debug/netcoreapp2.0/{appName}.dll";
 +
-+                _process = new Process
++                _startInfo = new ProcessStartInfo
 +                {
-+                    StartInfo =
-+                    {
-+                        FileName = "dotnet",
-+                        Arguments = $"exec {appPath}/bin/Debug/netcoreapp2.0/{appName}.dll --urls {_baseUrl}",
-+                        UseShellExecute = false,
-+                        WorkingDirectory = appPath
-+                    }
++                    FileName = "dotnet",
++                    Arguments = $"exec {_dllPath} --urls {_baseUrl}",
++                    UseShellExecute = false,
++                    WorkingDirectory = appPath
 +                };
++
++                foreach (var kv in environmentVariables)
++                {
++                    _startInfo.EnvironmentVariables[kv.Key] = kv.Value;
++                }
++
++                _startInfo.EnvironmentVariables["MYSQL__CLIENT__CONNECTIONSTRING"] =
++                    TestDatabaseSupport.ConnectionString(_database);
 +            }
 +
 +            public string Url(string relativePath = "/") => $"{_baseUrl}{relativePath}";
 +
 +            public void Start()
 +            {
-+                foreach (var entry in _environmentVariables)
++                if (!File.Exists(_dllPath))
 +                {
-+                    Environment.SetEnvironmentVariable(entry.Key, entry.Value);
++                    throw new InvalidOperationException($"File {_dllPath} does not exist. Run 'dotnet build' to rebuild the application.");
 +                }
 +
-+                ConfigureTestDbVcap(_database);
++                _process = Process.Start(_startInfo);
 +
-+                // This fails silently if the process is unable to start
-+                // (e.g., bad dll name)
-+                _process.Start();
 +                WaitUntilReady();
 +
-+                var dbSupport = new TestDatabaseSupport(new VcapDataSourceConfig());
-+                dbSupport.TruncateAllTables();
++                new TestDatabaseSupport(TestDatabaseSupport.ConnectionString(_database)).TruncateAllTables();
 +            }
 +
 +            public void Stop()
@@ -4400,12 +4205,10 @@ index 0000000..06658f7
 +                {
 +                    try
 +                    {
-+                        if (httpClient.GetAsync(_baseUrl).Result.IsSuccessStatusCode)
-+                        {
-+                            return;
-+                        }
++                        var _ = httpClient.GetAsync(_baseUrl).Result;
++                        return;
 +                    }
-+                    catch (Exception ex)
++                    catch (Exception ex) when(ex.GetBaseException().GetType() == typeof(HttpRequestException))
 +                    {
 +                        failureReason = ex;
 +                        Thread.Sleep(delay);
@@ -4414,28 +4217,7 @@ index 0000000..06658f7
 +                    tries++;
 +                }
 +
-+                throw failureReason;
-+            }
-+
-+            private static void ConfigureTestDbVcap(string database)
-+            {
-+                var json = $@"
-+                {{
-+                    ""p-mysql"": [
-+                      {{
-+                            ""credentials"": {{
-+                                ""hostname"": ""localhost"",
-+                                ""port"": ""3306"",
-+                                ""name"": ""{database}"",
-+                                ""username"": ""{DbUsername}"",
-+                                ""password"": ""{DbPassword}""
-+                            }},
-+                            ""name"": ""tracker-{database}-database""
-+                        }}
-+                    ]
-+                }}";
-+
-+                Environment.SetEnvironmentVariable("VCAP_SERVICES", json);
++                throw failureReason.GetBaseException();
 +            }
 +        }
 +    }
@@ -4720,11 +4502,11 @@ index 0000000..624474e
 \ No newline at end of file
 diff --git a/PalTracker.sln b/PalTracker.sln
 new file mode 100644
-index 0000000..44c82ba
+index 0000000..250fdc3
 --- /dev/null
 +++ b/PalTracker.sln
-@@ -0,0 +1,340 @@
-+
+@@ -0,0 +1,310 @@
++﻿
 +Microsoft Visual Studio Solution File, Format Version 12.00
 +# Visual Studio 15
 +VisualStudioVersion = 15.0.26124.0
@@ -4752,10 +4534,6 @@ index 0000000..44c82ba
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backlog", "Components\Backlog\Backlog.csproj", "{F3EF758B-B52F-49C2-919C-3BEF880B3756}"
 +EndProject
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BacklogTest", "Components\BacklogTest\BacklogTest.csproj", "{CFB30C9F-ED56-461C-BC66-B177AF421FB5}"
-+EndProject
-+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSupport", "Components\DatabaseSupport\DatabaseSupport.csproj", "{E46327AB-91BA-415B-899D-AA25DCD3103C}"
-+EndProject
-+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSupportTest", "Components\DatabaseSupportTest\DatabaseSupportTest.csproj", "{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}"
 +EndProject
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Projects", "Components\Projects\Projects.csproj", "{C21D14D5-FA64-4A22-9A3F-586CAFE254A5}"
 +EndProject
@@ -4908,30 +4686,6 @@ index 0000000..44c82ba
 +		{CFB30C9F-ED56-461C-BC66-B177AF421FB5}.Release|x64.Build.0 = Release|x64
 +		{CFB30C9F-ED56-461C-BC66-B177AF421FB5}.Release|x86.ActiveCfg = Release|x86
 +		{CFB30C9F-ED56-461C-BC66-B177AF421FB5}.Release|x86.Build.0 = Release|x86
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|x64.ActiveCfg = Debug|x64
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|x64.Build.0 = Debug|x64
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|x86.ActiveCfg = Debug|x86
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Debug|x86.Build.0 = Debug|x86
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|Any CPU.Build.0 = Release|Any CPU
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|x64.ActiveCfg = Release|x64
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|x64.Build.0 = Release|x64
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|x86.ActiveCfg = Release|x86
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C}.Release|x86.Build.0 = Release|x86
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|x64.ActiveCfg = Debug|x64
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|x64.Build.0 = Debug|x64
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|x86.ActiveCfg = Debug|x86
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Debug|x86.Build.0 = Debug|x86
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|Any CPU.Build.0 = Release|Any CPU
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|x64.ActiveCfg = Release|x64
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|x64.Build.0 = Release|x64
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|x86.ActiveCfg = Release|x86
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9}.Release|x86.Build.0 = Release|x86
 +		{C21D14D5-FA64-4A22-9A3F-586CAFE254A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 +		{C21D14D5-FA64-4A22-9A3F-586CAFE254A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 +		{C21D14D5-FA64-4A22-9A3F-586CAFE254A5}.Debug|x64.ActiveCfg = Debug|x64
@@ -5052,8 +4806,6 @@ index 0000000..44c82ba
 +		{176CA734-BEC2-47E2-94A3-C496F340A301} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
 +		{F3EF758B-B52F-49C2-919C-3BEF880B3756} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
 +		{CFB30C9F-ED56-461C-BC66-B177AF421FB5} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
-+		{E46327AB-91BA-415B-899D-AA25DCD3103C} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
-+		{44C3DD56-D6AC-41E4-A701-C8075A90EBF9} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
 +		{C21D14D5-FA64-4A22-9A3F-586CAFE254A5} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
 +		{73A7B8A6-394C-43D2-A0B8-7A67546253B3} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
 +		{7B9DFA7F-C927-4C34-BA47-5461508949B8} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
@@ -6565,14 +6317,13 @@ index 0000000..79e94c9
 \ No newline at end of file
 diff --git a/manifest-allocations.yml b/manifest-allocations.yml
 new file mode 100644
-index 0000000..7eee2a3
+index 0000000..35e90ae
 --- /dev/null
 +++ b/manifest-allocations.yml
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,11 @@
 +---
 +applications:
 +- name: tracker-allocations
-+  buildpack: https://github.com/cloudfoundry/dotnet-core-buildpack#v2.0.2
 +  instances: 1
 +  memory: 256M
 +  host: allocations-pal-INITIALS
@@ -6584,14 +6335,13 @@ index 0000000..7eee2a3
 \ No newline at end of file
 diff --git a/manifest-backlog.yml b/manifest-backlog.yml
 new file mode 100644
-index 0000000..45d85cc
+index 0000000..0e55f9f
 --- /dev/null
 +++ b/manifest-backlog.yml
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,11 @@
 +---
 +applications:
 +- name: tracker-backlog
-+  buildpack: https://github.com/cloudfoundry/dotnet-core-buildpack#v2.0.2
 +  instances: 1
 +  memory: 256M
 +  host: backlog-pal-INITIALS
@@ -6603,14 +6353,13 @@ index 0000000..45d85cc
 \ No newline at end of file
 diff --git a/manifest-registration.yml b/manifest-registration.yml
 new file mode 100644
-index 0000000..940f6fc
+index 0000000..b608180
 --- /dev/null
 +++ b/manifest-registration.yml
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,9 @@
 +---
 +applications:
 +- name: tracker-registration
-+  buildpack: https://github.com/cloudfoundry/dotnet-core-buildpack#v2.0.2
 +  instances: 1
 +  memory: 256M
 +  host: registration-pal-INITIALS
@@ -6620,14 +6369,13 @@ index 0000000..940f6fc
 \ No newline at end of file
 diff --git a/manifest-timesheets.yml b/manifest-timesheets.yml
 new file mode 100644
-index 0000000..f5e1866
+index 0000000..998ed4f
 --- /dev/null
 +++ b/manifest-timesheets.yml
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,11 @@
 +---
 +applications:
 +- name: tracker-timesheets
-+  buildpack: https://github.com/cloudfoundry/dotnet-core-buildpack#v2.0.2
 +  instances: 1
 +  memory: 256M
 +  host: timesheets-pal-INITIALS
@@ -6639,7 +6387,7 @@ index 0000000..f5e1866
 \ No newline at end of file
 diff --git a/migrate-cf.sh b/migrate-cf.sh
 new file mode 100755
-index 0000000..7a762ab
+index 0000000..9ce9d77
 --- /dev/null
 +++ b/migrate-cf.sh
 @@ -0,0 +1,55 @@
@@ -6691,7 +6439,7 @@ index 0000000..7a762ab
 +    flyway -user=${username} \
 +        -password=${password} \
 +        -url="jdbc:mysql://127.0.0.1:63306/${database}" \
-+        -locations=filesystem:${migrationsPath} clean migrate
++        -locations=filesystem:${migrationsPath} migrate
 +}
 +
 +cfMigrate tracker-allocations &&
@@ -6700,7 +6448,7 @@ index 0000000..7a762ab
 +cfMigrate tracker-timesheets
 diff --git a/migrate-local.sh b/migrate-local.sh
 new file mode 100755
-index 0000000..95a1df3
+index 0000000..b68cfed
 --- /dev/null
 +++ b/migrate-local.sh
 @@ -0,0 +1,23 @@
@@ -6725,9 +6473,8 @@ index 0000000..95a1df3
 +    flyway -user=tracker \
 +    -password=password \
 +    -url="jdbc:mysql://localhost:3306/${dbName}" \
-+    -locations=filesystem:Databases/${dir} clean migrate;
++    -locations=filesystem:Databases/${dir} migrate;
 +done
-\ No newline at end of file
 diff --git a/references.sh b/references.sh
 new file mode 100755
 index 0000000..cc65b3f
@@ -6748,12 +6495,88 @@ index 0000000..cc65b3f
 +    done
 +done
 \ No newline at end of file
+diff --git a/requests.http b/requests.http
+new file mode 100644
+index 0000000..052fbc3
+--- /dev/null
++++ b/requests.http
+@@ -0,0 +1,49 @@
++### Create user
++POST {{registrationUrl}}/registration
++Content-Type: application/json
++
++{"name": "Sally"}
++
++### Get user
++GET {{registrationUrl}}/users/USER-ID
++
++### Get account
++GET {{registrationUrl}}/accounts?ownerId=USER-ID
++
++### Create project
++POST {{registrationUrl}}/projects
++Content-Type: application/json
++
++{"name": "Basket Weaving III", "accountId": ACCOUNT-ID}
++
++### Get projects
++GET {{registrationUrl}}/projects?accountId=ACCOUNT-ID
++
++### Create allocation
++POST {{allocationsUrl}}/allocations
++Content-Type: application/json
++
++{"projectId": PROJECT-ID, "userId": USER-ID, "firstDay": "2015-05-17", "lastDay": "2015-05-18"}
++
++### Get allocations
++GET {{allocationsUrl}}/allocations?projectId=PROJECT-ID
++
++### Create story
++POST {{backlogUrl}}/stories
++Content-Type: application/json
++
++{"projectId": PROJECT-ID, "name": "Find some reeds"}
++
++### Get stories
++GET {{backlogUrl}}/stories?projectId=PROJECT-ID
++
++### Create timesheet
++POST {{timesheetsUrl}}/time-entries/
++Content-Type: application/json
++
++{"projectId": PROJECT-ID, "userId": USER-ID, "date": "2015-05-17", "hours": 6}
++
++### Get timesheets
++GET {{timesheetsUrl}}/time-entries?userId=USER-ID
++
++###
+\ No newline at end of file
+diff --git a/rest-client.env.json b/rest-client.env.json
+new file mode 100644
+index 0000000..c265099
+--- /dev/null
++++ b/rest-client.env.json
+@@ -0,0 +1,14 @@
++{
++  "production": {
++    "registrationUrl": "http://registration-pal-INITIALS.apps.FILLMEIN.pal.pivotal.io",
++    "allocationsUrl": "http://allocations-pal-INITIALS.apps.FILLMEIN.pal.pivotal.io",
++    "backlogUrl": "http://backlog-pal-INITIALS.apps.FILLMEIN.pal.pivotal.io",
++    "timesheetsUrl": "http://timesheets-pal-INITIALS.apps.FILLMEIN.pal.pivotal.io"
++  },
++  "development": {
++    "registrationUrl": "http://localhost:8883",
++    "allocationsUrl": "http://localhost:8881",
++    "backlogUrl": "http://localhost:8882",
++    "timesheetsUrl": "http://localhost:8884"
++  }
++}
 diff --git a/start-server.sh b/start-server.sh
 new file mode 100755
-index 0000000..2c08400
+index 0000000..63e14b6
 --- /dev/null
 +++ b/start-server.sh
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,38 @@
 +#!/usr/bin/env bash
 +
 +set -e
@@ -6774,21 +6597,8 @@ index 0000000..2c08400
 +    printf "%s" "${@/#/$d}"
 +}
 +
-+function to_lower() {
-+    echo $1 | tr '[:upper:]' '[:lower:]'
-+}
-+
 +function start_server() {
-+    local projectPath=Applications/${1}Server/${1}Server.csproj
-+    local dbName=tracker_$(to_lower $1)_dev
-+    local port=$2
-+    local vcap_services=$(cat vcap_services.json | sed -e "s/<<DB_NAME>>/${dbName}/")
-+    
-+    export Logging__LogLevel__Default=Debug
-+    export REGISTRATION_SERVER_ENDPOINT=http://localhost:8883/
-+    export VCAP_SERVICES=${vcap_services}
-+    
-+    dotnet run --project "$projectPath" --urls "http://*:${port}"
++    dotnet run --project "Applications/${1}Server/${1}Server.csproj" --urls "http://*:${2}"
 +}
 +
 +if [[ -n "$1" ]] && [[ ! " ${apps[@]} " =~ " ${1} " ]]
@@ -6827,35 +6637,6 @@ index 0000000..05b8cee
 +done
 +
 +dotnet test IntegrationTest/*.csproj
-diff --git a/vcap_services.json b/vcap_services.json
-new file mode 100644
-index 0000000..7521eb5
---- /dev/null
-+++ b/vcap_services.json
-@@ -0,0 +1,22 @@
-+{
-+    "p-mysql": [
-+        {
-+            "credentials": {
-+                "hostname": "localhost",
-+                "port": 3306,
-+                "name": "<<DB_NAME>>",
-+                "username": "tracker",
-+                "password": "password",
-+                "uri": "mysql://tracker:password@localhost:3306/<<DB_NAME>>?reconnect=true",
-+                "jdbcUrl": "jdbc:mysql://localhost:3306/<<DB_NAME>>?user=tracker&password=password"
-+            },
-+            "syslog_drain_url": null,
-+            "volume_mounts": [],
-+            "label": "p-mysql",
-+            "provider": null,
-+            "plan": "100mb",
-+            "name": "tracker-database",
-+            "tags": ["mysql", "relational"]
-+        }
-+    ]
-+}
-\ No newline at end of file
 -- 
 2.12.3
 
