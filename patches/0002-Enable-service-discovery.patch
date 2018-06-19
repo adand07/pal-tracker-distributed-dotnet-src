@@ -1,4 +1,4 @@
-From 14c1a07364555516755f5f7f4ddfaad3ca638e91 Mon Sep 17 00:00:00 2001
+From 6a20152be58cd4438937ce3255779437dfc8b27c Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Wed, 16 May 2018 16:31:53 -0600
 Subject: [PATCH 2/5] Enable service discovery
@@ -93,11 +93,11 @@ index 46c800b..088668f 100755
  }
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
-index e7bd9e0..a56091c 100755
+index 44f79ec..9a3e8b5 100755
 --- a/Applications/AllocationsServer/appsettings.json
 +++ b/Applications/AllocationsServer/appsettings.json
 @@ -10,5 +10,12 @@
-             "ConnectionString": "Server=localhost;Database=tracker_allocations_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_allocations_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
@@ -178,11 +178,11 @@ index d849d3b..b9c2971 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
-index beea0f4..ffeef2b 100755
+index f08a38e..42dabfe 100755
 --- a/Applications/BacklogServer/appsettings.json
 +++ b/Applications/BacklogServer/appsettings.json
 @@ -10,5 +10,12 @@
-             "ConnectionString": "Server=localhost;Database=tracker_backlog_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_backlog_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
@@ -252,12 +252,12 @@ index 9aa1423..a494849 100755
  }
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
-index 2c62cf1..044adcd 100755
+index b8de173..b7f40c4 100755
 --- a/Applications/RegistrationServer/appsettings.json
 +++ b/Applications/RegistrationServer/appsettings.json
 @@ -9,5 +9,17 @@
          "client": {
-             "ConnectionString": "Server=localhost;Database=tracker_registration_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_registration_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
 +    },
 +    "eureka": {
@@ -341,11 +341,11 @@ index 74bf0c6..ce7f910 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
-index 3b43b21..e4a513e 100755
+index 1f4f75d..fa37511 100755
 --- a/Applications/TimesheetsServer/appsettings.json
 +++ b/Applications/TimesheetsServer/appsettings.json
 @@ -10,5 +10,12 @@
-             "ConnectionString": "Server=localhost;Database=tracker_timesheets_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_timesheets_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"

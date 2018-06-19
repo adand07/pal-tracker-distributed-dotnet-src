@@ -1,4 +1,4 @@
-From 6920cec0b217aa85653cd4dfc0a3d23ebab66285 Mon Sep 17 00:00:00 2001
+From 57e2dc32c20e64c3a3733f6919fc7a47ed6a2130 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 17 May 2018 09:06:05 -0600
 Subject: [PATCH 3/5] Enable circuit breaker
@@ -65,7 +65,7 @@ index 088668f..d3cec56 100755
  }
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
-index a56091c..cc79e66 100755
+index 9a3e8b5..5a60487 100755
 --- a/Applications/AllocationsServer/appsettings.json
 +++ b/Applications/AllocationsServer/appsettings.json
 @@ -17,5 +17,18 @@
@@ -126,7 +126,7 @@ index b9c2971..0f0fd80 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
-index ffeef2b..0b7ffdf 100755
+index 42dabfe..3ab96dc 100755
 --- a/Applications/BacklogServer/appsettings.json
 +++ b/Applications/BacklogServer/appsettings.json
 @@ -17,5 +17,18 @@
@@ -187,7 +187,7 @@ index ebcc6a0..fa15337 100755
  }
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
-index e4a513e..6b896c4 100755
+index fa37511..372f7c9 100755
 --- a/Applications/TimesheetsServer/appsettings.json
 +++ b/Applications/TimesheetsServer/appsettings.json
 @@ -17,5 +17,18 @@

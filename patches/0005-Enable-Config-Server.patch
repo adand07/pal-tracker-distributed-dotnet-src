@@ -1,4 +1,4 @@
-From b5650ce7a67f82a888cedf3005d3369e3cebc34b Mon Sep 17 00:00:00 2001
+From cbb58ef0628e70dadc294b4df0be19d660400c64 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Fri, 18 May 2018 11:13:48 -0600
 Subject: [PATCH 5/5] Enable Config Server
@@ -60,11 +60,11 @@ index c7add05..3725b44 100755
  }
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
-index cc79e66..03de02b 100755
+index 5a60487..dc00697 100755
 --- a/Applications/AllocationsServer/appsettings.json
 +++ b/Applications/AllocationsServer/appsettings.json
 @@ -10,7 +10,6 @@
-             "ConnectionString": "Server=localhost;Database=tracker_allocations_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_allocations_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
@@ -125,11 +125,11 @@ index 6184e37..e8149f3 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
-index 0b7ffdf..7b28e79 100755
+index 3ab96dc..623352f 100755
 --- a/Applications/BacklogServer/appsettings.json
 +++ b/Applications/BacklogServer/appsettings.json
 @@ -10,7 +10,6 @@
-             "ConnectionString": "Server=localhost;Database=tracker_backlog_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_backlog_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",
@@ -190,7 +190,7 @@ index 936e173..09d56bc 100755
      <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
    </ItemGroup>
 diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
-index 044adcd..90e0bdc 100755
+index b7f40c4..acbbb2b 100755
 --- a/Applications/RegistrationServer/appsettings.json
 +++ b/Applications/RegistrationServer/appsettings.json
 @@ -21,5 +21,16 @@
@@ -247,11 +247,11 @@ index d46ff62..781d39b 100755
      <PackageReference Include="Steeltoe.Security.Authentication.CloudFoundryCore" Version="2.0.0" />
    </ItemGroup>
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
-index 6b896c4..391744b 100755
+index 372f7c9..7ee6462 100755
 --- a/Applications/TimesheetsServer/appsettings.json
 +++ b/Applications/TimesheetsServer/appsettings.json
 @@ -10,7 +10,6 @@
-             "ConnectionString": "Server=localhost;Database=tracker_timesheets_dev;Uid=tracker;Pwd=password;"
+             "ConnectionString": "Server=localhost;Database=tracker_timesheets_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
          }
      },
 -    "REGISTRATION_SERVER_ENDPOINT": "http://registration-service/",

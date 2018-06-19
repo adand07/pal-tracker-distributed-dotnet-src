@@ -1,4 +1,4 @@
-From eae31e97a999de790c57d2bfa40354a5a5c3fc70 Mon Sep 17 00:00:00 2001
+From 76fed9a5f1b7750d8df9551f734c6093909a40cb Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 17 May 2018 14:27:51 -0600
 Subject: [PATCH 4/5] Add security
@@ -662,20 +662,20 @@ index f4dd924..d9d8844 100644
      public class UserController : Controller
      {
 diff --git a/IntegrationTest/FlowTest.cs b/IntegrationTest/FlowTest.cs
-index 34f797d..3bad62f 100644
+index d091b2b..cc4aa0a 100644
 --- a/IntegrationTest/FlowTest.cs
 +++ b/IntegrationTest/FlowTest.cs
 @@ -25,6 +25,7 @@ namespace IntegrationTest
                  .AppName("RegistrationServer")
                  .Port(8883)
-                 .Database("tracker_registration_test")
+                 .Database("tracker_registration_dotnet_test")
 +                .SetEnvironmentVariable("DISABLE_AUTH", "true")
                  .Build();
  
              _allocationsServer = TestAppServerBuilder()
 @@ -32,6 +33,7 @@ namespace IntegrationTest
                  .Port(8881)
-                 .Database("tracker_allocations_test")
+                 .Database("tracker_allocations_dotnet_test")
                  .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .SetEnvironmentVariable("DISABLE_AUTH", "true")
                  .Build();
@@ -683,7 +683,7 @@ index 34f797d..3bad62f 100644
              _backlogServer = TestAppServerBuilder()
 @@ -39,6 +41,7 @@ namespace IntegrationTest
                  .Port(8882)
-                 .Database("tracker_backlog_test")
+                 .Database("tracker_backlog_dotnet_test")
                  .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .SetEnvironmentVariable("DISABLE_AUTH", "true")
                  .Build();
@@ -691,7 +691,7 @@ index 34f797d..3bad62f 100644
              _timesheetsServer = TestAppServerBuilder()
 @@ -46,6 +49,7 @@ namespace IntegrationTest
                  .Port(8884)
-                 .Database("tracker_timesheets_test")
+                 .Database("tracker_timesheets_dotnet_test")
                  .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .SetEnvironmentVariable("DISABLE_AUTH", "true")
                  .Build();

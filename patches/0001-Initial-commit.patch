@@ -1,4 +1,4 @@
-From 66d01bbd03cfa3db37cc5009befcf1d0cb263ac5 Mon Sep 17 00:00:00 2001
+From 6ba7f37e8327a28154835e24f731699c0bab6b62 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -81,7 +81,7 @@ Subject: [PATCH 1/5] Initial commit
  Components/ProjectsTest/ProjectControllerTest.cs   |  90 ++++++
  Components/ProjectsTest/ProjectDataGatewayTest.cs  |  79 ++++++
  Components/ProjectsTest/ProjectsTest.csproj        |  18 ++
- Components/TestSupport/TestDatabaseSupport.cs      | 113 ++++++++
+ Components/TestSupport/TestDatabaseSupport.cs      | 115 ++++++++
  Components/TestSupport/TestSupport.csproj          |  15 +
  Components/Timesheets/IProjectClient.cs            |   9 +
  Components/Timesheets/ITimeEntryDataGateway.cs     |  12 +
@@ -148,7 +148,7 @@ Subject: [PATCH 1/5] Initial commit
  rest-client.env.json                               |  14 +
  start-server.sh                                    |  38 +++
  test.sh                                            |  15 +
- 144 files changed, 4416 insertions(+)
+ 144 files changed, 4418 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -467,7 +467,7 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/AllocationsServer/appsettings.json b/Applications/AllocationsServer/appsettings.json
 new file mode 100755
-index 0000000..e7bd9e0
+index 0000000..44f79ec
 --- /dev/null
 +++ b/Applications/AllocationsServer/appsettings.json
 @@ -0,0 +1,14 @@
@@ -480,7 +480,7 @@ index 0000000..e7bd9e0
 +    },
 +    "mysql": {
 +        "client": {
-+            "ConnectionString": "Server=localhost;Database=tracker_allocations_dev;Uid=tracker;Pwd=password;"
++            "ConnectionString": "Server=localhost;Database=tracker_allocations_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
 +        }
 +    },
 +    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
@@ -621,7 +621,7 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/appsettings.json b/Applications/BacklogServer/appsettings.json
 new file mode 100755
-index 0000000..beea0f4
+index 0000000..f08a38e
 --- /dev/null
 +++ b/Applications/BacklogServer/appsettings.json
 @@ -0,0 +1,14 @@
@@ -634,7 +634,7 @@ index 0000000..beea0f4
 +    },
 +    "mysql": {
 +        "client": {
-+            "ConnectionString": "Server=localhost;Database=tracker_backlog_dev;Uid=tracker;Pwd=password;"
++            "ConnectionString": "Server=localhost;Database=tracker_backlog_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
 +        }
 +    },
 +    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
@@ -773,7 +773,7 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/appsettings.json b/Applications/RegistrationServer/appsettings.json
 new file mode 100755
-index 0000000..2c62cf1
+index 0000000..b8de173
 --- /dev/null
 +++ b/Applications/RegistrationServer/appsettings.json
 @@ -0,0 +1,13 @@
@@ -786,7 +786,7 @@ index 0000000..2c62cf1
 +    },
 +    "mysql": {
 +        "client": {
-+            "ConnectionString": "Server=localhost;Database=tracker_registration_dev;Uid=tracker;Pwd=password;"
++            "ConnectionString": "Server=localhost;Database=tracker_registration_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
 +        }
 +    }
 +}
@@ -926,7 +926,7 @@ index 0000000..c7038dd
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/appsettings.json b/Applications/TimesheetsServer/appsettings.json
 new file mode 100755
-index 0000000..3b43b21
+index 0000000..1f4f75d
 --- /dev/null
 +++ b/Applications/TimesheetsServer/appsettings.json
 @@ -0,0 +1,14 @@
@@ -939,7 +939,7 @@ index 0000000..3b43b21
 +    },
 +    "mysql": {
 +        "client": {
-+            "ConnectionString": "Server=localhost;Database=tracker_timesheets_dev;Uid=tracker;Pwd=password;"
++            "ConnectionString": "Server=localhost;Database=tracker_timesheets_dotnet_dev;Uid=tracker_dotnet;Pwd=password;"
 +        }
 +    },
 +    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
@@ -3054,10 +3054,10 @@ index 0000000..83dd349
 +</Project>
 diff --git a/Components/TestSupport/TestDatabaseSupport.cs b/Components/TestSupport/TestDatabaseSupport.cs
 new file mode 100644
-index 0000000..803a14d
+index 0000000..8f6b599
 --- /dev/null
 +++ b/Components/TestSupport/TestDatabaseSupport.cs
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,115 @@
 +﻿using System.Collections.Generic;
 +using System.Linq;
 +using MySql.Data.MySqlClient;
@@ -3066,12 +3066,12 @@ index 0000000..803a14d
 +{
 +    public class TestDatabaseSupport
 +    {
-+        public static string RegistrationConnectionString => ConnectionString("tracker_registration_test");
-+        public static string BacklogConnectionString => ConnectionString("tracker_backlog_test");
-+        public static string AllocationsConnectionString => ConnectionString("tracker_allocations_test");
-+        public static string TimesheetsConnectionString => ConnectionString("tracker_timesheets_test");
++        public static string RegistrationConnectionString => ConnectionString("tracker_registration_dotnet_test");
++        public static string BacklogConnectionString => ConnectionString("tracker_backlog_dotnet_test");
++        public static string AllocationsConnectionString => ConnectionString("tracker_allocations_dotnet_test");
++        public static string TimesheetsConnectionString => ConnectionString("tracker_timesheets_dotnet_test");
 +
-+        private const string DbUser = "tracker";
++        private const string DbUser = "tracker_dotnet";
 +        private const string DbPassword = "password";
 +
 +        public static string ConnectionString(string database) =>
@@ -3138,6 +3138,8 @@ index 0000000..803a14d
 +                where table_schema='{dbName}' and table_name != 'schema_version';";
 +
 +            var truncateSql = "";
++
++            System.Console.WriteLine(tableNameSql);
 +
 +            using (var connection = new MySqlConnection(_connectionString))
 +            {
@@ -4023,32 +4025,32 @@ index 0000000..f83716d
 +default charset = utf8;
 diff --git a/Databases/create_databases.sql b/Databases/create_databases.sql
 new file mode 100644
-index 0000000..7b4e4f3
+index 0000000..85cc89b
 --- /dev/null
 +++ b/Databases/create_databases.sql
 @@ -0,0 +1,22 @@
-+DROP DATABASE IF EXISTS tracker_allocations_dev;
-+DROP DATABASE IF EXISTS tracker_backlog_dev;
-+DROP DATABASE IF EXISTS tracker_registration_dev;
-+DROP DATABASE IF EXISTS tracker_timesheets_dev;
-+DROP DATABASE IF EXISTS tracker_allocations_test;
-+DROP DATABASE IF EXISTS tracker_backlog_test;
-+DROP DATABASE IF EXISTS tracker_registration_test;
-+DROP DATABASE IF EXISTS tracker_timesheets_test;
++DROP DATABASE IF EXISTS tracker_allocations_dotnet_dev;
++DROP DATABASE IF EXISTS tracker_backlog_dotnet_dev;
++DROP DATABASE IF EXISTS tracker_registration_dotnet_dev;
++DROP DATABASE IF EXISTS tracker_timesheets_dotnet_dev;
++DROP DATABASE IF EXISTS tracker_allocations_dotnet_test;
++DROP DATABASE IF EXISTS tracker_backlog_dotnet_test;
++DROP DATABASE IF EXISTS tracker_registration_dotnet_test;
++DROP DATABASE IF EXISTS tracker_timesheets_dotnet_test;
 +
-+CREATE USER IF NOT EXISTS 'tracker'@'localhost'
++CREATE USER IF NOT EXISTS 'tracker_dotnet'@'localhost'
 +  IDENTIFIED BY 'password';
 +
-+GRANT ALL PRIVILEGES ON *.* TO 'tracker' @'localhost';
++GRANT ALL PRIVILEGES ON *.* TO 'tracker_dotnet' @'localhost';
 +
-+CREATE DATABASE tracker_allocations_dev;
-+CREATE DATABASE tracker_backlog_dev;
-+CREATE DATABASE tracker_registration_dev;
-+CREATE DATABASE tracker_timesheets_dev;
-+CREATE DATABASE tracker_allocations_test;
-+CREATE DATABASE tracker_backlog_test;
-+CREATE DATABASE tracker_registration_test;
-+CREATE DATABASE tracker_timesheets_test;
++CREATE DATABASE tracker_allocations_dotnet_dev;
++CREATE DATABASE tracker_backlog_dotnet_dev;
++CREATE DATABASE tracker_registration_dotnet_dev;
++CREATE DATABASE tracker_timesheets_dotnet_dev;
++CREATE DATABASE tracker_allocations_dotnet_test;
++CREATE DATABASE tracker_backlog_dotnet_test;
++CREATE DATABASE tracker_registration_dotnet_test;
++CREATE DATABASE tracker_timesheets_dotnet_test;
 \ No newline at end of file
 diff --git a/Databases/registration-database/migrations/V1__initial_schema.sql b/Databases/registration-database/migrations/V1__initial_schema.sql
 new file mode 100644
@@ -4281,7 +4283,7 @@ index 0000000..a0c81ba
 \ No newline at end of file
 diff --git a/IntegrationTest/FlowTest.cs b/IntegrationTest/FlowTest.cs
 new file mode 100644
-index 0000000..34f797d
+index 0000000..d091b2b
 --- /dev/null
 +++ b/IntegrationTest/FlowTest.cs
 @@ -0,0 +1,194 @@
@@ -4311,27 +4313,27 @@ index 0000000..34f797d
 +            _registrationServer = TestAppServerBuilder()
 +                .AppName("RegistrationServer")
 +                .Port(8883)
-+                .Database("tracker_registration_test")
++                .Database("tracker_registration_dotnet_test")
 +                .Build();
 +
 +            _allocationsServer = TestAppServerBuilder()
 +                .AppName("AllocationsServer")
 +                .Port(8881)
-+                .Database("tracker_allocations_test")
++                .Database("tracker_allocations_dotnet_test")
 +                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .Build();
 +
 +            _backlogServer = TestAppServerBuilder()
 +                .AppName("BacklogServer")
 +                .Port(8882)
-+                .Database("tracker_backlog_test")
++                .Database("tracker_backlog_dotnet_test")
 +                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .Build();
 +
 +            _timesheetsServer = TestAppServerBuilder()
 +                .AppName("TimesheetsServer")
 +                .Port(8884)
-+                .Database("tracker_timesheets_test")
++                .Database("tracker_timesheets_dotnet_test")
 +                .SetEnvironmentVariable("REGISTRATION_SERVER_ENDPOINT", _registrationServer.Url())
 +                .Build();
 +        }
@@ -6448,7 +6450,7 @@ index 0000000..9ce9d77
 +cfMigrate tracker-timesheets
 diff --git a/migrate-local.sh b/migrate-local.sh
 new file mode 100755
-index 0000000..b68cfed
+index 0000000..c9ca0d7
 --- /dev/null
 +++ b/migrate-local.sh
 @@ -0,0 +1,23 @@
@@ -6468,9 +6470,9 @@ index 0000000..b68cfed
 +do
 +    dir=${dir%*/}
 +    dir=${dir##*/}
-+    dbName=tracker_${dir/-database/}_${suffix}
++    dbName=tracker_${dir/-database/}_dotnet_${suffix}
 +
-+    flyway -user=tracker \
++    flyway -user=tracker_dotnet \
 +    -password=password \
 +    -url="jdbc:mysql://localhost:3306/${dbName}" \
 +    -locations=filesystem:Databases/${dir} migrate;
