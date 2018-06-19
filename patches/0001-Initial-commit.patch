@@ -1,4 +1,4 @@
-From 6d0722c60c5e0c5e02de0074a292c4bb0ac39f77 Mon Sep 17 00:00:00 2001
+From 626138eafcd4e0f87a04049a881b2de56efe214c Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -945,7 +945,7 @@ index 0000000..1f4f75d
 \ No newline at end of file
 diff --git a/CI/build.yml b/CI/build.yml
 new file mode 100644
-index 0000000..9e2aeb3
+index 0000000..e0493ac
 --- /dev/null
 +++ b/CI/build.yml
 @@ -0,0 +1,68 @@
@@ -996,7 +996,7 @@ index 0000000..9e2aeb3
 +    # migrate test dbs and run tests
 +    mysql -uroot < Databases/create_databases.sql
 +    ./migrate-local.sh test 
-+    ./test.sh
++    dotnet test
 +        
 +    # compile apps 
 +    (cd Applications/AllocationsServer && dotnet publish --output $OUTPUT_DIR/allocations/Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish)
