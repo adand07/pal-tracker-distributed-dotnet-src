@@ -1,4 +1,4 @@
-From 6ba7f37e8327a28154835e24f731699c0bab6b62 Mon Sep 17 00:00:00 2001
+From e0dc7de2e46675e3569203772dc08cd0e15a6e2a Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -81,7 +81,7 @@ Subject: [PATCH 1/5] Initial commit
  Components/ProjectsTest/ProjectControllerTest.cs   |  90 ++++++
  Components/ProjectsTest/ProjectDataGatewayTest.cs  |  79 ++++++
  Components/ProjectsTest/ProjectsTest.csproj        |  18 ++
- Components/TestSupport/TestDatabaseSupport.cs      | 115 ++++++++
+ Components/TestSupport/TestDatabaseSupport.cs      | 113 ++++++++
  Components/TestSupport/TestSupport.csproj          |  15 +
  Components/Timesheets/IProjectClient.cs            |   9 +
  Components/Timesheets/ITimeEntryDataGateway.cs     |  12 +
@@ -148,7 +148,7 @@ Subject: [PATCH 1/5] Initial commit
  rest-client.env.json                               |  14 +
  start-server.sh                                    |  38 +++
  test.sh                                            |  15 +
- 144 files changed, 4418 insertions(+)
+ 144 files changed, 4416 insertions(+)
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -3054,10 +3054,10 @@ index 0000000..83dd349
 +</Project>
 diff --git a/Components/TestSupport/TestDatabaseSupport.cs b/Components/TestSupport/TestDatabaseSupport.cs
 new file mode 100644
-index 0000000..8f6b599
+index 0000000..3eb80fa
 --- /dev/null
 +++ b/Components/TestSupport/TestDatabaseSupport.cs
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,113 @@
 +﻿using System.Collections.Generic;
 +using System.Linq;
 +using MySql.Data.MySqlClient;
@@ -3138,8 +3138,6 @@ index 0000000..8f6b599
 +                where table_schema='{dbName}' and table_name != 'schema_version';";
 +
 +            var truncateSql = "";
-+
-+            System.Console.WriteLine(tableNameSql);
 +
 +            using (var connection = new MySqlConnection(_connectionString))
 +            {
