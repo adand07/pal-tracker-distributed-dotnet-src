@@ -1,9 +1,10 @@
-From 626138eafcd4e0f87a04049a881b2de56efe214c Mon Sep 17 00:00:00 2001
+From 28bd380ef2f73a50f3ea3d81699321f42d2412d1 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
 
 ---
+ .circleci/config.yml                               | 226 +++++++++++++++
  .gitignore                                         |  32 +++
  .../AllocationsServer/AllocationsServer.csproj     |  19 ++
  Applications/AllocationsServer/Program.cs          |  25 ++
@@ -146,8 +147,11 @@ Subject: [PATCH 1/5] Initial commit
  references.sh                                      |  13 +
  requests.http                                      |  49 ++++
  rest-client.env.json                               |  14 +
+ scripts/build.sh                                   |  37 +++
+ scripts/migrate-databases.sh                       |  23 ++
  start-server.sh                                    |  38 +++
- 143 files changed, 4408 insertions(+)
+ 146 files changed, 4694 insertions(+)
+ create mode 100644 .circleci/config.yml
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
  create mode 100755 Applications/AllocationsServer/Program.cs
@@ -290,8 +294,242 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 references.sh
  create mode 100644 requests.http
  create mode 100644 rest-client.env.json
+ create mode 100755 scripts/build.sh
+ create mode 100755 scripts/migrate-databases.sh
  create mode 100755 start-server.sh
 
+diff --git a/.circleci/config.yml b/.circleci/config.yml
+new file mode 100644
+index 0000000..4b512bd
+--- /dev/null
++++ b/.circleci/config.yml
+@@ -0,0 +1,226 @@
++version: 2
++jobs:
++  build:
++    docker:
++      - image: 'microsoft/dotnet:2-sdk'
++        environment:
++          DEBIAN_FRONTEND: "noninteractive"
++    steps:
++      - checkout
++      - run:
++          # May be able to use another docker container for this??
++          name: Install MySQL
++          command: |
++            apt-get update
++            apt-get -y install mysql-server
++            service mysql start
++
++            # Wait for MySQL to start
++            sleep 5
++
++      - run:
++          name: Install flyway
++          command: |
++            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
++
++      - run:
++          name: Create test database and migrate
++          command: |
++            mysql -uroot < Databases/create_databases.sql
++            flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_allocations_dotnet_test" -user=tracker_dotnet -password=password  -locations=filesystem:Databases/allocations-database migrate
++            flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_backlog_dotnet_test" -user=tracker_dotnet -password=password  -locations=filesystem:Databases/backlog-database migrate
++            flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_registration_dotnet_test" -user=tracker_dotnet -password=password  -locations=filesystem:Databases/registration-database migrate
++            flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_timesheets_dotnet_test" -user=tracker_dotnet -password=password  -locations=filesystem:Databases/timesheets-database migrate
++
++      - run:
++          name: Test and build
++          command: |
++            dotnet test
++            ./scripts/build.sh $CIRCLE_SHA1
++
++      - store_artifacts:
++          path: artifacts
++
++      - persist_to_workspace:
++          root: artifacts
++          paths:
++            - "*-server-*.tgz"
++
++  deployAllocations:
++    docker:
++      - image: 'microsoft/dotnet:2-sdk'
++        environment:
++          DEBIAN_FRONTEND: "noninteractive"
++          EXTRACT_DEST: /tmp/extracted-archive
++    steps:
++      - attach_workspace:
++          at: artifacts
++      - run:
++          name: Install CF CLI
++          command: |
++            apt-get update
++            apt-get -y install apt-transport-https ca-certificates
++            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
++            echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
++            apt-get update
++            apt-get install cf-cli
++
++      - run:
++          name: Install jq
++          command: |
++            apt-get -y install jq
++
++      - run:
++          name: Install flyway
++          command: |
++            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
++
++      - run:
++          name: Deploy
++          command: |
++            mkdir -p $EXTRACT_DEST
++            tar -xvzf artifacts/allocations-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
++            cd $EXTRACT_DEST
++
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
++            cf push -f manifest-allocations.yml
++            ./migrate-databases.sh tracker-allocations /root/project/Databases/allocations-database /root/project
++
++  deployBacklog:
++    docker:
++      - image: 'microsoft/dotnet:2-sdk'
++        environment:
++          DEBIAN_FRONTEND: "noninteractive"
++          EXTRACT_DEST: /tmp/extracted-archive
++    steps:
++      - attach_workspace:
++          at: artifacts
++      - run:
++          name: Install CF CLI
++          command: |
++            apt-get update
++            apt-get -y install apt-transport-https ca-certificates
++            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
++            echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
++            apt-get update
++            apt-get install cf-cli
++
++      - run:
++          name: Install jq
++          command: |
++            apt-get -y install jq
++
++      - run:
++          name: Install flyway
++          command: |
++            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
++
++      - run:
++          name: Deploy
++          command: |
++            mkdir -p $EXTRACT_DEST
++            tar -xvzf artifacts/backlog-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
++            cd $EXTRACT_DEST
++
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf push -f manifest-backlog.yml
++            ./migrate-databases.sh tracker-backlog /root/project/Databases/backlog-database /root/project
++
++  deployRegistration:
++    docker:
++      - image: 'microsoft/dotnet:2-sdk'
++        environment:
++          DEBIAN_FRONTEND: "noninteractive"
++          EXTRACT_DEST: /tmp/extracted-archive
++    steps:
++      - attach_workspace:
++          at: artifacts
++      - run:
++          name: Install CF CLI
++          command: |
++            apt-get update
++            apt-get -y install apt-transport-https ca-certificates
++            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
++            echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
++            apt-get update
++            apt-get install cf-cli
++
++      - run:
++          name: Install jq
++          command: |
++            apt-get -y install jq
++
++      - run:
++          name: Install flyway
++          command: |
++            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
++
++      - run:
++          name: Deploy
++          command: |
++            mkdir -p $EXTRACT_DEST
++            tar -xvzf artifacts/registration-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
++            cd $EXTRACT_DEST
++
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf push -f manifest-registration.yml
++            ./migrate-databases.sh tracker-registration /root/project/Databases/registration-database /root/project
++
++  deployTimesheets:
++    docker:
++      - image: 'microsoft/dotnet:2-sdk'
++        environment:
++          DEBIAN_FRONTEND: "noninteractive"
++          EXTRACT_DEST: /tmp/extracted-archive
++    steps:
++      - attach_workspace:
++          at: artifacts
++      - run:
++          name: Install CF CLI
++          command: |
++            apt-get update
++            apt-get -y install apt-transport-https ca-certificates
++            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
++            echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
++            apt-get update
++            apt-get install cf-cli
++
++      - run:
++          name: Install jq
++          command: |
++            apt-get -y install jq
++
++      - run:
++          name: Install flyway
++          command: |
++            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
++
++      - run:
++          name: Deploy
++          command: |
++            mkdir -p $EXTRACT_DEST
++            tar -xvzf artifacts/timesheets-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
++            cd $EXTRACT_DEST
++
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf push -f manifest-timesheets.yml
++            ./migrate-databases.sh tracker-timesheets /root/project/Databases/timesheets-database /root/project
++
++
++workflows:
++  version: 2
++  deployment-pipeline:
++    jobs:
++      - build
++      - deployAllocations:
++          requires:
++          - build
++      - deployBacklog:
++          requires:
++          - build
++      - deployRegistration:
++          requires:
++          - build
++      - deployTimesheets:
++          requires:
++          - build
 diff --git a/.gitignore b/.gitignore
 new file mode 100644
 index 0000000..00ea66f
@@ -4119,7 +4357,7 @@ index 0000000..0802144
 \ No newline at end of file
 diff --git a/IntegrationTest/AppServerBuilder.AppServer.cs b/IntegrationTest/AppServerBuilder.AppServer.cs
 new file mode 100644
-index 0000000..e6b0458
+index 0000000..5e6c87e
 --- /dev/null
 +++ b/IntegrationTest/AppServerBuilder.AppServer.cs
 @@ -0,0 +1,97 @@
@@ -4146,7 +4384,7 @@ index 0000000..e6b0458
 +            internal AppServer(int port, string appName, IDictionary<string, string> environmentVariables,
 +                string database)
 +            {
-+                _baseUrl = $"http://localhost:{port}";
++                _baseUrl = $"http://127.0.0.1:{port}";
 +                _database = database;
 +
 +                var appPath = $"{AppContext.BaseDirectory}../../../../Applications/{appName}";
@@ -6576,6 +6814,79 @@ index 0000000..c265099
 +    "timesheetsUrl": "http://localhost:8884"
 +  }
 +}
+diff --git a/scripts/build.sh b/scripts/build.sh
+new file mode 100755
+index 0000000..5c799d5
+--- /dev/null
++++ b/scripts/build.sh
+@@ -0,0 +1,37 @@
++#!/usr/bin/env bash
++set -ex
++
++build_output="/tmp/build-output"
++artifacts_path="./artifacts"
++version=$1
++
++mkdir -p $build_output
++mkdir -p $artifacts_path
++
++# compile apps 
++(cd Applications/AllocationsServer && dotnet publish  --configuration Release --output $build_output/allocations/Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish)
++(cd Applications/BacklogServer && dotnet publish --configuration Release --output $build_output/backlog/Applications/BacklogServer/bin/Release/netcoreapp2.0/publish)
++(cd Applications/RegistrationServer && dotnet publish --configuration Release --output $build_output/registration/Applications/RegistrationServer/bin/Release/netcoreapp2.0/publish)
++(cd Applications/TimesheetsServer && dotnet publish --configuration Release --output $build_output/timesheets/Applications/TimesheetsServer/bin/Release/netcoreapp2.0/publish)
++
++# bundle cf manifest with app
++cp manifest-allocations.yml $build_output/allocations/
++cp manifest-backlog.yml $build_output/backlog/
++cp manifest-registration.yml $build_output/registration/
++cp manifest-timesheets.yml $build_output/timesheets/
++
++cp scripts/migrate-databases.sh $build_output/allocations/
++cp scripts/migrate-databases.sh $build_output/backlog/
++cp scripts/migrate-databases.sh $build_output/registration/
++cp scripts/migrate-databases.sh $build_output/timesheets/
++
++cp -r Databases/allocations-database/migrations $build_output/allocations/migrations
++cp -r Databases/backlog-database/migrations $build_output/backlog/migrations
++cp -r Databases/registration-database/migrations $build_output/registration/migrations
++cp -r Databases/timesheets-database/migrations $build_output/timesheets/migrations
++
++# build artifacts
++tar -cvzf $artifacts_path/allocations-server-$version.tgz --directory=$build_output/allocations --remove-files . 
++tar -cvzf $artifacts_path/backlog-server-$version.tgz --directory=$build_output/backlog --remove-files .
++tar -cvzf $artifacts_path/registration-server-$version.tgz --directory=$build_output/registration --remove-files .
++tar -cvzf $artifacts_path/timesheets-server-$version.tgz --directory=$build_output/timesheets --remove-files .
+\ No newline at end of file
+diff --git a/scripts/migrate-databases.sh b/scripts/migrate-databases.sh
+new file mode 100755
+index 0000000..ca07c28
+--- /dev/null
++++ b/scripts/migrate-databases.sh
+@@ -0,0 +1,23 @@
++#!/usr/bin/env bash
++set -e
++
++
++app_guid=`cf app $1 --guid`
++credentials=`cf curl /v2/apps/$app_guid/env | jq '.system_env_json.VCAP_SERVICES' | jq '.["p-mysql"][0].credentials'`
++
++ip_address=`echo $credentials | jq -r '.hostname'`
++db_name=`echo $credentials | jq -r '.name'`
++db_username=`echo $credentials | jq -r '.username'`
++db_password=`echo $credentials | jq -r '.password'`
++
++echo "Opening ssh tunnel to $ip_address"
++cf ssh -N -L 63306:$ip_address:3306 pal-tracker &
++cf_ssh_pid=$!
++
++echo "Waiting for tunnel"
++sleep 5
++
++# Passing this in as a param is a bit strage. Maybe put flyway on the path?
++$3/flyway-*/flyway -url="jdbc:mysql://127.0.0.1:63306/$db_name" -locations=filesystem:$2 -user=$db_username -password=$db_password migrate
++
++kill -STOP $cf_ssh_pid
 diff --git a/start-server.sh b/start-server.sh
 new file mode 100755
 index 0000000..63e14b6
