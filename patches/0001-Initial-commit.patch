@@ -1,4 +1,4 @@
-From 18df630450340eba80f11bf9822bc2ef49d9ef3f Mon Sep 17 00:00:00 2001
+From a35ae8da15cfff887403fa2c85bec3d328590966 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -26,9 +26,6 @@ Subject: [PATCH 1/5] Initial commit
  .../TimesheetsServer/TimesheetsServer.csproj       |  19 ++
  .../TimesheetsServer/appsettings.Development.json  |  10 +
  Applications/TimesheetsServer/appsettings.json     |  14 +
- CI/build.yml                                       |  68 +++++
- CI/pipeline.yml                                    | 130 +++++++++
- CI/variables.example.yml                           |  12 +
  Components/Accounts/AccountContext.cs              |  13 +
  Components/Accounts/AccountController.cs           |  26 ++
  Components/Accounts/AccountDataGateway.cs          |  31 +++
@@ -150,7 +147,7 @@ Subject: [PATCH 1/5] Initial commit
  scripts/build.sh                                   |  37 +++
  scripts/migrate-databases.sh                       |  23 ++
  start-server.sh                                    |  38 +++
- 146 files changed, 4694 insertions(+)
+ 143 files changed, 4484 insertions(+)
  create mode 100644 .circleci/config.yml
  create mode 100644 .gitignore
  create mode 100755 Applications/AllocationsServer/AllocationsServer.csproj
@@ -173,9 +170,6 @@ Subject: [PATCH 1/5] Initial commit
  create mode 100755 Applications/TimesheetsServer/TimesheetsServer.csproj
  create mode 100755 Applications/TimesheetsServer/appsettings.Development.json
  create mode 100755 Applications/TimesheetsServer/appsettings.json
- create mode 100644 CI/build.yml
- create mode 100644 CI/pipeline.yml
- create mode 100644 CI/variables.example.yml
  create mode 100644 Components/Accounts/AccountContext.cs
  create mode 100644 Components/Accounts/AccountController.cs
  create mode 100644 Components/Accounts/AccountDataGateway.cs
@@ -1181,235 +1175,6 @@ index 0000000..1f4f75d
 +    "REGISTRATION_SERVER_ENDPOINT" : "http://localhost:8883"
 +}
 \ No newline at end of file
-diff --git a/CI/build.yml b/CI/build.yml
-new file mode 100644
-index 0000000..e0493ac
---- /dev/null
-+++ b/CI/build.yml
-@@ -0,0 +1,68 @@
-+platform: linux
-+
-+image_resource:
-+  type: docker-image
-+  source:
-+    repository: microsoft/dotnet
-+    tag: '2-sdk'
-+    
-+inputs:
-+  - name: pal-tracker
-+  - name: version
-+
-+outputs:
-+  - name: build-output
-+
-+run:
-+  path: bash
-+  args:
-+  - -exc
-+  - |
-+  
-+    set -e
-+
-+    function stop_mysql {
-+      service mysql stop
-+    }
-+
-+    trap stop_mysql EXIT
-+  
-+    export DEBIAN_FRONTEND="noninteractive"
-+    export OUTPUT_DIR=$(realpath .)/build-output
-+    export VERSION=$(cat version/number)
-+
-+    # install and start mysql
-+    apt-get update
-+    apt-get -y install mysql-server
-+    service mysql start
-+    
-+    # install flyway
-+    curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/4.2.0/flyway-commandline-4.2.0-linux-x64.tar.gz | tar xvz
-+    PATH=$PATH:$(realpath flyway-*)
-+        
-+    cd pal-tracker
-+    
-+    # migrate test dbs and run tests
-+    mysql -uroot < Databases/create_databases.sql
-+    ./migrate-local.sh test 
-+    dotnet test
-+        
-+    # compile apps 
-+    (cd Applications/AllocationsServer && dotnet publish --output $OUTPUT_DIR/allocations/Applications/AllocationsServer/bin/Release/netcoreapp2.0/publish)
-+    (cd Applications/BacklogServer && dotnet publish --output $OUTPUT_DIR/backlog/Applications/BacklogServer/bin/Release/netcoreapp2.0/publish)
-+    (cd Applications/RegistrationServer && dotnet publish --output $OUTPUT_DIR/registration/Applications/RegistrationServer/bin/Release/netcoreapp2.0/publish)
-+    (cd Applications/TimesheetsServer && dotnet publish --output $OUTPUT_DIR/timesheets/Applications/TimesheetsServer/bin/Release/netcoreapp2.0/publish)
-+
-+    # bundle cf manifest with app
-+    cp manifest-allocations.yml $OUTPUT_DIR/allocations/
-+    cp manifest-backlog.yml $OUTPUT_DIR/backlog/
-+    cp manifest-registration.yml $OUTPUT_DIR/registration/
-+    cp manifest-timesheets.yml $OUTPUT_DIR/timesheets/
-+
-+    # build artifacts
-+    tar -cvzf $OUTPUT_DIR/allocations-server-$VERSION.tgz --directory=$OUTPUT_DIR/allocations --remove-files . 
-+    tar -cvzf $OUTPUT_DIR/backlog-server-$VERSION.tgz --directory=$OUTPUT_DIR/backlog --remove-files .
-+    tar -cvzf $OUTPUT_DIR/registration-server-$VERSION.tgz --directory=$OUTPUT_DIR/registration --remove-files .
-+    tar -cvzf $OUTPUT_DIR/timesheets-server-$VERSION.tgz --directory=$OUTPUT_DIR/timesheets --remove-files .
-+
-+    service mysql stop
-\ No newline at end of file
-diff --git a/CI/pipeline.yml b/CI/pipeline.yml
-new file mode 100644
-index 0000000..659b081
---- /dev/null
-+++ b/CI/pipeline.yml
-@@ -0,0 +1,130 @@
-+---
-+resources:
-+- name: pal-tracker
-+  type: git
-+  source:
-+    uri: {{github-repository}}
-+    branch: my-work
-+    private_key: {{github-private-key}}
-+
-+- name: version
-+  type: semver
-+  source:
-+    bucket: {{aws-bucket}}
-+    key: pal-tracker/version
-+    access_key_id: {{aws-access-key-id}}
-+    secret_access_key: {{aws-secret-access-key}}
-+
-+- name: allocations-artifacts
-+  type: s3
-+  source:
-+    bucket: {{aws-bucket}}
-+    regexp: pal-tracker/allocations-server-(.*).tgz
-+    access_key_id: {{aws-access-key-id}}
-+    secret_access_key: {{aws-secret-access-key}}
-+
-+- name: backlog-artifacts
-+  type: s3
-+  source:
-+    bucket: {{aws-bucket}}
-+    regexp: pal-tracker/backlog-server-(.*).tgz
-+    access_key_id: {{aws-access-key-id}}
-+    secret_access_key: {{aws-secret-access-key}}
-+
-+- name: registration-artifacts
-+  type: s3
-+  source:
-+    bucket: {{aws-bucket}}
-+    regexp: pal-tracker/registration-server-(.*).tgz
-+    access_key_id: {{aws-access-key-id}}
-+    secret_access_key: {{aws-secret-access-key}}
-+
-+- name: timesheets-artifacts
-+  type: s3
-+  source:
-+    bucket: {{aws-bucket}}
-+    regexp: pal-tracker/timesheets-server-(.*).tgz
-+    access_key_id: {{aws-access-key-id}}
-+    secret_access_key: {{aws-secret-access-key}}
-+
-+- name: cf
-+  type: cf
-+  source:
-+    api: {{cf-api-url}}
-+    username: {{cf-username}}
-+    password: {{cf-password}}
-+    organization: {{cf-org}}
-+    space: sandbox
-+
-+jobs:
-+- name: build
-+  plan:
-+  - get: pal-tracker
-+    trigger: true
-+  - get: version
-+    params: {bump: patch}
-+  - task: build and test
-+    file: pal-tracker/CI/build.yml
-+  - put: allocations-artifacts
-+    params:
-+      file: build-output/allocations-server-*.tgz
-+  - put: backlog-artifacts
-+    params:
-+      file: build-output/backlog-server-*.tgz
-+  - put: registration-artifacts
-+    params:
-+      file: build-output/registration-server-*.tgz
-+  - put: timesheets-artifacts
-+    params:
-+      file: build-output/timesheets-server-*.tgz
-+  - put: version
-+    params:
-+      file: version/number
-+
-+- name: deploy-allocations
-+  plan:
-+  - get: allocations-artifacts
-+    params: {unpack: true}
-+    trigger: true
-+    passed: [build]
-+  - put: cf
-+    params:
-+      manifest: allocations-artifacts/manifest-allocations.yml
-+      path: allocations-artifacts
-+      current_app_name: tracker-allocations
-+
-+- name: deploy-backlog
-+  plan:
-+  - get: backlog-artifacts
-+    params: {unpack: true}
-+    trigger: true
-+    passed: [build]
-+  - put: cf
-+    params:
-+      manifest: backlog-artifacts/manifest-backlog.yml
-+      path: backlog-artifacts
-+      current_app_name: tracker-backlog
-+
-+- name: deploy-registration
-+  plan:
-+  - get: registration-artifacts
-+    params: {unpack: true}
-+    trigger: true
-+    passed: [build]
-+  - put: cf
-+    params:
-+      manifest: registration-artifacts/manifest-registration.yml
-+      path: registration-artifacts
-+      current_app_name: tracker-registration
-+
-+- name: deploy-timesheets
-+  plan:
-+  - get: timesheets-artifacts
-+    params: {unpack: true}
-+    trigger: true
-+    passed: [build]
-+  - put: cf
-+    params:
-+      manifest: timesheets-artifacts/manifest-timesheets.yml
-+      path: timesheets-artifacts
-+      current_app_name: tracker-timesheets
-diff --git a/CI/variables.example.yml b/CI/variables.example.yml
-new file mode 100644
-index 0000000..ccff6b1
---- /dev/null
-+++ b/CI/variables.example.yml
-@@ -0,0 +1,12 @@
-+cf-api-url: CF_API_URL
-+cf-username: CF_USERNAME
-+cf-password: CF_PASSWORD
-+cf-org: CF_ORG
-+aws-access-key-id: AWS_ACCESS_KEY
-+aws-secret-access-key: AWS_SECRET_KEY
-+aws-bucket: AWS_S3_BUCKET
-+github-repository: git@github.com:GITHUB_USERNAME/pal-tracker-distributed-dotnet.git
-+github-private-key: |
-+  -----BEGIN RSA PRIVATE KEY-----
-+  REPLACE WITH YOUR PRIVATE KEY HERE
-+  -----END RSA PRIVATE KEY-----
 diff --git a/Components/Accounts/AccountContext.cs b/Components/Accounts/AccountContext.cs
 new file mode 100644
 index 0000000..09c2190
