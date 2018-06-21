@@ -1,4 +1,4 @@
-From 28bd380ef2f73a50f3ea3d81699321f42d2412d1 Mon Sep 17 00:00:00 2001
+From 18df630450340eba80f11bf9822bc2ef49d9ef3f Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -300,7 +300,7 @@ Subject: [PATCH 1/5] Initial commit
 
 diff --git a/.circleci/config.yml b/.circleci/config.yml
 new file mode 100644
-index 0000000..4b512bd
+index 0000000..fa8db9f
 --- /dev/null
 +++ b/.circleci/config.yml
 @@ -0,0 +1,226 @@
@@ -428,7 +428,7 @@ index 0000000..4b512bd
 +            tar -xvzf artifacts/backlog-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
 +            cd $EXTRACT_DEST
 +
-+            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-backlog.yml
 +            ./migrate-databases.sh tracker-backlog /root/project/Databases/backlog-database /root/project
 +
@@ -468,7 +468,7 @@ index 0000000..4b512bd
 +            tar -xvzf artifacts/registration-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
 +            cd $EXTRACT_DEST
 +
-+            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-registration.yml
 +            ./migrate-databases.sh tracker-registration /root/project/Databases/registration-database /root/project
 +
@@ -508,7 +508,7 @@ index 0000000..4b512bd
 +            tar -xvzf artifacts/timesheets-server-$CIRCLE_SHA1.tgz -C $EXTRACT_DEST
 +            cd $EXTRACT_DEST
 +
-+            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s dotnet-sandbox
++            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-timesheets.yml
 +            ./migrate-databases.sh tracker-timesheets /root/project/Databases/timesheets-database /root/project
 +

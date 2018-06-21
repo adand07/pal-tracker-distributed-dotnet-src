@@ -1,4 +1,4 @@
-From fd87c130b0ebdafeac0b6fe8bededf6e65aa01d0 Mon Sep 17 00:00:00 2001
+From 55d1ede49fa59b05c61b6f82d6fd58c217afc715 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 17 May 2018 14:27:51 -0600
 Subject: [PATCH 4/5] Add security
