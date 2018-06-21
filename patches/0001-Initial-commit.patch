@@ -1,4 +1,4 @@
-From a35ae8da15cfff887403fa2c85bec3d328590966 Mon Sep 17 00:00:00 2001
+From a506db55c3712a9065057b8a446b968e5d7dff23 Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Tue, 6 Feb 2018 11:12:02 -0700
 Subject: [PATCH 1/5] Initial commit
@@ -294,7 +294,7 @@ Subject: [PATCH 1/5] Initial commit
 
 diff --git a/.circleci/config.yml b/.circleci/config.yml
 new file mode 100644
-index 0000000..fa8db9f
+index 0000000..50a91bf
 --- /dev/null
 +++ b/.circleci/config.yml
 @@ -0,0 +1,226 @@
@@ -384,7 +384,7 @@ index 0000000..fa8db9f
 +
 +            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-allocations.yml
-+            ./migrate-databases.sh tracker-allocations /root/project/Databases/allocations-database /root/project
++            ./migrate-databases.sh tracker-allocations /tmp/extracted-archive/migrations /root/project
 +
 +  deployBacklog:
 +    docker:
@@ -424,7 +424,7 @@ index 0000000..fa8db9f
 +
 +            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-backlog.yml
-+            ./migrate-databases.sh tracker-backlog /root/project/Databases/backlog-database /root/project
++            ./migrate-databases.sh tracker-backlog /tmp/extracted-archive/migrations /root/project
 +
 +  deployRegistration:
 +    docker:
@@ -464,7 +464,7 @@ index 0000000..fa8db9f
 +
 +            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-registration.yml
-+            ./migrate-databases.sh tracker-registration /root/project/Databases/registration-database /root/project
++            ./migrate-databases.sh tracker-registration /tmp/extracted-archive/migrations /root/project
 +
 +  deployTimesheets:
 +    docker:
@@ -504,7 +504,7 @@ index 0000000..fa8db9f
 +
 +            cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s sandbox
 +            cf push -f manifest-timesheets.yml
-+            ./migrate-databases.sh tracker-timesheets /root/project/Databases/timesheets-database /root/project
++            ./migrate-databases.sh tracker-timesheets /tmp/extracted-archive/migrations /root/project
 +
 +
 +workflows:
