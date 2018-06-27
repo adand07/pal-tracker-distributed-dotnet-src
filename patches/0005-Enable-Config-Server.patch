@@ -1,4 +1,4 @@
-From 6b2b0a355ade577e360709707fc5d4c8fe3c0619 Mon Sep 17 00:00:00 2001
+From 4ed113f039a9a6efffe3915ba13d739b319b999e Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Fri, 18 May 2018 11:13:48 -0600
 Subject: [PATCH 5/5] Enable Config Server
@@ -25,11 +25,11 @@ Subject: [PATCH 5/5] Enable Config Server
  create mode 100644 config-server.json
 
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
-index cbb6718..38a53df 100755
+index 6bcdd94..4290883 100755
 --- a/Applications/AllocationsServer/AllocationsServer.csproj
 +++ b/Applications/AllocationsServer/AllocationsServer.csproj
-@@ -11,6 +11,7 @@
-     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -10,6 +10,7 @@
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
@@ -90,11 +90,11 @@ index 5a60487..dc00697 100755
  }
 \ No newline at end of file
 diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
-index d88b40d..75bf3c9 100755
+index 80bdf7d..cdbbed5 100755
 --- a/Applications/BacklogServer/BacklogServer.csproj
 +++ b/Applications/BacklogServer/BacklogServer.csproj
-@@ -11,6 +11,7 @@
-     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -10,6 +10,7 @@
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
@@ -178,11 +178,11 @@ index b8cfb80..e900120 100755
  }
 \ No newline at end of file
 diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
-index 936e173..09d56bc 100755
+index 87648bf..adca9d2 100755
 --- a/Applications/RegistrationServer/RegistrationServer.csproj
 +++ b/Applications/RegistrationServer/RegistrationServer.csproj
-@@ -13,6 +13,7 @@
-     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -12,6 +12,7 @@
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />
@@ -235,11 +235,11 @@ index dbe5eec..1ea0db6 100755
  }
 \ No newline at end of file
 diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
-index d46ff62..781d39b 100755
+index 0ca4ae3..ebe4502 100755
 --- a/Applications/TimesheetsServer/TimesheetsServer.csproj
 +++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
-@@ -11,6 +11,7 @@
-     <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -10,6 +10,7 @@
+     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
 +    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServerCore" Version="2.0.0" />

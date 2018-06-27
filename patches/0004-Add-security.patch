@@ -1,17 +1,17 @@
-From a551dd18a243ca6c69c17b506b929fd55ffd2d7e Mon Sep 17 00:00:00 2001
+From fa8fbbad2ad891374ba1b1c9c7628047bfb866db Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 17 May 2018 14:27:51 -0600
 Subject: [PATCH 4/5] Add security
 
 ---
- .../AllocationsServer/AllocationsServer.csproj     |  2 ++
- Applications/AllocationsServer/Startup.cs          | 32 ++++++++++++++++++--
- Applications/BacklogServer/BacklogServer.csproj    |  2 ++
- Applications/BacklogServer/Startup.cs              | 33 ++++++++++++++++++--
- .../RegistrationServer/RegistrationServer.csproj   |  2 ++
- Applications/RegistrationServer/Startup.cs         | 24 ++++++++++++++-
- Applications/TimesheetsServer/Startup.cs           | 35 ++++++++++++++++++++--
- .../TimesheetsServer/TimesheetsServer.csproj       |  2 ++
+ .../AllocationsServer/AllocationsServer.csproj     |  1 +
+ Applications/AllocationsServer/Startup.cs          | 31 ++++++++++++++++++--
+ Applications/BacklogServer/BacklogServer.csproj    |  1 +
+ Applications/BacklogServer/Startup.cs              | 32 ++++++++++++++++++--
+ .../RegistrationServer/RegistrationServer.csproj   |  1 +
+ Applications/RegistrationServer/Startup.cs         | 23 ++++++++++++++-
+ Applications/TimesheetsServer/Startup.cs           | 34 ++++++++++++++++++++--
+ .../TimesheetsServer/TimesheetsServer.csproj       |  1 +
  Components/Accounts/AccountController.cs           |  1 +
  Components/Accounts/RegistrationController.cs      |  3 +-
  Components/Allocations/AllocationController.cs     |  1 +
@@ -24,23 +24,19 @@ Subject: [PATCH 4/5] Add security
  Components/Timesheets/TimeEntryController.cs       |  1 +
  Components/Users/UserController.cs                 |  3 +-
  IntegrationTest/FlowTest.cs                        |  4 +++
- PalTracker.sln                                     | 17 ++++++++++-
+ PalTracker.sln                                     |  2 +-
  manifest-allocations.yml                           |  5 +++-
  manifest-backlog.yml                               |  5 +++-
  manifest-registration.yml                          |  5 +++-
  manifest-timesheets.yml                            |  5 +++-
  start-server.sh                                    |  1 +
- 26 files changed, 201 insertions(+), 23 deletions(-)
+ 26 files changed, 178 insertions(+), 23 deletions(-)
 
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
-index e4fbc6b..cbb6718 100755
+index e4fbc6b..6bcdd94 100755
 --- a/Applications/AllocationsServer/AllocationsServer.csproj
 +++ b/Applications/AllocationsServer/AllocationsServer.csproj
-@@ -8,9 +8,11 @@
-   <ItemGroup>
-     <ProjectReference Include="../../Components/Allocations/Allocations.csproj" />
-     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
-+    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -11,6 +11,7 @@
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -49,14 +45,13 @@ index e4fbc6b..cbb6718 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
-index d3cec56..ac6d565 100755
+index d3cec56..2497fe1 100755
 --- a/Applications/AllocationsServer/Startup.cs
 +++ b/Applications/AllocationsServer/Startup.cs
-@@ -1,8 +1,14 @@
+@@ -1,8 +1,13 @@
  ﻿using System;
  using System.Net.Http;
  using Allocations;
-+using AuthDisabler;
 +using Microsoft.AspNetCore.Authentication;
 +using Microsoft.AspNetCore.Authentication.JwtBearer;
 +using Microsoft.AspNetCore.Authorization;
@@ -67,7 +62,7 @@ index d3cec56..ac6d565 100755
  using Microsoft.Extensions.Configuration;
  using Microsoft.Extensions.DependencyInjection;
  using Microsoft.Extensions.Logging;
-@@ -10,6 +16,7 @@ using Pivotal.Discovery.Client;
+@@ -10,6 +15,7 @@ using Pivotal.Discovery.Client;
  using Steeltoe.CircuitBreaker.Hystrix;
  using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
  using Steeltoe.Common.Discovery;
@@ -75,7 +70,7 @@ index d3cec56..ac6d565 100755
  
  namespace AllocationsServer
  {
-@@ -25,12 +32,24 @@ namespace AllocationsServer
+@@ -25,12 +31,24 @@ namespace AllocationsServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -102,7 +97,7 @@ index d3cec56..ac6d565 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +59,17 @@ namespace AllocationsServer
+@@ -40,10 +58,17 @@ namespace AllocationsServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -122,14 +117,10 @@ index d3cec56..ac6d565 100755
              services.AddHystrixMetricsStream(Configuration);
          }
 diff --git a/Applications/BacklogServer/BacklogServer.csproj b/Applications/BacklogServer/BacklogServer.csproj
-index 99d6279..d88b40d 100755
+index 99d6279..80bdf7d 100755
 --- a/Applications/BacklogServer/BacklogServer.csproj
 +++ b/Applications/BacklogServer/BacklogServer.csproj
-@@ -8,9 +8,11 @@
-   <ItemGroup>
-     <ProjectReference Include="../../Components/Backlog/Backlog.csproj" />
-     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
-+    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -11,6 +11,7 @@
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -138,13 +129,12 @@ index 99d6279..d88b40d 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
-index 0f0fd80..8a1168b 100755
+index 0f0fd80..cf91ccf 100755
 --- a/Applications/BacklogServer/Startup.cs
 +++ b/Applications/BacklogServer/Startup.cs
-@@ -1,8 +1,14 @@
+@@ -1,8 +1,13 @@
  ﻿using System;
  using System.Net.Http;
-+using AuthDisabler;
  using Backlog;
 +using Microsoft.AspNetCore.Authentication;
 +using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -156,7 +146,7 @@ index 0f0fd80..8a1168b 100755
  using Microsoft.Extensions.Configuration;
  using Microsoft.Extensions.DependencyInjection;
  using Microsoft.Extensions.Logging;
-@@ -10,6 +16,7 @@ using Pivotal.Discovery.Client;
+@@ -10,6 +15,7 @@ using Pivotal.Discovery.Client;
  using Steeltoe.CircuitBreaker.Hystrix;
  using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
  using Steeltoe.Common.Discovery;
@@ -164,7 +154,7 @@ index 0f0fd80..8a1168b 100755
  
  namespace BacklogServer
  {
-@@ -25,12 +32,25 @@ namespace BacklogServer
+@@ -25,12 +31,25 @@ namespace BacklogServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -191,7 +181,7 @@ index 0f0fd80..8a1168b 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +60,19 @@ namespace BacklogServer
+@@ -40,10 +59,19 @@ namespace BacklogServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -213,14 +203,10 @@ index 0f0fd80..8a1168b 100755
              services.AddHystrixMetricsStream(Configuration);
          }
 diff --git a/Applications/RegistrationServer/RegistrationServer.csproj b/Applications/RegistrationServer/RegistrationServer.csproj
-index 401b5e6..936e173 100755
+index 401b5e6..87648bf 100755
 --- a/Applications/RegistrationServer/RegistrationServer.csproj
 +++ b/Applications/RegistrationServer/RegistrationServer.csproj
-@@ -10,9 +10,11 @@
-     <ProjectReference Include="../../Components/Projects/Projects.csproj" />
-     <ProjectReference Include="../../Components/Users/Users.csproj" />
-     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
-+    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -13,6 +13,7 @@
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -229,12 +215,11 @@ index 401b5e6..936e173 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
-index a494849..a8ea81d 100755
+index a494849..11fb144 100755
 --- a/Applications/RegistrationServer/Startup.cs
 +++ b/Applications/RegistrationServer/Startup.cs
-@@ -1,12 +1,17 @@
+@@ -1,12 +1,16 @@
  ﻿using Accounts;
-+using AuthDisabler;
 +using Microsoft.AspNetCore.Authentication.JwtBearer;
 +using Microsoft.AspNetCore.Authorization;
  using Microsoft.AspNetCore.Builder;
@@ -250,7 +235,7 @@ index a494849..a8ea81d 100755
  using Users;
  
  namespace RegistrationServer
-@@ -23,8 +28,20 @@ namespace RegistrationServer
+@@ -23,8 +27,20 @@ namespace RegistrationServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -272,7 +257,7 @@ index a494849..a8ea81d 100755
  
              services.AddDbContext<AccountContext>(options => options.UseMySql(Configuration));
              services.AddDbContext<ProjectContext>(options => options.UseMySql(Configuration));
-@@ -36,6 +53,11 @@ namespace RegistrationServer
+@@ -36,6 +52,11 @@ namespace RegistrationServer
              services.AddScoped<IRegistrationService, RegistrationService>();
  
              services.AddDiscoveryClient(Configuration);
@@ -285,13 +270,12 @@ index a494849..a8ea81d 100755
  
          // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
-index fa15337..afdd8d0 100755
+index fa15337..9440dc9 100755
 --- a/Applications/TimesheetsServer/Startup.cs
 +++ b/Applications/TimesheetsServer/Startup.cs
-@@ -1,7 +1,13 @@
+@@ -1,7 +1,12 @@
  ﻿using System;
  using System.Net.Http;
-+using AuthDisabler;
 +using Microsoft.AspNetCore.Authentication;
 +using Microsoft.AspNetCore.Authentication.JwtBearer;
 +using Microsoft.AspNetCore.Authorization;
@@ -302,7 +286,7 @@ index fa15337..afdd8d0 100755
  using Microsoft.Extensions.Configuration;
  using Microsoft.Extensions.DependencyInjection;
  using Microsoft.Extensions.Logging;
-@@ -9,6 +15,7 @@ using Pivotal.Discovery.Client;
+@@ -9,6 +14,7 @@ using Pivotal.Discovery.Client;
  using Steeltoe.CircuitBreaker.Hystrix;
  using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
  using Steeltoe.Common.Discovery;
@@ -310,7 +294,7 @@ index fa15337..afdd8d0 100755
  using Timesheets;
  
  namespace TimesheetsServer
-@@ -25,12 +32,25 @@ namespace TimesheetsServer
+@@ -25,12 +31,25 @@ namespace TimesheetsServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -338,7 +322,7 @@ index fa15337..afdd8d0 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +60,19 @@ namespace TimesheetsServer
+@@ -40,10 +59,19 @@ namespace TimesheetsServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -360,14 +344,10 @@ index fa15337..afdd8d0 100755
              services.AddHystrixMetricsStream(Configuration);
          }
 diff --git a/Applications/TimesheetsServer/TimesheetsServer.csproj b/Applications/TimesheetsServer/TimesheetsServer.csproj
-index ce7f910..d46ff62 100755
+index ce7f910..0ca4ae3 100755
 --- a/Applications/TimesheetsServer/TimesheetsServer.csproj
 +++ b/Applications/TimesheetsServer/TimesheetsServer.csproj
-@@ -8,9 +8,11 @@
-   <ItemGroup>
-     <ProjectReference Include="../../Components/Timesheets/Timesheets.csproj" />
-     <ProjectReference Include="../../Components/DefaultRoute/DefaultRoute.csproj" />
-+    <ProjectReference Include="../../Components/AuthDisabler/AuthDisabler.csproj" />
+@@ -11,6 +11,7 @@
      <PackageReference Include="Steeltoe.CloudFoundry.Connector.EFCore" Version="2.0.0" />
      <PackageReference Include="Pivotal.Discovery.ClientCore" Version="2.0.0" />
      <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundryCore" Version="2.0.0" />
@@ -618,7 +598,7 @@ index d091b2b..cc4aa0a 100644
          }
  
 diff --git a/PalTracker.sln b/PalTracker.sln
-index 250fdc3..93f9eb1 100644
+index 250fdc3..0cf1a74 100644
 --- a/PalTracker.sln
 +++ b/PalTracker.sln
 @@ -1,4 +1,4 @@
@@ -627,41 +607,6 @@ index 250fdc3..93f9eb1 100644
  Microsoft Visual Studio Solution File, Format Version 12.00
  # Visual Studio 15
  VisualStudioVersion = 15.0.26124.0
-@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultRoute", "Components\
- EndProject
- Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "IntegrationTest\IntegrationTest.csproj", "{5D1F334E-943C-4162-845F-81D960056748}"
- EndProject
-+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthDisabler", "Components\AuthDisabler\AuthDisabler.csproj", "{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}"
-+EndProject
- Global
- 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
- 		Debug|Any CPU = Debug|Any CPU
-@@ -286,6 +288,18 @@ Global
- 		{5D1F334E-943C-4162-845F-81D960056748}.Release|x64.Build.0 = Release|x64
- 		{5D1F334E-943C-4162-845F-81D960056748}.Release|x86.ActiveCfg = Release|x86
- 		{5D1F334E-943C-4162-845F-81D960056748}.Release|x86.Build.0 = Release|x86
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|Any CPU.Build.0 = Debug|Any CPU
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|x64.ActiveCfg = Debug|x64
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|x64.Build.0 = Debug|x64
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|x86.ActiveCfg = Debug|x86
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Debug|x86.Build.0 = Debug|x86
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|Any CPU.ActiveCfg = Release|Any CPU
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|Any CPU.Build.0 = Release|Any CPU
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|x64.ActiveCfg = Release|x64
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|x64.Build.0 = Release|x64
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|x86.ActiveCfg = Release|x86
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99}.Release|x86.Build.0 = Release|x86
- 	EndGlobalSection
- 	GlobalSection(NestedProjects) = preSolution
- 		{115E2983-51A0-4722-BA01-75223ACC33F8} = {61F0A7C3-5DE2-4C07-AF32-C9BAE2560760}
-@@ -306,5 +320,6 @@ Global
- 		{2CF35EC0-54A4-48FD-AF49-46A841EA9F15} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
- 		{3251E09D-4C88-4489-9A0F-2FCE8011820A} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
- 		{4227E6F1-9913-4A2A-AC0E-2A975445086E} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
-+		{56D8DA4A-96B0-46C1-9CA9-AAF83C46BC99} = {E5C501FF-2D6C-4F16-8C68-481B81335AC5}
- 	EndGlobalSection
- EndGlobal
 diff --git a/manifest-allocations.yml b/manifest-allocations.yml
 index 427d27b..109b6d9 100644
 --- a/manifest-allocations.yml
