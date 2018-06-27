@@ -1,4 +1,4 @@
-From 917f3644fe939f39d238e663d65580b6f118df3f Mon Sep 17 00:00:00 2001
+From 2ce235cd61f32bf8571db02db8ed80b23dbbe4be Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Fri, 18 May 2018 11:13:48 -0600
 Subject: [PATCH 5/5] Enable Config Server
