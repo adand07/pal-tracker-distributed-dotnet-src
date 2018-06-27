@@ -1,24 +1,21 @@
-From b50d6d3ac08bfc275a243b2b7f3e073d3a48ffa3 Mon Sep 17 00:00:00 2001
+From a551dd18a243ca6c69c17b506b929fd55ffd2d7e Mon Sep 17 00:00:00 2001
 From: Alex Sartan <asartan@pivotal.io>
 Date: Thu, 17 May 2018 14:27:51 -0600
 Subject: [PATCH 4/5] Add security
 
 ---
  .../AllocationsServer/AllocationsServer.csproj     |  2 ++
- Applications/AllocationsServer/Startup.cs          | 34 ++++++++++++++++++--
+ Applications/AllocationsServer/Startup.cs          | 32 ++++++++++++++++++--
  Applications/BacklogServer/BacklogServer.csproj    |  2 ++
- Applications/BacklogServer/Startup.cs              | 34 ++++++++++++++++++--
+ Applications/BacklogServer/Startup.cs              | 33 ++++++++++++++++++--
  .../RegistrationServer/RegistrationServer.csproj   |  2 ++
- Applications/RegistrationServer/Startup.cs         | 25 ++++++++++++++-
- Applications/TimesheetsServer/Startup.cs           | 36 ++++++++++++++++++++--
+ Applications/RegistrationServer/Startup.cs         | 24 ++++++++++++++-
+ Applications/TimesheetsServer/Startup.cs           | 35 ++++++++++++++++++++--
  .../TimesheetsServer/TimesheetsServer.csproj       |  2 ++
  Components/Accounts/AccountController.cs           |  1 +
  Components/Accounts/RegistrationController.cs      |  3 +-
  Components/Allocations/AllocationController.cs     |  1 +
  Components/Allocations/ProjectClient.cs            | 12 ++++++--
- .../AllowAllClaimsAuthorizationHandler.cs          | 17 ++++++++++
- Components/AuthDisabler/AuthDisabler.csproj        |  8 +++++
- .../AuthDisablerServiceCollectionExtensions.cs     | 19 ++++++++++++
  Components/Backlog/ProjectClient.cs                | 12 ++++++--
  Components/Backlog/StoryController.cs              |  1 +
  Components/DefaultRoute/DefaultController.cs       |  3 +-
@@ -27,16 +24,13 @@ Subject: [PATCH 4/5] Add security
  Components/Timesheets/TimeEntryController.cs       |  1 +
  Components/Users/UserController.cs                 |  3 +-
  IntegrationTest/FlowTest.cs                        |  4 +++
- PalTracker.sln                                     | 17 +++++++++-
- manifest-allocations.yml                           |  5 ++-
- manifest-backlog.yml                               |  5 ++-
- manifest-registration.yml                          |  5 ++-
- manifest-timesheets.yml                            |  5 ++-
+ PalTracker.sln                                     | 17 ++++++++++-
+ manifest-allocations.yml                           |  5 +++-
+ manifest-backlog.yml                               |  5 +++-
+ manifest-registration.yml                          |  5 +++-
+ manifest-timesheets.yml                            |  5 +++-
  start-server.sh                                    |  1 +
- 29 files changed, 250 insertions(+), 23 deletions(-)
- create mode 100644 Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
- create mode 100644 Components/AuthDisabler/AuthDisabler.csproj
- create mode 100644 Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
+ 26 files changed, 201 insertions(+), 23 deletions(-)
 
 diff --git a/Applications/AllocationsServer/AllocationsServer.csproj b/Applications/AllocationsServer/AllocationsServer.csproj
 index e4fbc6b..cbb6718 100755
@@ -55,7 +49,7 @@ index e4fbc6b..cbb6718 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/AllocationsServer/Startup.cs b/Applications/AllocationsServer/Startup.cs
-index d3cec56..604867b 100755
+index d3cec56..ac6d565 100755
 --- a/Applications/AllocationsServer/Startup.cs
 +++ b/Applications/AllocationsServer/Startup.cs
 @@ -1,8 +1,14 @@
@@ -81,7 +75,7 @@ index d3cec56..604867b 100755
  
  namespace AllocationsServer
  {
-@@ -25,12 +32,21 @@ namespace AllocationsServer
+@@ -25,12 +32,24 @@ namespace AllocationsServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -91,12 +85,15 @@ index d3cec56..604867b 100755
 -
 +            services.AddMvc(mvcOptions =>
 +            {
-+                // Set Authorized as default policy
-+                var policy = new AuthorizationPolicyBuilder(authenticationScheme)
-+                .RequireAuthenticatedUser()
-+                .RequireClaim("scope", "uaa.resource")
-+                .Build();
-+                mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                if (!Configuration.GetValue("DISABLE_AUTH", false))
++                {
++                    // Set Authorized as default policy
++                    var policy = new AuthorizationPolicyBuilder(authenticationScheme)
++                    .RequireAuthenticatedUser()
++                    .RequireClaim("scope", "uaa.resource")
++                    .Build();
++                    mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                }
 +            });
              services.AddDbContext<AllocationContext>(options => options.UseMySql(Configuration));
              services.AddScoped<IAllocationDataGateway, AllocationDataGateway>();
@@ -105,7 +102,7 @@ index d3cec56..604867b 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +56,22 @@ namespace AllocationsServer
+@@ -40,10 +59,17 @@ namespace AllocationsServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -120,11 +117,6 @@ index d3cec56..604867b 100755
  
 +            services.AddAuthentication(authenticationScheme)
 +                .AddCloudFoundryJwtBearer(Configuration);
-+
-+            if (Configuration.GetValue("DISABLE_AUTH", false))
-+            {
-+                services.DisableClaimsVerification();
-+            }
 +
              services.AddDiscoveryClient(Configuration);
              services.AddHystrixMetricsStream(Configuration);
@@ -146,7 +138,7 @@ index 99d6279..d88b40d 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/BacklogServer/Startup.cs b/Applications/BacklogServer/Startup.cs
-index 0f0fd80..56c6aee 100755
+index 0f0fd80..8a1168b 100755
 --- a/Applications/BacklogServer/Startup.cs
 +++ b/Applications/BacklogServer/Startup.cs
 @@ -1,8 +1,14 @@
@@ -172,7 +164,7 @@ index 0f0fd80..56c6aee 100755
  
  namespace BacklogServer
  {
-@@ -25,12 +32,22 @@ namespace BacklogServer
+@@ -25,12 +32,25 @@ namespace BacklogServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -181,12 +173,15 @@ index 0f0fd80..56c6aee 100755
 -            services.AddMvc();
 +            services.AddMvc(mvcOptions =>
 +            {
-+                // Set Authorized as default policy
-+                var policy = new AuthorizationPolicyBuilder(authenticationScheme)
-+                .RequireAuthenticatedUser()
-+                .RequireClaim("scope", "uaa.resource")
-+                .Build();
-+                mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                if (!Configuration.GetValue("DISABLE_AUTH", false))
++                {
++                    // Set Authorized as default policy
++                    var policy = new AuthorizationPolicyBuilder(authenticationScheme)
++                    .RequireAuthenticatedUser()
++                    .RequireClaim("scope", "uaa.resource")
++                    .Build();
++                    mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                }
 +            });
  
              services.AddDbContext<StoryContext>(options => options.UseMySql(Configuration));
@@ -196,7 +191,7 @@ index 0f0fd80..56c6aee 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +57,23 @@ namespace BacklogServer
+@@ -40,10 +60,19 @@ namespace BacklogServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -212,10 +207,6 @@ index 0f0fd80..56c6aee 100755
 +            services.AddAuthentication(authenticationScheme)
 +                .AddCloudFoundryJwtBearer(Configuration);
 +
-+            if (Configuration.GetValue("DISABLE_AUTH", false))
-+            {
-+                services.DisableClaimsVerification();
-+            }
 +
 +
              services.AddDiscoveryClient(Configuration);
@@ -238,7 +229,7 @@ index 401b5e6..936e173 100755
    <ItemGroup>
      <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
 diff --git a/Applications/RegistrationServer/Startup.cs b/Applications/RegistrationServer/Startup.cs
-index a494849..3948560 100755
+index a494849..a8ea81d 100755
 --- a/Applications/RegistrationServer/Startup.cs
 +++ b/Applications/RegistrationServer/Startup.cs
 @@ -1,12 +1,17 @@
@@ -259,7 +250,7 @@ index a494849..3948560 100755
  using Users;
  
  namespace RegistrationServer
-@@ -23,8 +28,17 @@ namespace RegistrationServer
+@@ -23,8 +28,20 @@ namespace RegistrationServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -268,17 +259,20 @@ index a494849..3948560 100755
 -            services.AddMvc();
 +            services.AddMvc(mvcOptions =>
 +            {
-+                // Set Authorized as default policy
-+                var policy = new AuthorizationPolicyBuilder(authenticationScheme)
-+                .RequireAuthenticatedUser()
-+                .RequireClaim("scope", "uaa.resource")
-+                .Build();
-+                mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                if (!Configuration.GetValue("DISABLE_AUTH", false))
++                {
++                    // Set Authorized as default policy
++                    var policy = new AuthorizationPolicyBuilder(authenticationScheme)
++                    .RequireAuthenticatedUser()
++                    .RequireClaim("scope", "uaa.resource")
++                    .Build();
++                    mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                }
 +            });
  
              services.AddDbContext<AccountContext>(options => options.UseMySql(Configuration));
              services.AddDbContext<ProjectContext>(options => options.UseMySql(Configuration));
-@@ -36,6 +50,15 @@ namespace RegistrationServer
+@@ -36,6 +53,11 @@ namespace RegistrationServer
              services.AddScoped<IRegistrationService, RegistrationService>();
  
              services.AddDiscoveryClient(Configuration);
@@ -286,16 +280,12 @@ index a494849..3948560 100755
 +            services.AddAuthentication(authenticationScheme)
 +                .AddCloudFoundryJwtBearer(Configuration);
 +
-+            if (Configuration.GetValue("DISABLE_AUTH", false))
-+            {
-+                services.DisableClaimsVerification();
-+            }
 +
          }
  
          // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 diff --git a/Applications/TimesheetsServer/Startup.cs b/Applications/TimesheetsServer/Startup.cs
-index fa15337..8696111 100755
+index fa15337..afdd8d0 100755
 --- a/Applications/TimesheetsServer/Startup.cs
 +++ b/Applications/TimesheetsServer/Startup.cs
 @@ -1,7 +1,13 @@
@@ -320,7 +310,7 @@ index fa15337..8696111 100755
  using Timesheets;
  
  namespace TimesheetsServer
-@@ -25,12 +32,22 @@ namespace TimesheetsServer
+@@ -25,12 +32,25 @@ namespace TimesheetsServer
          // This method gets called by the runtime. Use this method to add services to the container.
          public void ConfigureServices(IServiceCollection services)
          {
@@ -329,12 +319,15 @@ index fa15337..8696111 100755
 -            services.AddMvc();
 +            services.AddMvc(mvcOptions =>
 +            {
-+                // Set Authorized as default policy
-+                var policy = new AuthorizationPolicyBuilder(authenticationScheme)
-+                .RequireAuthenticatedUser()
-+                .RequireClaim("scope", "uaa.resource")
-+                .Build();
-+                mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                if (!Configuration.GetValue("DISABLE_AUTH", false))
++                {
++                    // Set Authorized as default policy
++                    var policy = new AuthorizationPolicyBuilder(authenticationScheme)
++                    .RequireAuthenticatedUser()
++                    .RequireClaim("scope", "uaa.resource")
++                    .Build();
++                    mvcOptions.Filters.Add(new AuthorizeFilter(policy));
++                }
 +            });
  
              services.AddDbContext<TimeEntryContext>(options => options.UseMySql(Configuration));
@@ -345,7 +338,7 @@ index fa15337..8696111 100755
              services.AddSingleton<IProjectClient>(sp =>
              {
                  var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-@@ -40,10 +57,23 @@ namespace TimesheetsServer
+@@ -40,10 +60,19 @@ namespace TimesheetsServer
                  };
  
                  var logger = sp.GetService<ILogger<ProjectClient>>();
@@ -361,10 +354,6 @@ index fa15337..8696111 100755
 +            services.AddAuthentication(authenticationScheme)
 +                .AddCloudFoundryJwtBearer(Configuration);
 +
-+            if (Configuration.GetValue("DISABLE_AUTH", false))
-+            {
-+                services.DisableClaimsVerification();
-+            }
 +
 +
              services.AddDiscoveryClient(Configuration);
@@ -458,71 +447,6 @@ index f2c4ac1..dc6bfd7 100644
              var streamTask = _client.GetStreamAsync($"project?projectId={projectId}");
  
              _logger.LogInformation($"Attempting to fetch projectId: {projectId}");
-diff --git a/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs b/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
-new file mode 100644
-index 0000000..8fda1e5
---- /dev/null
-+++ b/Components/AuthDisabler/AllowAllClaimsAuthorizationHandler.cs
-@@ -0,0 +1,17 @@
-+﻿using System.Threading.Tasks;
-+using Microsoft.AspNetCore.Authorization;
-+using Microsoft.AspNetCore.Authorization.Infrastructure;
-+
-+namespace AuthDisabler
-+{
-+    public class AllowAllClaimsAuthorizationHandler :
-+        AuthorizationHandler<ClaimsAuthorizationRequirement>, IAuthorizationRequirement
-+    {
-+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-+            ClaimsAuthorizationRequirement requirement)
-+        {
-+            context.Succeed(requirement);
-+            return Task.CompletedTask;
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/Components/AuthDisabler/AuthDisabler.csproj b/Components/AuthDisabler/AuthDisabler.csproj
-new file mode 100644
-index 0000000..70fbbc6
---- /dev/null
-+++ b/Components/AuthDisabler/AuthDisabler.csproj
-@@ -0,0 +1,8 @@
-+﻿<Project Sdk="Microsoft.NET.Sdk">
-+  <PropertyGroup>
-+    <TargetFramework>netcoreapp2.0</TargetFramework>
-+  </PropertyGroup>
-+  <ItemGroup>
-+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.1"/>
-+  </ItemGroup>
-+</Project>
-\ No newline at end of file
-diff --git a/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs b/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
-new file mode 100644
-index 0000000..bf1117c
---- /dev/null
-+++ b/Components/AuthDisabler/AuthDisablerServiceCollectionExtensions.cs
-@@ -0,0 +1,19 @@
-+﻿using System;
-+using Microsoft.AspNetCore.Authorization;
-+using Microsoft.Extensions.DependencyInjection;
-+
-+namespace AuthDisabler
-+{
-+    public static class AuthDisablerServiceCollectionExtensions
-+    {
-+        public static void DisableClaimsVerification(this IServiceCollection services)
-+        {
-+            if (services == null)
-+            {
-+                throw new ArgumentNullException(nameof(services));
-+            }
-+
-+            services.AddSingleton<IAuthorizationHandler>(sp => new AllowAllClaimsAuthorizationHandler());
-+        }
-+    }
-+}
-\ No newline at end of file
 diff --git a/Components/Backlog/ProjectClient.cs b/Components/Backlog/ProjectClient.cs
 index 5f23836..7b6a866 100644
 --- a/Components/Backlog/ProjectClient.cs
